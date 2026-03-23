@@ -8,7 +8,7 @@ NIXPACKS_PHP_EXTENSIONS = "pdo_mysql,mbstring,gd,xml,bcmath,curl,zip,intl"
 nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
 
 [phases.install]
-cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: composer install --no-dev --no-interaction --prefer-dist", "npm ci"]
+cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: composer install --no-dev --no-interaction --prefer-dist --ignore-platform-req=php", "npm ci"]
 
 [phases.build]
 cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: npm run prod"]
