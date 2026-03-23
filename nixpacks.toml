@@ -15,3 +15,14 @@ cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: npm run prod"]
 
 [start]
 cmd = "php artisan migrate --force && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
+```
+
+**Step 4: Save the file**
+
+---
+
+**Step 5: Now push to GitHub**
+```
+git add nixpacks.toml
+git commit -m "fix: add migrate to start command"
+git push origin Websys1
