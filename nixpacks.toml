@@ -2,20 +2,12 @@
 NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
 NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
 NIXPACKS_PHP_EXTENSIONS = "pdo_mysql,mbstring,gd,xml,bcmath,curl,zip,intl"
-# This tells Railway to stop trying to use its own Nginx/PHP-FPM server
-NIXPACKS_PHP_SERVER = "none"
-# We include nginx in the packages so the internal checks don't fail, 
-# but we will override the actual start command below
-NIXPACKS_START_CMD = "php artisan migrate --force && php artisan storage:link && php artisan serve --host 0.0.0.0 --port $PORT"
 
 [phases.setup]
-nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x", "nginx"]
+nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
 
 [phases.install]
 cmds = ["composer install --no-dev --no-interaction --prefer-dist --ignore-platform-req=php", "npm ci"]
 
 [phases.build]
 cmds = ["npm run prod"]
-
-[start]
-cmd = "php artisan migrate --force && php artisan storage:link && php artisan serve --host 0.0.0.0 --port $PORT"
