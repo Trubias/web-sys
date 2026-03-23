@@ -1,23 +1,11 @@
-# Ultimate Robust Build - Fixed Scope and Extensions
+# Final Official Build - Fixed Extensions and Build Scope
 [variables]
 NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
 NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
+NIXPACKS_PHP_EXTENSIONS = "pdo_mysql,mbstring,gd,xml,bcmath,curl,zip,intl"
 
 [phases.setup]
-nixPkgs = [
-    "php82", 
-    "php82Packages.composer",
-    "php82Packages.pdo_mysql",
-    "php82Packages.mbstring",
-    "php82Packages.gd",
-    "php82Packages.xml",
-    "php82Packages.bcmath",
-    "php82Packages.curl",
-    "php82Packages.zip",
-    "php82Packages.intl",
-    "nodejs_18", 
-    "npm-9_x"
-]
+nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
 
 [phases.install]
 cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: composer install --no-dev --no-interaction --prefer-dist", "npm ci"]
