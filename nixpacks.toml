@@ -1,3 +1,4 @@
+# Force-defined Build Plan
 [variables]
 NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
 NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
