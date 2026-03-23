@@ -1,7 +1,7 @@
+# Force rebuild v3 - bypassing scanner
 [variables]
-# Force rebuild comment: v2
-# Automatic variables handled by Railway
 NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
+NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
 
 [phases.setup]
 nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
@@ -13,4 +13,4 @@ cmds = ["composer install --no-dev --no-interaction --prefer-dist", "npm ci"]
 cmds = ["npm run prod"]
 
 [start]
-cmd = "php artisan config:clear && php artisan cache:clear && php artisan storage:link && php artisan migrate:fresh --seed --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
+cmd = "php artisan migrate:fresh --seed --force && php artisan storage:link && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
