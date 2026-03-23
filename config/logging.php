@@ -69,7 +69,7 @@ return [
 
         'slack' => [
             'driver' => 'slack',
-            'url' => env('LOG_SLACK_WEBHOOK_URL', null),
+            'url' => $_ENV['LOG_SLACK_WEBHOOK_URL'] ?? null,
             'username' => 'Laravel Log',
             'emoji' => ':boom:',
             'level' => env('LOG_LEVEL', 'critical'),
@@ -80,8 +80,8 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'handler' => SyslogUdpHandler::class,
             'handler_with' => [
-                'host' => env('PAPERTRAIL_URL', null),
-                'port' => env('PAPERTRAIL_PORT', null),
+                'host' => $_ENV['PAPERTRAIL_URL'] ?? null,
+                'port' => $_ENV['PAPERTRAIL_PORT'] ?? null,
             ],
         ],
 
@@ -89,7 +89,7 @@ return [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
             'handler' => StreamHandler::class,
-            'formatter' => env('LOG_STDERR_FORMATTER', null),
+            'formatter' => $_ENV['LOG_STDERR_FORMATTER'] ?? null,
             'with' => [
                 'stream' => 'php://stderr',
             ],

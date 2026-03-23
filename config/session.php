@@ -168,7 +168,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE', null),
+    'secure' => $_ENV['SESSION_SECURE_COOKIE'] ?? null,
 
     /*
     |--------------------------------------------------------------------------

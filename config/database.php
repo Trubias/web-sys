@@ -59,7 +59,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', null),
+                PDO::MYSQL_ATTR_SSL_CA => $_ENV['MYSQL_ATTR_SSL_CA'] ?? null,
             ]) : [],
         ],
 
@@ -127,7 +127,7 @@ return [
         ],
 
         'default' => [
-            'url' => env('REDIS_URL', null),
+            'url' => $_ENV['REDIS_URL'] ?? null,
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'password' => env('REDIS_PASSWORD', null),
             'port' => env('REDIS_PORT', '6379'),
@@ -135,7 +135,7 @@ return [
         ],
 
         'cache' => [
-            'url' => env('REDIS_URL', null),
+            'url' => $_ENV['REDIS_URL'] ?? null,
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'password' => env('REDIS_PASSWORD', null),
             'port' => env('REDIS_PORT', '6379'),

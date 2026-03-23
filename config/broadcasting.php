@@ -32,18 +32,18 @@ return [
 
         'pusher' => [
             'driver' => 'pusher',
-            'key' => env('PUSHER_APP_KEY', null),
-            'secret' => env('PUSHER_APP_SECRET', null),
-            'app_id' => env('PUSHER_APP_ID', null),
+            'key' => $_ENV['PUSHER_APP_KEY'] ?? null,
+            'secret' => $_ENV['PUSHER_APP_SECRET'] ?? null,
+            'app_id' => $_ENV['PUSHER_APP_ID'] ?? null,
             'options' => [
-                'cluster' => env('PUSHER_APP_CLUSTER', null),
+                'cluster' => $_ENV['PUSHER_APP_CLUSTER'] ?? null,
                 'useTLS' => true,
             ],
         ],
 
         'ably' => [
             'driver' => 'ably',
-            'key' => env('ABLY_KEY', null),
+            'key' => $_ENV['ABLY_KEY'] ?? null,
         ],
 
         'redis' => [
