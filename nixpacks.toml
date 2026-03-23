@@ -1,5 +1,32 @@
 [variables]
 # Automatic variables handled by Railway
+MYSQL_ATTR_SSL_CA = ""
+ABLY_KEY = ""
+REDIS_URL = ""
+PUSHER_APP_KEY = ""
+PUSHER_APP_SECRET = ""
+PUSHER_APP_ID = ""
+PUSHER_APP_CLUSTER = ""
+MEMCACHED_PERSISTENT_ID = ""
+MEMCACHED_USERNAME = ""
+MEMCACHED_PASSWORD = ""
+AWS_ACCESS_KEY_ID = ""
+AWS_SECRET_ACCESS_KEY = ""
+DYNAMODB_ENDPOINT = ""
+AWS_DEFAULT_REGION = "us-east-1"
+AWS_BUCKET = ""
+AWS_URL = ""
+AWS_ENDPOINT = ""
+LOG_SLACK_WEBHOOK_URL = ""
+PAPERTRAIL_URL = ""
+PAPERTRAIL_PORT = ""
+LOG_STDERR_FORMATTER = ""
+MAIL_LOG_CHANNEL = ""
+SQS_SUFFIX = ""
+MAILGUN_DOMAIN = ""
+MAILGUN_SECRET = ""
+POSTMARK_TOKEN = ""
+SESSION_SECURE_COOKIE = ""
 
 [phases.setup]
 nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
@@ -11,4 +38,4 @@ cmds = ["composer install --no-dev --no-interaction --prefer-dist", "npm ci"]
 cmds = ["npm run prod"]
 
 [start]
-cmd = "php artisan config:clear && php artisan cache:clear && php artisan storage:link && php artisan migrate:fresh --seed --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
+cmd = "php artisan config:clear && php artisan cache:clear && php artisan storage:link && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
