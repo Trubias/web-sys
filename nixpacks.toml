@@ -1,9 +1,7 @@
-# Final Robust Build - Fixed Composer and Extensions
+# Ultimate Robust Build - Fixed Scope and Extensions
 [variables]
 NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
 NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
-DB_CONNECTION = "sqlite"
-DB_DATABASE = ":memory:"
 
 [phases.setup]
 nixPkgs = [
@@ -22,10 +20,10 @@ nixPkgs = [
 ]
 
 [phases.install]
-cmds = ["composer install --no-dev --no-interaction --prefer-dist", "npm ci"]
+cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: composer install --no-dev --no-interaction --prefer-dist", "npm ci"]
 
 [phases.build]
-cmds = ["npm run prod"]
+cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: npm run prod"]
 
 [start]
 cmd = "php artisan migrate:fresh --seed --force && php artisan storage:link && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
