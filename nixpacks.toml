@@ -1,17 +1,18 @@
-# Force-defined Build Plan
 [variables]
-    NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
-    NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
-    NIXPACKS_PHP_EXTENSIONS = "pdo_mysql,mbstring,gd,xml,bcmath,curl,zip,intl"
+NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
+NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
+NIXPACKS_PHP_EXTENSIONS = "pdo_mysql,mbstring,gd,xml,bcmath,curl,zip,intl"
+# Special override to make sure Railway listens to our command
+NIXPACKS_START_CMD = "php artisan migrate --force && php artisan storage:link && php artisan serve --host 0.0.0.0 --port $PORT"
 
 [phases.setup]
-    nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
+nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
 
 [phases.install]
-    cmds = ["composer install --no-dev --no-interaction --prefer-dist --ignore-platform-req=php", "npm ci"]
+cmds = ["composer install --no-dev --no-interaction --prefer-dist --ignore-platform-req=php", "npm ci"]
 
 [phases.build]
-    cmds = ["npm run prod"]
+cmds = ["npm run prod"]
 
 [start]
-    cmd = "php artisan migrate --force && php artisan storage:link && php artisan serve --host 0.0.0.0 --port ${PORT:-8080}"
+cmd = "php artisan migrate --force && php artisan storage:link && php artisan serve --host 0.0.0.0 --port $PORT"
