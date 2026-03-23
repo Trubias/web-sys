@@ -105,4 +105,31 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/supplier-products/{id}', [SupplierProductController::class, 'update']);
         Route::delete('/supplier-products/{id}', [SupplierProductController::class, 'destroy']);
     });
-    });
+});
+
+Route::get('/db-test', function() {
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        return "Connected to: " . \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
+    } catch (\Exception $e) {
+        return "Connection failed: " . $e->getMessage();
+    }
+});
+
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return "Migrations ran successfully! <br><br> Output: <br>" . \Illuminate\Support\Facades\Artisan::output();
+    } catch (\Exception $e) {
+        return "Migration error: " . $e->getMessage();
+    }
+});
+
+Route::get('/run-seed', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        return "Seeding ran successfully! <br><br> Output: <br>" . \Illuminate\Support\Facades\Artisan::output();
+    } catch (\Exception $e) {
+        return "Seeding error: " . $e->getMessage();
+    }
+});
