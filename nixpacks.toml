@@ -1,17 +1,17 @@
 # Force-defined Build Plan
 [variables]
-NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
-NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
-NIXPACKS_PHP_EXTENSIONS = "pdo_mysql,mbstring,gd,xml,bcmath,curl,zip,intl"
+    NIXPACKS_LARAVEL_NO_DIAGNOSE = "1"
+    NIXPACKS_LARAVEL_SKIP_ENV_CHECK = "1"
+    NIXPACKS_PHP_EXTENSIONS = "pdo_mysql,mbstring,gd,xml,bcmath,curl,zip,intl"
 
 [phases.setup]
-nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x", "nginx"]
+    nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
 
 [phases.install]
-cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: composer install --no-dev --no-interaction --prefer-dist --ignore-platform-req=php", "npm ci"]
+    cmds = ["composer install --no-dev --no-interaction --prefer-dist --ignore-platform-req=php", "npm ci"]
 
 [phases.build]
-cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: npm run prod"]
+    cmds = ["npm run prod"]
 
 [start]
-cmd = "php artisan migrate --force || true && php artisan db:seed --force || true && php artisan storage:link && php artisan serve --host 0.0.0.0 --port 8080"
+    cmd = "php artisan migrate --force && php artisan storage:link && php artisan serve --host 0.0.0.0 --port ${PORT:-8080}"
