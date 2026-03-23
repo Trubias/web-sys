@@ -1,0 +1,14 @@
+[variables]
+# Automatic variables handled by Railway
+
+[phases.setup]
+nixPkgs = ["php82", "php82Packages.composer", "nodejs_18", "npm-9_x"]
+
+[phases.install]
+cmds = ["composer install --no-dev --no-interaction --prefer-dist", "npm ci"]
+
+[phases.build]
+cmds = ["npm run prod"]
+
+[start]
+cmd = "php artisan config:clear && php artisan cache:clear && php artisan storage:link && php artisan migrate:fresh --seed --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
