@@ -13,5 +13,5 @@ cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: composer install --no-dev --n
 [phases.build]
 cmds = ["DB_CONNECTION=sqlite DB_DATABASE=:memory: npm run prod"]
 
-[phases.start]
-cmds = ["php artisan migrate --force", "php artisan storage:link", "node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"]
+[start]
+cmd = "php artisan migrate --force && php artisan db:seed --force && php artisan storage:link && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
