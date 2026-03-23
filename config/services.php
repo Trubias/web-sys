@@ -15,19 +15,19 @@ return [
     */
 
     'mailgun' => [
-        'domain' => $_ENV['MAILGUN_DOMAIN'] ?? null,
-        'secret' => $_ENV['MAILGUN_SECRET'] ?? null,
-        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'domain' => null,
+        'secret' => null,
+        'endpoint' => 'api.mailgun.net',
     ],
 
     'postmark' => [
-        'token' => $_ENV['POSTMARK_TOKEN'] ?? null,
+        'token' => null,
     ],
 
     'ses' => [
-        'key' => $_ENV['AWS_ACCESS_KEY_ID'] ?? null,
-        'secret' => $_ENV['AWS_SECRET_ACCESS_KEY'] ?? null,
-        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'key' => null,
+        'secret' => null,
+        'region' => 'us-east-1',
     ],
 
 ];

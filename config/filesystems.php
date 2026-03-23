@@ -44,13 +44,13 @@ return [
 
         's3' => [
             'driver' => 's3',
-            'key' => $_ENV['AWS_ACCESS_KEY_ID'] ?? null,
-            'secret' => $_ENV['AWS_SECRET_ACCESS_KEY'] ?? null,
-            'region' => $_ENV['AWS_DEFAULT_REGION'] ?? null,
-            'bucket' => $_ENV['AWS_BUCKET'] ?? null,
-            'url' => $_ENV['AWS_URL'] ?? null,
-            'endpoint' => $_ENV['AWS_ENDPOINT'] ?? null,
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'key' => null,
+            'secret' => null,
+            'region' => 'us-east-1',
+            'bucket' => null,
+            'url' => null,
+            'endpoint' => null,
+            'use_path_style_endpoint' => false,
         ],
 
     ],

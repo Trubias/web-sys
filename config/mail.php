@@ -64,7 +64,7 @@ return [
 
         'log' => [
             'transport' => 'log',
-            'channel' => $_ENV['MAIL_LOG_CHANNEL'] ?? null,
+            'channel' => null,
         ],
 
         'array' => [

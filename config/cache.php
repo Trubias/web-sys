@@ -56,18 +56,18 @@ return [
 
         'memcached' => [
             'driver' => 'memcached',
-            'persistent_id' => $_ENV['MEMCACHED_PERSISTENT_ID'] ?? null,
+            'persistent_id' => null,
             'sasl' => [
-                $_ENV['MEMCACHED_USERNAME'] ?? null,
-                $_ENV['MEMCACHED_PASSWORD'] ?? null,
+                null,
+                null,
             ],
             'options' => [
                 // Memcached::OPT_CONNECT_TIMEOUT => 2000,
             ],
             'servers' => [
                 [
-                    'host' => env('MEMCACHED_HOST', '127.0.0.1'),
-                    'port' => env('MEMCACHED_PORT', 11211),
+                    'host' => '127.0.0.1',
+                    'port' => 11211,
                     'weight' => 100,
                 ],
             ],
@@ -81,11 +81,11 @@ return [
 
         'dynamodb' => [
             'driver' => 'dynamodb',
-            'key' => $_ENV['AWS_ACCESS_KEY_ID'] ?? null,
-            'secret' => $_ENV['AWS_SECRET_ACCESS_KEY'] ?? null,
-            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-            'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
-            'endpoint' => $_ENV['DYNAMODB_ENDPOINT'] ?? null,
+            'key' => null,
+            'secret' => null,
+            'region' => 'us-east-1',
+            'table' => 'cache',
+            'endpoint' => null,
         ],
 
         'octane' => [

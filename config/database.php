@@ -59,7 +59,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => $_ENV['MYSQL_ATTR_SSL_CA'] ?? null,
+                PDO::MYSQL_ATTR_SSL_CA => null,
             ]) : [],
         ],
 
@@ -119,27 +119,27 @@ return [
 
     'redis' => [
 
-        'client' => env('REDIS_CLIENT', 'phpredis'),
+        'client' => 'phpredis',
 
         'options' => [
-            'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'cluster' => 'redis',
+            'prefix' => 'laravel_database_',
         ],
 
         'default' => [
-            'url' => $_ENV['REDIS_URL'] ?? null,
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'password' => env('REDIS_PASSWORD', null),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_DB', '0'),
+            'url' => null,
+            'host' => '127.0.0.1',
+            'password' => null,
+            'port' => '6379',
+            'database' => '0',
         ],
 
         'cache' => [
-            'url' => $_ENV['REDIS_URL'] ?? null,
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'password' => env('REDIS_PASSWORD', null),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_CACHE_DB', '1'),
+            'url' => null,
+            'host' => '127.0.0.1',
+            'password' => null,
+            'port' => '6379',
+            'database' => '1',
         ],
 
     ],
