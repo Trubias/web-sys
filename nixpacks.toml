@@ -12,4 +12,4 @@ cmds = ["composer install --no-dev --no-interaction --prefer-dist", "npm ci"]
 cmds = ["npm run prod"]
 
 [start]
-cmd = "php artisan config:clear && php artisan cache:clear && php artisan storage:link && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
+cmd = "php artisan config:clear && php artisan cache:clear && php artisan storage:link && php artisan migrate --seed --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
