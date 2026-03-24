@@ -202,9 +202,9 @@ export default function Login() {
                         >
                             <img className="auth-left__image" src={slide.image} alt={slide.title} />
                             <div className="auth-left__overlay" />
-                            <div className="auth-left__content">
-                                <h2 className="auth-left__title">{slide.title}</h2>
-                                <p className="auth-left__desc">{slide.desc}</p>
+                            <div className="auth-left__content" style={{ top: 'auto', bottom: '2rem', textAlign: 'left' }}>
+                                <h2 className="auth-left__title" style={{ fontSize: '2.4rem' }}>{slide.title}</h2>
+                                <p className="auth-left__desc" style={{ maxWidth: '90%', fontSize: '1.1rem' }}>{slide.desc}</p>
                             </div>
                         </div>
                     ))}
@@ -371,21 +371,20 @@ export default function Login() {
                             )}
 
                             {/* SWITCHER LINKS */}
-                            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                                {signupType !== 'customer' && (
-                                    <button onClick={() => setSignupType('customer')} className="btn btn--outline" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}>
-                                        Register as Customer
-                                    </button>
-                                )}
-                                {signupType !== 'supplier' && (
-                                    <button onClick={() => setSignupType('supplier')} className="btn btn--outline" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}>
-                                        Register as Supplier
-                                    </button>
-                                )}
-                                {signupType !== 'rider' && (
-                                    <button onClick={() => setSignupType('rider')} className="btn btn--outline" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}>
-                                        Register as Rider
-                                    </button>
+                            <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.92rem', color: '#6b7280' }}>
+                                {signupType === 'customer' ? (
+                                    <>
+                                        <div style={{ marginBottom: '0.8rem' }}>
+                                            Are you a supplier? Register as <span style={{ color: '#C9A84C', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setSignupType('supplier')}>Supplier</span>
+                                        </div>
+                                        <div>
+                                            Are you a rider? Register as <span style={{ color: '#C9A84C', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setSignupType('rider')}>Rider</span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div style={{ cursor: 'pointer', textDecoration: 'underline', color: '#111827', fontWeight: 600 }} onClick={() => { setSignupType('customer'); setRegisterError(''); }}>
+                                        ← Back to Customer Registration
+                                    </div>
                                 )}
                             </div>
                         </div>
