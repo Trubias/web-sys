@@ -10,12 +10,7 @@ import About from './components/pages/About';
 import Contact from './components/pages/Contact';
 import Wishlist from './components/pages/Wishlist';
 import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import SupplierLogin from './components/auth/SupplierLogin';
-import SupplierRegister from './components/auth/SupplierRegister';
 import SupplierDashboard from './components/supplier/SupplierDashboard';
-import RiderLogin from './components/auth/RiderLogin';
-import RiderRegister from './components/auth/RiderRegister';
 
 // Rider pages
 import RiderHome from './components/rider/RiderHome';
@@ -63,7 +58,8 @@ function UserRoute({ children }) {
 function RiderRoute({ children }) {
     const { user, loading } = useAuth();
     if (loading) return null;
-    if (!user || user.role !== 'rider') return <Navigate to="/rider-login" replace />;
+    if (!user || user.role !== 'rider') return <Navigate to="/login" replace />;
+
     return children;
 }
 
@@ -80,11 +76,8 @@ function App() {
                         <Route path="contact" element={<Contact />} />
                         <Route path="wishlist" element={<Wishlist />} />
                         <Route path="login" element={<Login />} />
-                        <Route path="register" element={<Register />} />
-                        <Route path="supplier-login" element={<SupplierLogin />} />
-                        <Route path="supplier-register" element={<SupplierRegister />} />
-                        <Route path="rider-login" element={<RiderLogin />} />
-                        <Route path="rider-register" element={<RiderRegister />} />
+                        <Route path="login" element={<Login />} />
+
                         <Route path="*" element={<Home />} />
                     </Route>
 
