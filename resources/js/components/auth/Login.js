@@ -186,28 +186,43 @@ export default function Login() {
         <div className="auth-page">
             <style>{`
                 .auth-left__content {
-                    top: auto !important;
+                    position: absolute !important;
                     bottom: 0 !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    justify-content: flex-end !important;
-                    padding: 4rem 2rem 3rem !important;
-                    background: linear-gradient(to top, rgba(0,0,0,1) 0%, transparent 100%) !important;
-                    height: 100% !important;
-                    width: 100% !important;
-                    box-sizing: border-box !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    padding: 3rem 2rem 2.5rem !important;
+                    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%) !important;
+                    z-index: 10 !important;
                 }
                 .auth-left__title {
-                    font-size: 2.8rem !important;
+                    font-size: 2.5rem !important;
                     margin: 0 !important;
-                    line-height: 1.2 !important;
+                    line-height: 1.1 !important;
                     color: #fff !important;
+                    font-family: 'Playfair Display', serif !important;
+                    font-weight: 700 !important;
                 }
                 .auth-left__desc {
-                    font-size: 1.15rem !important;
+                    font-size: 1rem !important;
                     margin: 0.8rem 0 0 0 !important;
-                    color: rgba(255,255,255,0.9) !important;
+                    color: rgba(255,255,255,0.8) !important;
                     max-width: 90% !important;
+                }
+                .register-link {
+                    color: #6b7280;
+                    font-size: 0.92rem;
+                    cursor: default;
+                }
+                .register-link span {
+                    color: #C9A84C;
+                    font-weight: 700;
+                    cursor: pointer;
+                    text-decoration: none;
+                    transition: all 0.2s;
+                }
+                .register-link span:hover {
+                    color: #D4B96A;
+                    text-decoration: underline;
                 }
             `}</style>
             <div className="auth-card" style={{ maxWidth: '1000px' }}>
@@ -226,8 +241,8 @@ export default function Login() {
                                 zIndex: currentSlide === index ? 1 : 0
                             }}
                         >
-                            <img className="auth-left__image" src={slide.image} alt={slide.title} />
-                            <div className="auth-left__overlay" />
+                            <img className="auth-left__image" src={slide.image} alt={slide.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <div className="auth-left__overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)' }} />
                             <div className="auth-left__content">
                                 <h2 className="auth-left__title">{slide.title}</h2>
                                 <p className="auth-left__desc">{slide.desc}</p>
@@ -397,18 +412,18 @@ export default function Login() {
                             )}
 
                             {/* SWITCHER LINKS */}
-                            <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.92rem', color: '#6b7280' }}>
+                            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
                                 {signupType === 'customer' ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-                                        <div onClick={() => setSignupType('supplier')} style={{ cursor: 'pointer' }}>
-                                            Register as <span style={{ color: '#C9A84C', fontWeight: 'bold' }}>Supplier</span>
+                                    <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                        <div className="register-link">
+                                            Register as <span onClick={() => setSignupType('supplier')}>Supplier</span>
                                         </div>
-                                        <div onClick={() => setSignupType('rider')} style={{ cursor: 'pointer' }}>
-                                            Register as <span style={{ color: '#C9A84C', fontWeight: 'bold' }}>Rider</span>
+                                        <div className="register-link">
+                                            Register as <span onClick={() => setSignupType('rider')}>Rider</span>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div style={{ cursor: 'pointer', textDecoration: 'underline', color: '#111827', fontWeight: 600 }} onClick={() => { setSignupType('customer'); setRegisterError(''); }}>
+                                    <div style={{ cursor: 'pointer', textDecoration: 'underline', color: '#111827', fontWeight: 600, fontSize: '0.9rem' }} onClick={() => { setSignupType('customer'); setRegisterError(''); }}>
                                         ← Back to Customer Registration
                                     </div>
                                 )}
