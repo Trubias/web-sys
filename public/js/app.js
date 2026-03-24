@@ -18670,9 +18670,9 @@ function Login() {
             children: signupType === 'customer' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
               style: {
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '0.8rem',
-                alignItems: 'center'
+                gap: '1.5rem',
+                justifyContent: 'center',
+                flexWrap: 'wrap'
               },
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
                 className: "register-link",
@@ -21286,7 +21286,7 @@ function Contact() {
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("h4", {
                   children: "Contact Details"
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("p", {
-                  children: ["Phone: +63 2 1234 5678", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("br", {}), "Email: jaywarrentrubias2019@gmail.com"]
+                  children: ["Phone: +63 2 1234 5678", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("br", {}), "Email: jayandkit.noreply@gmail.com"]
                 })]
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
