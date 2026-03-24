@@ -76,7 +76,7 @@ function App() {
                         <Route path="contact" element={<Contact />} />
                         <Route path="wishlist" element={<Wishlist />} />
                         <Route path="login" element={<Login />} />
-                        <Route path="login" element={<Login />} />
+
 
                         <Route path="*" element={<Home />} />
                     </Route>
