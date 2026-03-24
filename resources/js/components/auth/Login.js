@@ -184,6 +184,32 @@ export default function Login() {
 
     return (
         <div className="auth-page">
+            <style>{`
+                .auth-left__content {
+                    top: auto !important;
+                    bottom: 0 !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    justify-content: flex-end !important;
+                    padding: 4rem 2rem 3rem !important;
+                    background: linear-gradient(to top, rgba(0,0,0,1) 0%, transparent 100%) !important;
+                    height: 100% !important;
+                    width: 100% !important;
+                    box-sizing: border-box !important;
+                }
+                .auth-left__title {
+                    font-size: 2.8rem !important;
+                    margin: 0 !important;
+                    line-height: 1.2 !important;
+                    color: #fff !important;
+                }
+                .auth-left__desc {
+                    font-size: 1.15rem !important;
+                    margin: 0.8rem 0 0 0 !important;
+                    color: rgba(255,255,255,0.9) !important;
+                    max-width: 90% !important;
+                }
+            `}</style>
             <div className="auth-card" style={{ maxWidth: '1000px' }}>
                 <div className="auth-left mobile-hide" style={{ position: 'relative', overflow: 'hidden' }}>
                     {carouselSlides.map((slide, index) => (
@@ -202,9 +228,9 @@ export default function Login() {
                         >
                             <img className="auth-left__image" src={slide.image} alt={slide.title} />
                             <div className="auth-left__overlay" />
-                            <div className="auth-left__content" style={{ top: 'auto', bottom: '2rem', textAlign: 'left' }}>
-                                <h2 className="auth-left__title" style={{ fontSize: '2.4rem' }}>{slide.title}</h2>
-                                <p className="auth-left__desc" style={{ maxWidth: '90%', fontSize: '1.1rem' }}>{slide.desc}</p>
+                            <div className="auth-left__content">
+                                <h2 className="auth-left__title">{slide.title}</h2>
+                                <p className="auth-left__desc">{slide.desc}</p>
                             </div>
                         </div>
                     ))}
@@ -373,14 +399,14 @@ export default function Login() {
                             {/* SWITCHER LINKS */}
                             <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.92rem', color: '#6b7280' }}>
                                 {signupType === 'customer' ? (
-                                    <>
-                                        <div style={{ marginBottom: '0.8rem' }}>
-                                            Are you a supplier? Register as <span style={{ color: '#C9A84C', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setSignupType('supplier')}>Supplier</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+                                        <div onClick={() => setSignupType('supplier')} style={{ cursor: 'pointer' }}>
+                                            Register as <span style={{ color: '#C9A84C', fontWeight: 'bold' }}>Supplier</span>
                                         </div>
-                                        <div>
-                                            Are you a rider? Register as <span style={{ color: '#C9A84C', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setSignupType('rider')}>Rider</span>
+                                        <div onClick={() => setSignupType('rider')} style={{ cursor: 'pointer' }}>
+                                            Register as <span style={{ color: '#C9A84C', fontWeight: 'bold' }}>Rider</span>
                                         </div>
-                                    </>
+                                    </div>
                                 ) : (
                                     <div style={{ cursor: 'pointer', textDecoration: 'underline', color: '#111827', fontWeight: 600 }} onClick={() => { setSignupType('customer'); setRegisterError(''); }}>
                                         ← Back to Customer Registration
