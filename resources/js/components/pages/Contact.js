@@ -16,10 +16,13 @@ export default function Contact() {
         
         setLoading(true);
         try {
+            console.log('Sending contact inquiry...', form);
             await axios.post('/api/contact', form);
+            console.log('Success!');
             setSent(true);
             setForm({ name: '', email: '', subject: '', message: '' });
         } catch (err) {
+            console.error('Email error:', err);
             setError(err.response?.data?.message || 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
