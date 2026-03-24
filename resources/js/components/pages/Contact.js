@@ -1,16 +1,29 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import Footer from '../Footer';
 
 export default function Contact() {
     const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
     const [sent, setSent] = useState(false);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         if (!form.name || !form.email || !form.message) { setError('Please fill all required fields.'); return; }
-        setSent(true); setError('');
+        
+        setLoading(true);
+        try {
+            await axios.post('/api/contact', form);
+            setSent(true);
+            setForm({ name: '', email: '', subject: '', message: '' });
+        } catch (err) {
+            setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -58,8 +71,8 @@ export default function Contact() {
                                     <label>Message *</label>
                                     <textarea className="form-input" rows={5} placeholder="How can we help you today?" value={form.message} onChange={e => set('message', e.target.value)} required />
                                 </div>
-                                <button type="submit" className="btn btn--primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    SEND MESSAGE →
+                                <button type="submit" className="btn btn--primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} disabled={loading}>
+                                    {loading ? 'SENDING...' : 'SEND MESSAGE →'}
                                 </button>
                             </form>
                         </div>

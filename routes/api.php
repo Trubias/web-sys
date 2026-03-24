@@ -21,6 +21,9 @@ Route::post('/login', [AuthController::class , 'login']);
 Route::get('/products', [ProductController::class , 'index']);
 Route::get('/products/{id}', [ProductController::class , 'show']);
 
+// Contact (public)
+Route::post('/contact', [\App\Http\Controllers\Api\ContactController::class, 'send']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class , 'logout']);
