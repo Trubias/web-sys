@@ -23,7 +23,8 @@ export default function Contact() {
             setForm({ name: '', email: '', subject: '', message: '' });
         } catch (err) {
             console.error('Email error:', err);
-            setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+            const msg = err.response?.data?.error || err.response?.data?.message || 'Something went wrong. Please try again.';
+            setError(msg);
         } finally {
             setLoading(false);
         }

@@ -20,8 +20,7 @@ class ContactMail extends Mailable
 
     public function build()
     {
-        return $this->to('jayandkit.noreply@gmail.com')
-                    ->from('a5e76f001@smtp-brevo.com', 'J&K Watch')
+        return $this->from('a5e76f001@smtp-brevo.com', 'J&K Watch')
                     ->replyTo($this->data['email'], $this->data['name'])
                     ->subject('[Contact Inquiry] ' . ($this->data['subject'] ?? 'No Subject'))
                     ->view('emails.contact');

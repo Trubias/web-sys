@@ -20,7 +20,7 @@ class ContactController extends Controller
         ]);
 
         try {
-            Mail::send(new ContactMail($request->all()));
+            Mail::to('jayandkit.noreply@gmail.com')->send(new ContactMail($request->all()));
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             \Log::error('Contact Form Error: ' . $e->getMessage(), [
