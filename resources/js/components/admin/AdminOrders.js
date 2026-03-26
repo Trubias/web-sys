@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
-import { reqStore } from '../sharedStore';
+import { reqStore, deliveryStore } from '../sharedStore';
 import { formatCurrency, useCurrency } from '../utils/currency';
 
 // ─── Format any date value to "Mar 19, 2026" ─────────────────────────────────
@@ -66,7 +66,8 @@ const TrashIcon = () => (
 );
 
 // ─── Confirm Delete Modal ─────────────────────────────────────────────────────
-function ConfirmDeleteModal({ order, onCancel, onConfirm }) {
+function ConfirmDeleteModal({ order, onCancel, onConfirm, orderType }) {
+    const isSupplierOrder = orderType === 'supplier';
     return (
         <div style={{
             position: 'fixed', inset: 0, zIndex: 9999,
@@ -85,17 +86,22 @@ function ConfirmDeleteModal({ order, onCancel, onConfirm }) {
                 }}>
                     <span style={{ fontSize: '1.15rem' }}>🗑️</span>
                     <h3 style={{ margin: 0, color: '#e74c3c', fontWeight: 700, fontSize: '1rem' }}>
-                        {order.isArchived ? 'Delete' : 'Archive'} Order
+                        Delete Order
                     </h3>
                 </div>
                 <div style={{ padding: '1.25rem 1.4rem' }}>
                     <p style={{ color: '#ccc', margin: '0 0 0.5rem', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                        Are you sure you want to {order.isArchived ? 'permanently delete' : 'archive'} order{' '}
+                        Are you sure you want to permanently delete order{' '}
                         <strong style={{ color: '#C9A84C' }}>{order.id}</strong>?
                     </p>
-                    <p style={{ color: '#888', margin: 0, fontSize: '0.82rem' }}>
+                    <p style={{ color: '#888', margin: '0 0 0.5rem', fontSize: '0.82rem' }}>
                         {order.product} · {order.date}
                     </p>
+                    {isSupplierOrder && (
+                        <p style={{ color: '#f59e0b', margin: 0, fontSize: '0.82rem', fontWeight: 600 }}>
+                            ⚠️ This will remove the request from the Supplier's Active Requests. Stock will NOT be changed.
+                        </p>
+                    )}
                     <div style={{ marginTop: '1.4rem', display: 'flex', justifyContent: 'flex-end', gap: '0.7rem' }}>
                         <button onClick={onCancel} style={{
                             padding: '0.55rem 1.2rem', background: 'transparent',
@@ -106,7 +112,7 @@ function ConfirmDeleteModal({ order, onCancel, onConfirm }) {
                             padding: '0.55rem 1.2rem', background: '#e74c3c',
                             border: 'none', borderRadius: 8,
                             color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '0.88rem',
-                        }}>Yes, {order.isArchived ? 'Delete' : 'Archive'}</button>
+                        }}>Yes, Delete</button>
                     </div>
                 </div>
             </div>
@@ -340,6 +346,7 @@ export default function AdminOrders() {
     const handleConfirmDelete = async () => {
         if (!confirmDelete) return;
         if (orderType === 'customer') {
+            // Customer order: delete from DB via API
             try {
                 const axios = (await import('axios')).default;
                 await axios.delete(`/api/admin/orders/${confirmDelete.keyId}`);
@@ -349,8 +356,11 @@ export default function AdminOrders() {
                 showToast('Failed to delete order.');
             }
         } else {
-            // Admin/supplier orders: mark as archived in reqStore
-            reqStore.update(confirmDelete.keyId, { isArchived: true });
+            // Supplier/admin order: permanently remove from reqStore AND deliveryStore.
+            // Stock is NOT touched — it was never deducted for a pending order.
+            reqStore.remove(confirmDelete.keyId);
+            deliveryStore.removeByReqId(confirmDelete.keyId);
+            showToast('Order removed. Supplier will no longer see this request.');
         }
         setConfirmDelete(null);
     };
@@ -574,10 +584,12 @@ export default function AdminOrders() {
             {confirmDelete && (
                 <ConfirmDeleteModal
                     order={confirmDelete}
+                    orderType={orderType}
                     onCancel={() => setConfirmDelete(null)}
                     onConfirm={handleConfirmDelete}
                 />
             )}
+
             
             {/* Assign Rider modal */}
             {assignModal && (

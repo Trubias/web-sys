@@ -71,8 +71,10 @@ export default function ProductRequestsPage({ user, setActivePage }) {
         };
     }, [user]);
 
-    // Active = not completed and not declined. Archive = completed.
-    const activeReqs = requests.filter(r => r.status !== 'completed' && r.status !== 'declined');
+    // Active = not completed, not declined, not cancelled.
+    // Archive = completed.
+    // Cancelled/deleted orders are fully removed from reqStore by admin, so they never appear here.
+    const activeReqs = requests.filter(r => r.status !== 'completed' && r.status !== 'declined' && r.status !== 'cancelled');
     const archiveReqs = requests.filter(r => r.status === 'completed');
     const displayed = tab === 'active' ? activeReqs : archiveReqs;
 

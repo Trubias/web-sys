@@ -202,24 +202,47 @@ class AdminReportsController extends Controller
 
     /**
      * DELETE /api/admin/orders/{id}
-     * Permanently deletes the order from the database.
-     * Does NOT deduct stock (stock is only deducted on delivery).
+     *
+     * Stock rules:
+     *  - Pending order deleted  → NO stock change (stock was never deducted)
+     *  - Delivered order deleted → NO stock reversal (stock was already deducted on delivery)
+     *  - Any other status       → NO stock change
      */
     public function destroyOrder($id)
     {
         $order = Order::findOrFail($id);
-        
+
+        // Notify the customer if this order belongs to a user
         if ($order->user_id) {
+            $isPending   = $order->status === 'pending';
+            $isDelivered = in_array($order->status, ['delivered', 'completed']);
+
+            if ($isPending) {
+                $msg = 'Your order ' . $order->ref . ' has been cancelled by the admin. No charges have been applied.';
+            } elseif ($isDelivered) {
+                $msg = 'Your order ' . $order->ref . ' record has been removed by the admin.';
+            } else {
+                $msg = 'Your order ' . $order->ref . ' has been cancelled by the admin.';
+            }
+
             \App\Models\UserNotification::create([
                 'user_id' => $order->user_id,
-                'title' => 'Order Cancelled',
-                'message' => 'Your order ' . $order->ref . ' has been cancelled and removed by the admin.',
-                'type' => 'order_cancelled',
-                'is_read' => false
+                'title'   => 'Order Cancelled',
+                'message' => $msg,
+                'type'    => 'order_cancelled',
+                'is_read' => false,
             ]);
         }
 
+        // DO NOT touch stock here under any circumstances:
+        // - Pending: stock was never deducted, so nothing to restore.
+        // - Delivered: stock was already deducted by riderDeliveryController::markAsDelivered.
         $order->delete();
-        return response()->json(['message' => 'Order deleted successfully']);
+
+        return response()->json([
+            'message'       => 'Order deleted successfully',
+            'stock_changed' => false,
+        ]);
     }
+
 }

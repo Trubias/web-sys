@@ -34,6 +34,11 @@ export const reqStore = {
         const all = reqStore.getAll().map(d => d.id === id ? { ...d, ...patch } : d); 
         reqStore.save(all); 
     },
+    // Permanently remove an entry by id — used when admin cancels a pending order
+    remove: (id) => {
+        const all = reqStore.getAll().filter(d => String(d.id) !== String(id));
+        reqStore.save(all);
+    },
 };
 
 export const deliveryStore = {
@@ -52,6 +57,11 @@ export const deliveryStore = {
     update: (id, patch) => { 
         const all = deliveryStore.getAll().map(d => String(d.id) === String(id) ? { ...d, ...patch } : d); 
         deliveryStore.save(all); 
+    },
+    // Remove a delivery entry by reqId (used when admin cancels a pending order)
+    removeByReqId: (reqId) => {
+        const all = deliveryStore.getAll().filter(d => String(d.reqId) !== String(reqId));
+        deliveryStore.save(all);
     },
 };
 
