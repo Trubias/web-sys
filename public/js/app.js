@@ -12862,8 +12862,9 @@ function AdminOrders() {
                       width: 48,
                       height: 48,
                       borderRadius: 6,
-                      background: '#111',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: '#fff',
+                      border: '1px solid #e5e7eb',
+                      padding: 2,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -12874,10 +12875,10 @@ function AdminOrders() {
                       src: imgSrc,
                       alt: "",
                       style: {
-                        width: 48,
-                        height: 48,
-                        objectFit: 'cover',
-                        borderRadius: 6
+                        width: 44,
+                        height: 44,
+                        objectFit: 'contain',
+                        borderRadius: 4
                       },
                       onError: function onError(e) {
                         return e.target.style.display = 'none';
@@ -12887,7 +12888,7 @@ function AdminOrders() {
                       height: "16",
                       viewBox: "0 0 24 24",
                       fill: "none",
-                      stroke: "#444",
+                      stroke: "#ccc",
                       strokeWidth: "1.5",
                       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("rect", {
                         x: "3",

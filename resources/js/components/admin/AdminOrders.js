@@ -618,12 +618,12 @@ export default function AdminOrders() {
                                     {/* Change 3: Clickable Order ID */}
                                     <td style={{ fontWeight: 700, color: '#C9A84C', cursor: 'pointer', textDecoration: 'underline', whiteSpace: 'nowrap' }}
                                         onClick={() => setDetailOrder(o)}>{o.id}</td>
-                                    {/* Problem 3: 48×48 thumbnail */}
+                                    {/* Problem 3: 48×48 thumbnail — white bg for transparent PNGs */}
                                     <td>
-                                        <div style={{ width: 48, height: 48, borderRadius: 6, background: '#111', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                                        <div style={{ width: 48, height: 48, borderRadius: 6, background: '#fff', border: '1px solid #e5e7eb', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                                             {imgSrc
-                                                ? <img src={imgSrc} alt="" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} onError={e => e.target.style.display='none'} />
-                                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
+                                                ? <img src={imgSrc} alt="" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 4 }} onError={e => e.target.style.display='none'} />
+                                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
                                         </div>
                                     </td>
                                     {/* Change 2: Brand column */}
