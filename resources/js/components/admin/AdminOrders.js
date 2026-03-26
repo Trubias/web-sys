@@ -565,7 +565,22 @@ export default function AdminOrders() {
             </div>
 
             <div className="admin-card">
-                <table className="admin-table">
+                {/* Problem 1: scrollable wrapper so table never squishes */}
+                <div style={{ overflowX: 'auto', width: '100%' }}>
+                <table className="admin-table" style={{ minWidth: 1200, tableLayout: 'fixed' }}>
+                    <colgroup>
+                        <col style={{ minWidth: 130 }} />
+                        <col style={{ width: 70 }} />
+                        <col style={{ minWidth: 100 }} />
+                        <col style={{ minWidth: 110 }} />
+                        <col style={{ minWidth: 90 }} />
+                        {orderType === 'supplier' && <col style={{ minWidth: 130 }} />}
+                        <col style={{ minWidth: 150 }} />
+                        <col style={{ minWidth: 100 }} />
+                        <col style={{ minWidth: 90 }} />
+                        <col style={{ minWidth: 110 }} />
+                        <col style={{ minWidth: 140 }} />
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Order ID</th>
@@ -603,12 +618,12 @@ export default function AdminOrders() {
                                     {/* Change 3: Clickable Order ID */}
                                     <td style={{ fontWeight: 700, color: '#C9A84C', cursor: 'pointer', textDecoration: 'underline', whiteSpace: 'nowrap' }}
                                         onClick={() => setDetailOrder(o)}>{o.id}</td>
-                                    {/* Change 2: Image column */}
+                                    {/* Problem 3: 48×48 thumbnail */}
                                     <td>
-                                        <div style={{ width: 38, height: 38, borderRadius: 7, background: '#111', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                        <div style={{ width: 48, height: 48, borderRadius: 6, background: '#111', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                                             {imgSrc
-                                                ? <img src={imgSrc} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
-                                                : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
+                                                ? <img src={imgSrc} alt="" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} onError={e => e.target.style.display='none'} />
+                                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
                                         </div>
                                     </td>
                                     {/* Change 2: Brand column */}
@@ -635,24 +650,27 @@ export default function AdminOrders() {
                                             {o.status}
                                         </span>
                                     </td>
-                                    {/* Change 1: Actions column with cancel/delete logic */}
-                                    <td style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    {/* Actions column */}
+                                    <td style={{ verticalAlign: 'middle' }}>
+                                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                                         {!o.isArchived && orderType === 'supplier' && isPending && (
+                                            /* Problem 2: compact red-bordered Cancel Order button */
                                             <button
                                                 title="Cancel Order"
                                                 onClick={() => handleDeleteClick({ ...o, _actionLabel: 'cancel' })}
                                                 style={{
-                                                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                                                    padding: '0.3rem 0.7rem', borderRadius: 7,
-                                                    background: 'rgba(245,158,11,0.12)',
-                                                    border: '1px solid rgba(245,158,11,0.35)',
-                                                    color: '#f59e0b', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem',
-                                                    transition: 'background 0.2s',
+                                                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                                                    height: 32, padding: '0 10px', borderRadius: 6,
+                                                    background: 'transparent',
+                                                    border: '1px solid #e74c3c',
+                                                    color: '#e74c3c', cursor: 'pointer', fontWeight: 600, fontSize: '0.76rem',
+                                                    whiteSpace: 'nowrap', lineHeight: 1,
+                                                    transition: 'background 0.15s',
                                                 }}
-                                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(245,158,11,0.25)'}
-                                                onMouseLeave={e => e.currentTarget.style.background = 'rgba(245,158,11,0.12)'}
+                                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(231,76,60,0.1)'}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                             >
-                                                🚫 Cancel Order
+                                                <span style={{ fontSize: '0.8rem' }}>✕</span> Cancel Order
                                             </button>
                                         )}
                                         {!o.isArchived && orderType === 'supplier' && isDelivered && (
@@ -695,10 +713,11 @@ export default function AdminOrders() {
                                                 <TrashIcon />
                                             </button>
                                         )}
+                                        {/* Problem 4: styled Archived badge pill */}
                                         {o.isArchived && (
-                                            <div style={{ fontSize: '0.75rem', color: '#666', fontWeight: 600, background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.5rem', borderRadius: 4, display: 'inline-block' }}>
+                                            <span style={{ background: '#f0f0f0', color: '#888', borderRadius: 999, padding: '4px 10px', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>
                                                 Archived
-                                            </div>
+                                            </span>
                                         )}
                                         {orderType === 'customer' && !o.rider_id && o.status !== 'Out for Delivery' && o.status !== 'Delivered' && o.status !== 'Assigned' && !o.isArchived && (
                                             <button onClick={() => setAssignModal(o)} style={{
@@ -720,12 +739,13 @@ export default function AdminOrders() {
                                                 View Proof of Delivery
                                             </a>
                                         )}
-                                    </td>
+                                    </div></td>
                                 </tr>
                             );
                         })}
                     </tbody>
                 </table>
+                </div>{/* end scroll wrapper */}
             </div>
 
             {/* Change 3: Order detail modal */}

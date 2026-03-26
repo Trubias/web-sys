@@ -12740,317 +12740,391 @@ function AdminOrders() {
       })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
       className: "admin-card",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("table", {
-        className: "admin-table",
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("thead", {
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("tr", {
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Order ID"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Image"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Brand"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Category"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: orderType === 'customer' ? 'Customer' : 'Company'
-            }), orderType === 'supplier' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Orderer"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Product Details"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Date"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Amount"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Status"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
-              children: "Actions"
-            })]
-          })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("tbody", {
-          children: filtered.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("tr", {
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("td", {
-              colSpan: colSpan,
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+        style: {
+          overflowX: 'auto',
+          width: '100%'
+        },
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("table", {
+          className: "admin-table",
+          style: {
+            minWidth: 1200,
+            tableLayout: 'fixed'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("colgroup", {
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
               style: {
-                textAlign: 'center',
-                padding: '2rem',
-                color: '#6b7280'
-              },
-              children: ["No ", viewMode === 'archive' ? 'archived' : 'active', " ", orderType, " orders found for this status."]
+                minWidth: 130
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                width: 70
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 100
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 110
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 90
+              }
+            }), orderType === 'supplier' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 130
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 150
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 100
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 90
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 110
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 140
+              }
+            })]
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("thead", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("tr", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Order ID"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Image"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Brand"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Category"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: orderType === 'customer' ? 'Customer' : 'Company'
+              }), orderType === 'supplier' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Orderer"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Product Details"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Date"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Amount"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Status"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Actions"
+              })]
             })
-          }) : filtered.map(function (o, idx) {
-            var _o$rider;
-            var st = STATUS_STYLES[o.status] || STATUS_STYLES.Pending;
-            // Change 2: image src logic
-            var imgSrc = o.rawImage ? o.rawImage.startsWith('http') ? o.rawImage : '/storage/' + o.rawImage : null;
-            // Change 1: action button logic based on status
-            var isPending = o.status === 'Pending';
-            var isDelivered = o.status === 'Delivered' || o.status === 'Completed';
-            var isInProgress = ['Accepted', 'Preparing', 'Transporting', 'Assigned', 'Out for Delivery', 'Processing'].includes(o.status);
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("tr", {
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("tbody", {
+            children: filtered.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("tr", {
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("td", {
+                colSpan: colSpan,
                 style: {
-                  fontWeight: 700,
-                  color: '#C9A84C',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  whiteSpace: 'nowrap'
+                  textAlign: 'center',
+                  padding: '2rem',
+                  color: '#6b7280'
                 },
-                onClick: function onClick() {
-                  return setDetailOrder(o);
-                },
-                children: o.id
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                children: ["No ", viewMode === 'archive' ? 'archived' : 'active', " ", orderType, " orders found for this status."]
+              })
+            }) : filtered.map(function (o, idx) {
+              var _o$rider;
+              var st = STATUS_STYLES[o.status] || STATUS_STYLES.Pending;
+              // Change 2: image src logic
+              var imgSrc = o.rawImage ? o.rawImage.startsWith('http') ? o.rawImage : '/storage/' + o.rawImage : null;
+              // Change 1: action button logic based on status
+              var isPending = o.status === 'Pending';
+              var isDelivered = o.status === 'Delivered' || o.status === 'Completed';
+              var isInProgress = ['Accepted', 'Preparing', 'Transporting', 'Assigned', 'Out for Delivery', 'Processing'].includes(o.status);
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("tr", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
                   style: {
-                    width: 38,
-                    height: 38,
-                    borderRadius: 7,
-                    background: '#111',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden'
+                    fontWeight: 700,
+                    color: '#C9A84C',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    whiteSpace: 'nowrap'
                   },
-                  children: imgSrc ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("img", {
-                    src: imgSrc,
-                    alt: "",
+                  onClick: function onClick() {
+                    return setDetailOrder(o);
+                  },
+                  children: o.id
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
                     style: {
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
+                      width: 48,
+                      height: 48,
+                      borderRadius: 6,
+                      background: '#111',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      flexShrink: 0
                     },
-                    onError: function onError(e) {
-                      return e.target.style.display = 'none';
-                    }
-                  }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("svg", {
-                    width: "14",
-                    height: "14",
-                    viewBox: "0 0 24 24",
-                    fill: "none",
-                    stroke: "#444",
-                    strokeWidth: "1.5",
-                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("rect", {
-                      x: "3",
-                      y: "3",
-                      width: "18",
-                      height: "18",
-                      rx: "2"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("circle", {
-                      cx: "9",
-                      cy: "9",
-                      r: "2"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("path", {
-                      d: "M21 15l-5-5L5 21"
-                    })]
+                    children: imgSrc ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("img", {
+                      src: imgSrc,
+                      alt: "",
+                      style: {
+                        width: 48,
+                        height: 48,
+                        objectFit: 'cover',
+                        borderRadius: 6
+                      },
+                      onError: function onError(e) {
+                        return e.target.style.display = 'none';
+                      }
+                    }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("svg", {
+                      width: "16",
+                      height: "16",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "#444",
+                      strokeWidth: "1.5",
+                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("rect", {
+                        x: "3",
+                        y: "3",
+                        width: "18",
+                        height: "18",
+                        rx: "2"
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("circle", {
+                        cx: "9",
+                        cy: "9",
+                        r: "2"
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("path", {
+                        d: "M21 15l-5-5L5 21"
+                      })]
+                    })
                   })
-                })
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                className: "admin-table__muted",
-                style: {
-                  fontSize: '0.82rem'
-                },
-                children: o.brand || '—'
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                className: "admin-table__muted",
-                style: {
-                  fontSize: '0.82rem'
-                },
-                children: o.category || '—'
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  className: "admin-table__muted",
                   style: {
-                    fontWeight: 600
+                    fontSize: '0.82rem'
                   },
-                  children: orderType === 'customer' ? o.customer : o.supplier
-                })
-              }), orderType === 'supplier' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                  children: o.brand || '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  className: "admin-table__muted",
                   style: {
-                    fontWeight: 600
+                    fontSize: '0.82rem'
                   },
-                  children: o.customer
-                })
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                  children: o.category || '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                    style: {
+                      fontWeight: 600
+                    },
+                    children: orderType === 'customer' ? o.customer : o.supplier
+                  })
+                }), orderType === 'supplier' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                    style: {
+                      fontWeight: 600
+                    },
+                    children: o.customer
+                  })
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                    style: {
+                      color: orderType === 'supplier' ? '#2980b9' : 'inherit'
+                    },
+                    children: o.product
+                  })
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: o.date
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
                   style: {
-                    color: orderType === 'supplier' ? '#2980b9' : 'inherit'
-                  },
-                  children: o.product
-                })
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                className: "admin-table__muted",
-                children: o.date
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                style: {
-                  fontWeight: 700
-                },
-                children: o.amount
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
-                  className: "admin-badge",
-                  style: {
-                    background: st.bg,
-                    color: st.color,
                     fontWeight: 700
                   },
-                  children: o.status
-                })
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("td", {
-                style: {
-                  display: 'flex',
-                  gap: '8px',
-                  alignItems: 'center',
-                  flexWrap: 'wrap'
-                },
-                children: [!o.isArchived && orderType === 'supplier' && isPending && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-                  title: "Cancel Order",
-                  onClick: function onClick() {
-                    return handleDeleteClick(_objectSpread(_objectSpread({}, o), {}, {
-                      _actionLabel: 'cancel'
-                    }));
-                  },
+                  children: o.amount
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                    className: "admin-badge",
+                    style: {
+                      background: st.bg,
+                      color: st.color,
+                      fontWeight: 700
+                    },
+                    children: o.status
+                  })
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
                   style: {
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 5,
-                    padding: '0.3rem 0.7rem',
-                    borderRadius: 7,
-                    background: 'rgba(245,158,11,0.12)',
-                    border: '1px solid rgba(245,158,11,0.35)',
-                    color: '#f59e0b',
-                    cursor: 'pointer',
-                    fontWeight: 700,
-                    fontSize: '0.78rem',
-                    transition: 'background 0.2s'
+                    verticalAlign: 'middle'
                   },
-                  onMouseEnter: function onMouseEnter(e) {
-                    return e.currentTarget.style.background = 'rgba(245,158,11,0.25)';
-                  },
-                  onMouseLeave: function onMouseLeave(e) {
-                    return e.currentTarget.style.background = 'rgba(245,158,11,0.12)';
-                  },
-                  children: "\uD83D\uDEAB Cancel Order"
-                }), !o.isArchived && orderType === 'supplier' && isDelivered && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-                  title: "Delete Order",
-                  onClick: function onClick() {
-                    return handleDeleteClick(o);
-                  },
-                  style: {
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 30,
-                    height: 30,
-                    borderRadius: 7,
-                    background: 'rgba(231,76,60,0.12)',
-                    border: '1px solid rgba(231,76,60,0.25)',
-                    color: '#e74c3c',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s'
-                  },
-                  onMouseEnter: function onMouseEnter(e) {
-                    e.currentTarget.style.background = 'rgba(231,76,60,0.28)';
-                    e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)';
-                  },
-                  onMouseLeave: function onMouseLeave(e) {
-                    e.currentTarget.style.background = 'rgba(231,76,60,0.12)';
-                    e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)';
-                  },
-                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(TrashIcon, {})
-                }), !o.isArchived && orderType === 'supplier' && isInProgress && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
-                  style: {
-                    fontSize: '0.72rem',
-                    color: '#6b7280',
-                    fontStyle: 'italic'
-                  },
-                  children: "In progress"
-                }), !o.isArchived && orderType === 'customer' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-                  title: "Delete Order",
-                  onClick: function onClick() {
-                    return handleDeleteClick(o);
-                  },
-                  style: {
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 30,
-                    height: 30,
-                    borderRadius: 7,
-                    background: 'rgba(231,76,60,0.12)',
-                    border: '1px solid rgba(231,76,60,0.25)',
-                    color: '#e74c3c',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s, border-color 0.2s'
-                  },
-                  onMouseEnter: function onMouseEnter(e) {
-                    e.currentTarget.style.background = 'rgba(231,76,60,0.28)';
-                    e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)';
-                  },
-                  onMouseLeave: function onMouseLeave(e) {
-                    e.currentTarget.style.background = 'rgba(231,76,60,0.12)';
-                    e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)';
-                  },
-                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(TrashIcon, {})
-                }), o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-                  style: {
-                    fontSize: '0.75rem',
-                    color: '#666',
-                    fontWeight: 600,
-                    background: 'rgba(255,255,255,0.05)',
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: 4,
-                    display: 'inline-block'
-                  },
-                  children: "Archived"
-                }), orderType === 'customer' && !o.rider_id && o.status !== 'Out for Delivery' && o.status !== 'Delivered' && o.status !== 'Assigned' && !o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-                  onClick: function onClick() {
-                    return setAssignModal(o);
-                  },
-                  style: {
-                    padding: '0.35rem 0.6rem',
-                    borderRadius: '4px',
-                    background: 'transparent',
-                    border: '1px solid #3498db',
-                    color: '#3498db',
-                    fontWeight: 600,
-                    fontSize: '0.75rem',
-                    cursor: 'pointer'
-                  },
-                  children: "Assign Rider"
-                }), orderType === 'customer' && o.rider_id && !o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-                  style: {
-                    fontSize: '0.75rem',
-                    color: '#27ae60',
-                    fontWeight: 'bold'
-                  },
-                  children: ((_o$rider = o.rider) === null || _o$rider === void 0 ? void 0 : _o$rider.name) || 'Rider Assigned'
-                }), orderType === 'customer' && o.status === 'Delivered' && o.proof_of_delivery && !o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("a", {
-                  href: o.proof_of_delivery.startsWith('http') ? o.proof_of_delivery : o.proof_of_delivery.startsWith('/storage') ? o.proof_of_delivery : "/storage/".concat(o.proof_of_delivery),
-                  target: "_blank",
-                  rel: "noopener noreferrer",
-                  style: {
-                    marginTop: 4,
-                    display: 'block',
-                    color: '#3498db',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    textDecoration: 'none'
-                  },
-                  onMouseEnter: function onMouseEnter(e) {
-                    return e.currentTarget.style.textDecoration = 'underline';
-                  },
-                  onMouseLeave: function onMouseLeave(e) {
-                    return e.currentTarget.style.textDecoration = 'none';
-                  },
-                  children: "View Proof of Delivery"
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                    style: {
+                      display: 'flex',
+                      gap: 6,
+                      alignItems: 'center',
+                      flexWrap: 'wrap'
+                    },
+                    children: [!o.isArchived && orderType === 'supplier' && isPending &&
+                    /*#__PURE__*/
+                    /* Problem 2: compact red-bordered Cancel Order button */
+                    (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("button", {
+                      title: "Cancel Order",
+                      onClick: function onClick() {
+                        return handleDeleteClick(_objectSpread(_objectSpread({}, o), {}, {
+                          _actionLabel: 'cancel'
+                        }));
+                      },
+                      style: {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        height: 32,
+                        padding: '0 10px',
+                        borderRadius: 6,
+                        background: 'transparent',
+                        border: '1px solid #e74c3c',
+                        color: '#e74c3c',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        fontSize: '0.76rem',
+                        whiteSpace: 'nowrap',
+                        lineHeight: 1,
+                        transition: 'background 0.15s'
+                      },
+                      onMouseEnter: function onMouseEnter(e) {
+                        return e.currentTarget.style.background = 'rgba(231,76,60,0.1)';
+                      },
+                      onMouseLeave: function onMouseLeave(e) {
+                        return e.currentTarget.style.background = 'transparent';
+                      },
+                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                        style: {
+                          fontSize: '0.8rem'
+                        },
+                        children: "\u2715"
+                      }), " Cancel Order"]
+                    }), !o.isArchived && orderType === 'supplier' && isDelivered && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                      title: "Delete Order",
+                      onClick: function onClick() {
+                        return handleDeleteClick(o);
+                      },
+                      style: {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 30,
+                        height: 30,
+                        borderRadius: 7,
+                        background: 'rgba(231,76,60,0.12)',
+                        border: '1px solid rgba(231,76,60,0.25)',
+                        color: '#e74c3c',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s'
+                      },
+                      onMouseEnter: function onMouseEnter(e) {
+                        e.currentTarget.style.background = 'rgba(231,76,60,0.28)';
+                        e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)';
+                      },
+                      onMouseLeave: function onMouseLeave(e) {
+                        e.currentTarget.style.background = 'rgba(231,76,60,0.12)';
+                        e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)';
+                      },
+                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(TrashIcon, {})
+                    }), !o.isArchived && orderType === 'supplier' && isInProgress && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                      style: {
+                        fontSize: '0.72rem',
+                        color: '#6b7280',
+                        fontStyle: 'italic'
+                      },
+                      children: "In progress"
+                    }), !o.isArchived && orderType === 'customer' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                      title: "Delete Order",
+                      onClick: function onClick() {
+                        return handleDeleteClick(o);
+                      },
+                      style: {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 30,
+                        height: 30,
+                        borderRadius: 7,
+                        background: 'rgba(231,76,60,0.12)',
+                        border: '1px solid rgba(231,76,60,0.25)',
+                        color: '#e74c3c',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s, border-color 0.2s'
+                      },
+                      onMouseEnter: function onMouseEnter(e) {
+                        e.currentTarget.style.background = 'rgba(231,76,60,0.28)';
+                        e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)';
+                      },
+                      onMouseLeave: function onMouseLeave(e) {
+                        e.currentTarget.style.background = 'rgba(231,76,60,0.12)';
+                        e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)';
+                      },
+                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(TrashIcon, {})
+                    }), o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                      style: {
+                        background: '#f0f0f0',
+                        color: '#888',
+                        borderRadius: 999,
+                        padding: '4px 10px',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        whiteSpace: 'nowrap'
+                      },
+                      children: "Archived"
+                    }), orderType === 'customer' && !o.rider_id && o.status !== 'Out for Delivery' && o.status !== 'Delivered' && o.status !== 'Assigned' && !o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                      onClick: function onClick() {
+                        return setAssignModal(o);
+                      },
+                      style: {
+                        padding: '0.35rem 0.6rem',
+                        borderRadius: '4px',
+                        background: 'transparent',
+                        border: '1px solid #3498db',
+                        color: '#3498db',
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        cursor: 'pointer'
+                      },
+                      children: "Assign Rider"
+                    }), orderType === 'customer' && o.rider_id && !o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                      style: {
+                        fontSize: '0.75rem',
+                        color: '#27ae60',
+                        fontWeight: 'bold'
+                      },
+                      children: ((_o$rider = o.rider) === null || _o$rider === void 0 ? void 0 : _o$rider.name) || 'Rider Assigned'
+                    }), orderType === 'customer' && o.status === 'Delivered' && o.proof_of_delivery && !o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("a", {
+                      href: o.proof_of_delivery.startsWith('http') ? o.proof_of_delivery : o.proof_of_delivery.startsWith('/storage') ? o.proof_of_delivery : "/storage/".concat(o.proof_of_delivery),
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      style: {
+                        marginTop: 4,
+                        display: 'block',
+                        color: '#3498db',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        textDecoration: 'none'
+                      },
+                      onMouseEnter: function onMouseEnter(e) {
+                        return e.currentTarget.style.textDecoration = 'underline';
+                      },
+                      onMouseLeave: function onMouseLeave(e) {
+                        return e.currentTarget.style.textDecoration = 'none';
+                      },
+                      children: "View Proof of Delivery"
+                    })]
+                  })
                 })]
-              })]
-            }, o.keyId || o.id || idx);
-          })
-        })]
+              }, o.keyId || o.id || idx);
+            })
+          })]
+        })
       })
     }), detailOrder && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(OrderDetailModal, {
       order: detailOrder,
