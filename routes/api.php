@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AdminRiderController;
 use App\Http\Controllers\Api\AdminReportsController;
 use App\Http\Controllers\Api\AdminDashboardController;
+use App\Http\Controllers\ContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +23,7 @@ Route::get('/products', [ProductController::class , 'index']);
 Route::get('/products/{id}', [ProductController::class , 'show']);
 
 // Contact (public)
-Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'send']);
+Route::post('/contact', [ContactController::class, 'send']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
