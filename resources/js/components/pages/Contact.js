@@ -12,9 +12,9 @@ export default function Contact() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        if (!form.name || !form.email || !form.subject || !form.message) { 
-            setError('Please select a subject and fill all required fields.'); 
-            return; 
+        if (!form.name || !form.email || !form.subject || !form.message) {
+            setError('Please select a subject and fill all required fields.');
+            return;
         }
 
         setLoading(true);
