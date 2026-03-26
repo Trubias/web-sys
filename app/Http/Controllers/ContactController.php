@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Mail\ContactMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
 {
@@ -23,7 +24,7 @@ class ContactController extends Controller
             Mail::to('jayandkit.noreply@gmail.com')->send(new ContactMail($request->all()));
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
-            \Log::error('Contact Form Error: ' . $e->getMessage(), [
+            Log::error('Contact Form Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'data' => $request->all()
             ]);

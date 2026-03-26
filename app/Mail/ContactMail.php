@@ -12,7 +12,7 @@ class ContactMail extends Mailable
     use Queueable, SerializesModels;
 
     public $data;
-    
+
     public function __construct($data)
     {
         $this->data = $data;
@@ -21,8 +21,8 @@ class ContactMail extends Mailable
     public function build()
     {
         return $this->from('a5e76f001@smtp-brevo.com', 'J&K Watch')
-                    ->replyTo($this->data['email'], $this->data['name'])
-                    ->subject('[Contact Inquiry] ' . ($this->data['subject'] ?? 'No Subject'))
-                    ->view('emails.contact');
+            ->replyTo($this->data['email'], $this->data['name'])
+            ->subject('[Contact Inquiry] ' . ($this->data['subject'] ?? 'No Subject'))
+            ->view('emails.contact');
     }
 }
