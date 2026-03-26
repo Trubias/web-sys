@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import Footer from '../Footer';
 
@@ -8,12 +8,17 @@ export default function Contact() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+    const subjectRef = useRef(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        if (!form.name || !form.email || !form.subject || !form.message) {
-            setError('Please select a subject and fill all required fields.');
+        // Force native browser tooltip on Subject if not selected
+        if (!form.subject) {
+            if (subjectRef.current) {
+                subjectRef.current.setCustomValidity('Please select an inquiry type.');
+                subjectRef.current.reportValidity();
+            }
             return;
         }
 
@@ -66,7 +71,16 @@ export default function Contact() {
                                 </div>
                                 <div className="form-group">
                                     <label>Subject *</label>
-                                    <select className="form-input" value={form.subject} onChange={e => set('subject', e.target.value)} required>
+                                    <select
+                                        ref={subjectRef}
+                                        className="form-input"
+                                        value={form.subject}
+                                        onChange={e => {
+                                            set('subject', e.target.value);
+                                            if (subjectRef.current) subjectRef.current.setCustomValidity('');
+                                        }}
+                                        required
+                                    >
                                         <option value="">Select inquiry type</option>
                                         <option>Product Inquiry</option>
                                         <option>Watch Servicing</option>
