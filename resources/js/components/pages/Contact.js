@@ -12,7 +12,10 @@ export default function Contact() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        if (!form.name || !form.email || !form.message) { setError('Please fill all required fields.'); return; }
+        if (!form.name || !form.email || !form.subject || !form.message) { 
+            setError('Please select a subject and fill all required fields.'); 
+            return; 
+        }
 
         setLoading(true);
         try {
@@ -62,8 +65,8 @@ export default function Contact() {
                                     </div>
                                 </div>
                                 <div className="form-group">
-                                    <label>Subject</label>
-                                    <select className="form-input" value={form.subject} onChange={e => set('subject', e.target.value)}>
+                                    <label>Subject *</label>
+                                    <select className="form-input" value={form.subject} onChange={e => set('subject', e.target.value)} required>
                                         <option value="">Select inquiry type</option>
                                         <option>Product Inquiry</option>
                                         <option>Watch Servicing</option>

@@ -16,15 +16,20 @@ class ContactController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email',
-            'subject' => 'nullable|string',
+            'subject' => 'required|string',
             'message' => 'required|string',
         ]);
 
         try {
-            Mail::to('jayandkit.noreply@gmail.com')->send(new ContactMail($request->all()));
+            \Mail::raw("Name: {$request->name}\nEmail: {$request->email}\nSubject: {$request->subject}\n\nMessage:\n{$request->message}", function ($mail) use ($request) {
+                $mail->to('jayandkit.noreply@gmail.com')
+                     ->replyTo($request->email, $request->name)
+                     ->subject($request->subject);
+            });
+
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
-            Log::error('Contact Form Error: ' . $e->getMessage(), [
+            \Log::error('Contact Form Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'data' => $request->all()
             ]);
