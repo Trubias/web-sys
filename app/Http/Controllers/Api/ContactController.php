@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use App\Mail\ContactFormMail;
+use App\Mail\ContactMail;
 use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
@@ -20,17 +20,14 @@ class ContactController extends Controller
         ]);
 
         try {
-            Mail::send(new ContactFormMail($request->all()));
-            return response()->json(['message' => 'Email sent successfully!']);
+            Mail::send(new ContactMail($request->all()));
+            return response()->json(['success' => true]);
         } catch (\Exception $e) {
             \Log::error('Contact Form Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'data' => $request->all()
             ]);
-            return response()->json([
-                'message' => 'Something went wrong. Please try again.',
-                'error' => $e->getMessage()
-            ], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }
