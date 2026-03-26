@@ -11534,7 +11534,9 @@ var TrashIcon = function TrashIcon() {
 function ConfirmDeleteModal(_ref) {
   var order = _ref.order,
     onCancel = _ref.onCancel,
-    onConfirm = _ref.onConfirm;
+    onConfirm = _ref.onConfirm,
+    orderType = _ref.orderType;
+  var isSupplierOrder = orderType === 'supplier';
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
     style: {
       position: 'fixed',
@@ -11569,14 +11571,14 @@ function ConfirmDeleteModal(_ref) {
             fontSize: '1.15rem'
           },
           children: "\uD83D\uDDD1\uFE0F"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("h3", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("h3", {
           style: {
             margin: 0,
             color: '#e74c3c',
             fontWeight: 700,
             fontSize: '1rem'
           },
-          children: [order.isArchived ? 'Delete' : 'Archive', " Order"]
+          children: "Delete Order"
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
         style: {
@@ -11589,7 +11591,7 @@ function ConfirmDeleteModal(_ref) {
             fontSize: '0.9rem',
             lineHeight: 1.6
           },
-          children: ["Are you sure you want to ", order.isArchived ? 'permanently delete' : 'archive', " order", ' ', /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("strong", {
+          children: ["Are you sure you want to permanently delete order", ' ', /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("strong", {
             style: {
               color: '#C9A84C'
             },
@@ -11598,10 +11600,18 @@ function ConfirmDeleteModal(_ref) {
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("p", {
           style: {
             color: '#888',
-            margin: 0,
+            margin: '0 0 0.5rem',
             fontSize: '0.82rem'
           },
           children: [order.product, " \xB7 ", order.date]
+        }), isSupplierOrder && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
+          style: {
+            color: '#f59e0b',
+            margin: 0,
+            fontSize: '0.82rem',
+            fontWeight: 600
+          },
+          children: "\u26A0\uFE0F This will remove the request from the Supplier's Active Requests. Stock will NOT be changed."
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
           style: {
             marginTop: '1.4rem',
@@ -11622,7 +11632,7 @@ function ConfirmDeleteModal(_ref) {
               fontSize: '0.88rem'
             },
             children: "Cancel"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("button", {
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
             onClick: onConfirm,
             style: {
               padding: '0.55rem 1.2rem',
@@ -11634,7 +11644,7 @@ function ConfirmDeleteModal(_ref) {
               fontWeight: 700,
               fontSize: '0.88rem'
             },
-            children: ["Yes, ", order.isArchived ? 'Delete' : 'Archive']
+            children: "Yes, Delete"
           })]
         })]
       })]
@@ -12114,7 +12124,7 @@ function AdminOrders() {
   };
   var handleConfirmDelete = /*#__PURE__*/function () {
     var _ref5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
-      var axios, _t3;
+      var axios, isDelivered, _t3;
       return _regenerator().w(function (_context3) {
         while (1) switch (_context3.p = _context3.n) {
           case 0:
@@ -12152,10 +12162,22 @@ function AdminOrders() {
             _context3.n = 8;
             break;
           case 7:
-            // Admin/supplier orders: mark as archived in reqStore
-            _sharedStore__WEBPACK_IMPORTED_MODULE_2__.reqStore.update(confirmDelete.keyId, {
-              isArchived: true
-            });
+            // Supplier/admin order: remove from reqStore so supplier no longer sees this request.
+            isDelivered = confirmDelete.status === 'Delivered'; // Always remove from reqStore (admin view clears regardless)
+            _sharedStore__WEBPACK_IMPORTED_MODULE_2__.reqStore.remove(confirmDelete.keyId);
+            if (isDelivered) {
+              // Delivered: keep supplier's delivery archive intact.
+              // Stock was already deducted on delivery — do NOT reverse it.
+              showToast('Order record removed. Supplier delivery archive preserved.');
+            } else {
+              // Not yet delivered: remove from supplier delivery queue too,
+              // and restore any stock that was previously deducted (defensive).
+              _sharedStore__WEBPACK_IMPORTED_MODULE_2__.deliveryStore.removeByReqId(confirmDelete.keyId);
+              if (confirmDelete.product_id) {
+                _sharedStore__WEBPACK_IMPORTED_MODULE_2__.supplierStockStore.restore(confirmDelete.product_id, Number(confirmDelete.qty));
+              }
+              showToast('Order removed. Supplier will no longer see this request.');
+            }
           case 8:
             setConfirmDelete(null);
           case 9:
@@ -12597,6 +12619,7 @@ function AdminOrders() {
       })
     }), confirmDelete && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(ConfirmDeleteModal, {
       order: confirmDelete,
+      orderType: orderType,
       onCancel: function onCancel() {
         return setConfirmDelete(null);
       },
@@ -13694,8 +13717,9 @@ function AddProductModal(_ref2) {
               // 2. Notify Supplier (use company name, never 'supplier')
               _sharedStore__WEBPACK_IMPORTED_MODULE_4__.notificationStore.add((selCompany === null || selCompany === void 0 ? void 0 : selCompany.name) || 'supplier', "New order request placed for ".concat(selProduct === null || selProduct === void 0 ? void 0 : selProduct.name, " (Qty: ").concat(qty, ") by the Admin. Ref: ").concat(refCode));
 
-              // 3. Deduct ordered qty from Supplier stock immediately
-              _sharedStore__WEBPACK_IMPORTED_MODULE_4__.supplierStockStore.deduct(selProduct.id, qty);
+              // NOTE: Stock is NOT deducted here.
+              // Stock is only deducted when the supplier marks the delivery as "Delivered".
+
               onSaved();
             } catch (err) {
               setError(err.message || 'Failed to place order.');
@@ -21096,26 +21120,33 @@ function Contact() {
       return _objectSpread(_objectSpread({}, f), {}, _defineProperty({}, k, v));
     });
   };
+  var subjectRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   var handleSubmit = /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(e) {
-      var _err$response, _t;
+      var _err$response, _err$response2, _err$response3, status, msg, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
             e.preventDefault();
             setError('');
-            if (!(!form.name || !form.email || !form.message)) {
+            // Force native browser tooltip on Subject if not selected
+            if (form.subject) {
               _context.n = 1;
               break;
             }
-            setError('Please fill all required fields.');
+            if (subjectRef.current) {
+              subjectRef.current.setCustomValidity('Please select an inquiry type.');
+              subjectRef.current.reportValidity();
+            }
             return _context.a(2);
           case 1:
             setLoading(true);
             _context.p = 2;
+            console.log('Sending contact inquiry...', form);
             _context.n = 3;
             return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/api/contact', form);
           case 3:
+            console.log('Success!');
             setSent(true);
             setForm({
               name: '',
@@ -21128,7 +21159,10 @@ function Contact() {
           case 4:
             _context.p = 4;
             _t = _context.v;
-            setError(((_err$response = _t.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'Something went wrong. Please try again.');
+            console.error('Email error:', _t);
+            status = (_err$response = _t.response) !== null && _err$response !== void 0 && _err$response.status ? " (Status ".concat(_t.response.status, ")") : '';
+            msg = (((_err$response2 = _t.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.error) || ((_err$response3 = _t.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || 'Something went wrong. Please try again.') + status;
+            setError(msg);
           case 5:
             _context.p = 5;
             setLoading(false);
@@ -21206,13 +21240,16 @@ function Contact() {
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
                 className: "form-group",
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
-                  children: "Subject"
+                  children: "Subject *"
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("select", {
+                  ref: subjectRef,
                   className: "form-input",
                   value: form.subject,
                   onChange: function onChange(e) {
-                    return set('subject', e.target.value);
+                    set('subject', e.target.value);
+                    if (subjectRef.current) subjectRef.current.setCustomValidity('');
                   },
+                  required: true,
                   children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
                     value: "",
                     children: "Select inquiry type"
@@ -24796,6 +24833,13 @@ var reqStore = {
       return d.id === id ? _objectSpread(_objectSpread({}, d), patch) : d;
     });
     reqStore.save(all);
+  },
+  // Permanently remove an entry by id — used when admin cancels a pending order
+  remove: function remove(id) {
+    var all = reqStore.getAll().filter(function (d) {
+      return String(d.id) !== String(id);
+    });
+    reqStore.save(all);
   }
 };
 var deliveryStore = {
@@ -24818,6 +24862,13 @@ var deliveryStore = {
   update: function update(id, patch) {
     var all = deliveryStore.getAll().map(function (d) {
       return String(d.id) === String(id) ? _objectSpread(_objectSpread({}, d), patch) : d;
+    });
+    deliveryStore.save(all);
+  },
+  // Remove a delivery entry by reqId (used when admin cancels a pending order)
+  removeByReqId: function removeByReqId(reqId) {
+    var all = deliveryStore.getAll().filter(function (d) {
+      return String(d.reqId) !== String(reqId);
     });
     deliveryStore.save(all);
   }
@@ -24954,6 +25005,19 @@ var supplierStockStore = {
       });
     }
     supplierStockStore.save(all);
+  },
+  // Reverse a previous deduction — used when a non-delivered order is deleted
+  restore: function restore(productId, qty) {
+    var all = supplierStockStore.getAll();
+    var idx = all.findIndex(function (d) {
+      return String(d.productId) === String(productId);
+    });
+    if (idx >= 0) {
+      all[idx] = _objectSpread(_objectSpread({}, all[idx]), {}, {
+        deducted: Math.max(0, all[idx].deducted - qty)
+      });
+      supplierStockStore.save(all);
+    }
   },
   getDeducted: function getDeducted(productId) {
     var d = supplierStockStore.getAll().find(function (x) {
@@ -25375,6 +25439,10 @@ function DeliveriesPage(_ref4) {
         deliveredAt: now
       });
       _sharedStore__WEBPACK_IMPORTED_MODULE_1__.notificationStore.add('admin', "Your order ".concat(d.ref, " has been successfully delivered. You can now place it in Inventory."));
+      // ── Deduct supplier stock ONLY on confirmed delivery ──────────────────
+      if (d.product_id && d.qty) {
+        _sharedStore__WEBPACK_IMPORTED_MODULE_1__.supplierStockStore.deduct(d.product_id, Number(d.qty));
+      }
     }
   };
 
@@ -27136,9 +27204,11 @@ function ProductRequestsPage(_ref2) {
     };
   }, [user]);
 
-  // Active = not completed and not declined. Archive = completed.
+  // Active = not completed, not declined, not cancelled.
+  // Archive = completed.
+  // Cancelled/deleted orders are fully removed from reqStore by admin, so they never appear here.
   var activeReqs = requests.filter(function (r) {
-    return r.status !== 'completed' && r.status !== 'declined';
+    return r.status !== 'completed' && r.status !== 'declined' && r.status !== 'cancelled';
   });
   var archiveReqs = requests.filter(function (r) {
     return r.status === 'completed';

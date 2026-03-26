@@ -451,8 +451,8 @@ function AddProductModal({ onClose, onSaved }) {
                 `New order request placed for ${selProduct?.name} (Qty: ${qty}) by the Admin. Ref: ${refCode}`
             );
 
-            // 3. Deduct ordered qty from Supplier stock immediately
-            supplierStockStore.deduct(selProduct.id, qty);
+            // NOTE: Stock is NOT deducted here.
+            // Stock is only deducted when the supplier marks the delivery as "Delivered".
 
             onSaved();
         } catch (err) {

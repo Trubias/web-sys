@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { reqStore, deliveryStore, notificationStore } from '../sharedStore';
+import { reqStore, deliveryStore, notificationStore, supplierStockStore } from '../sharedStore';
 import { BTN, INV_MODAL } from './supplierHelpers';
 
 function StatCard({ title, val, icon, color, bg }) {
@@ -168,6 +168,10 @@ export default function DeliveriesPage({ user }) {
             reqStore.update(d.reqId, { status: 'completed', deliveredAt: now });
             deliveryStore.update(d.id, { status: 'delivered', proof: proofFiles[d.id] || d.proof, deliveredAt: now });
             notificationStore.add('admin', `Your order ${d.ref} has been successfully delivered. You can now place it in Inventory.`);
+            // ── Deduct supplier stock ONLY on confirmed delivery ──────────────────
+            if (d.product_id && d.qty) {
+                supplierStockStore.deduct(d.product_id, Number(d.qty));
+            }
         }
     };
 

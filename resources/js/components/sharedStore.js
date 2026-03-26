@@ -159,6 +159,15 @@ export const supplierStockStore = {
         }
         supplierStockStore.save(all);
     },
+    // Reverse a previous deduction — used when a non-delivered order is deleted
+    restore: (productId, qty) => {
+        const all = supplierStockStore.getAll();
+        const idx = all.findIndex(d => String(d.productId) === String(productId));
+        if (idx >= 0) {
+            all[idx] = { ...all[idx], deducted: Math.max(0, all[idx].deducted - qty) };
+            supplierStockStore.save(all);
+        }
+    },
     getDeducted: (productId) => {
         const d = supplierStockStore.getAll().find(x => String(x.productId) === String(productId));
         return d ? d.deducted : 0;

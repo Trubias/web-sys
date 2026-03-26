@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
-import { reqStore, deliveryStore } from '../sharedStore';
+import { reqStore, deliveryStore, supplierStockStore } from '../sharedStore';
 import { formatCurrency, useCurrency } from '../utils/currency';
 
 // ─── Format any date value to "Mar 19, 2026" ─────────────────────────────────
@@ -356,11 +356,25 @@ export default function AdminOrders() {
                 showToast('Failed to delete order.');
             }
         } else {
-            // Supplier/admin order: permanently remove from reqStore AND deliveryStore.
-            // Stock is NOT touched — it was never deducted for a pending order.
+            // Supplier/admin order: remove from reqStore so supplier no longer sees this request.
+            const isDelivered = confirmDelete.status === 'Delivered';
+            
+            // Always remove from reqStore (admin view clears regardless)
             reqStore.remove(confirmDelete.keyId);
-            deliveryStore.removeByReqId(confirmDelete.keyId);
-            showToast('Order removed. Supplier will no longer see this request.');
+            
+            if (isDelivered) {
+                // Delivered: keep supplier's delivery archive intact.
+                // Stock was already deducted on delivery — do NOT reverse it.
+                showToast('Order record removed. Supplier delivery archive preserved.');
+            } else {
+                // Not yet delivered: remove from supplier delivery queue too,
+                // and restore any stock that was previously deducted (defensive).
+                deliveryStore.removeByReqId(confirmDelete.keyId);
+                if (confirmDelete.product_id) {
+                    supplierStockStore.restore(confirmDelete.product_id, Number(confirmDelete.qty));
+                }
+                showToast('Order removed. Supplier will no longer see this request.');
+            }
         }
         setConfirmDelete(null);
     };
