@@ -65,9 +65,64 @@ const TrashIcon = () => (
     </svg>
 );
 
+// ─── Order Detail Modal (Change 3) ────────────────────────────────────────────
+const IMG_BASE = '/storage/';
+function OrderDetailModal({ order, onClose }) {
+    if (!order) return null;
+    const st = STATUS_STYLES[order.status] || STATUS_STYLES.Pending;
+    const rows = [
+        { label: 'Order ID',       value: order.id },
+        { label: 'Product Name',   value: order.model || order.rawProduct },
+        { label: 'Brand',          value: order.brand },
+        { label: 'Category',       value: order.category },
+        { label: 'Company',        value: order.supplier },
+        { label: 'Orderer',        value: order.customer },
+        { label: 'Quantity',       value: order.qty != null ? `${order.qty} units` : (order.quantity != null ? `${order.quantity} units` : '—') },
+        { label: 'Unit Price',     value: order.unit_price != null ? `₱${Number(order.unit_price).toLocaleString()}` : '—' },
+        { label: 'Total Amount',   value: order.amount },
+        { label: 'Date',           value: order.date },
+        { label: 'Payment Method', value: order.payment || order.payment_method || '—' },
+    ];
+    const imgSrc = order.image || (order.rawImage ? (order.rawImage.startsWith('http') ? order.rawImage : IMG_BASE + order.rawImage) : null);
+    return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+             onClick={e => e.target === e.currentTarget && onClose()}>
+            <div style={{ background: '#1a1a1a', borderRadius: 14, width: '90%', maxWidth: 520, border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 24px 60px rgba(0,0,0,0.8)', overflow: 'hidden', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ padding: '1.1rem 1.4rem', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h3 style={{ margin: 0, color: '#C9A84C', fontWeight: 700, fontSize: '1.05rem' }}>Order Details — {order.id}</h3>
+                    <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.1rem' }}>✕</button>
+                </div>
+                <div style={{ padding: '1.4rem', overflowY: 'auto' }}>
+                    {/* Image + Status header */}
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.25rem' }}>
+                        <div style={{ width: 80, height: 80, borderRadius: 10, background: '#111', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                            {imgSrc
+                                ? <img src={imgSrc} alt="product" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
+                                : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 800, color: '#fff', fontSize: '1rem', marginBottom: 4 }}>{order.model || order.rawProduct || '—'}</div>
+                            <span style={{ background: st.bg, color: st.color, borderRadius: 20, padding: '0.2rem 0.75rem', fontSize: '0.75rem', fontWeight: 700 }}>{order.status}</span>
+                        </div>
+                    </div>
+                    {/* Detail grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                        {rows.map(r => (
+                            <div key={r.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '0.6rem 0.9rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                <div style={{ fontSize: '0.68rem', color: '#666', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{r.label}</div>
+                                <div style={{ fontWeight: 700, color: '#e5e5e5', fontSize: '0.88rem', wordBreak: 'break-word' }}>{r.value || '—'}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ─── Confirm Delete Modal ─────────────────────────────────────────────────────
-function ConfirmDeleteModal({ order, onCancel, onConfirm, orderType }) {
-    const isSupplierOrder = orderType === 'supplier';
+function ConfirmDeleteModal({ order, onCancel, onConfirm, orderType, actionLabel }) {
+    const isCancel = actionLabel === 'cancel';
     return (
         <div style={{
             position: 'fixed', inset: 0, zIndex: 9999,
@@ -84,22 +139,22 @@ function ConfirmDeleteModal({ order, onCancel, onConfirm, orderType }) {
                     borderBottom: '1px solid rgba(255,255,255,0.07)',
                     display: 'flex', alignItems: 'center', gap: '0.6rem',
                 }}>
-                    <span style={{ fontSize: '1.15rem' }}>🗑️</span>
-                    <h3 style={{ margin: 0, color: '#e74c3c', fontWeight: 700, fontSize: '1rem' }}>
-                        Delete Order
+                    <span style={{ fontSize: '1.15rem' }}>{isCancel ? '🚫' : '🗑️'}</span>
+                    <h3 style={{ margin: 0, color: isCancel ? '#f59e0b' : '#e74c3c', fontWeight: 700, fontSize: '1rem' }}>
+                        {isCancel ? 'Cancel Order' : 'Delete Order'}
                     </h3>
                 </div>
                 <div style={{ padding: '1.25rem 1.4rem' }}>
                     <p style={{ color: '#ccc', margin: '0 0 0.5rem', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                        Are you sure you want to permanently delete order{' '}
+                        Are you sure you want to {isCancel ? 'cancel' : 'permanently delete'} order{' '}
                         <strong style={{ color: '#C9A84C' }}>{order.id}</strong>?
                     </p>
                     <p style={{ color: '#888', margin: '0 0 0.5rem', fontSize: '0.82rem' }}>
                         {order.product} · {order.date}
                     </p>
-                    {isSupplierOrder && (
+                    {isCancel && (
                         <p style={{ color: '#f59e0b', margin: 0, fontSize: '0.82rem', fontWeight: 600 }}>
-                            ⚠️ This will remove the request from the Supplier's Active Requests. Stock will NOT be changed.
+                            ⚠️ This will remove the request from the Supplier's Active Requests. No stock will be deducted.
                         </p>
                     )}
                     <div style={{ marginTop: '1.4rem', display: 'flex', justifyContent: 'flex-end', gap: '0.7rem' }}>
@@ -109,10 +164,10 @@ function ConfirmDeleteModal({ order, onCancel, onConfirm, orderType }) {
                             color: '#aaa', cursor: 'pointer', fontWeight: 500, fontSize: '0.88rem',
                         }}>Cancel</button>
                         <button onClick={onConfirm} style={{
-                            padding: '0.55rem 1.2rem', background: '#e74c3c',
+                            padding: '0.55rem 1.2rem', background: isCancel ? '#f59e0b' : '#e74c3c',
                             border: 'none', borderRadius: 8,
-                            color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '0.88rem',
-                        }}>Yes, Delete</button>
+                            color: isCancel ? '#000' : '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '0.88rem',
+                        }}>{isCancel ? 'Yes, Cancel Order' : 'Yes, Delete'}</button>
                     </div>
                 </div>
             </div>
@@ -229,6 +284,7 @@ export default function AdminOrders() {
     const [customerOrders, setCustomerOrders] = useState([]);
     const [riders, setRiders] = useState([]);
     const [loadingCustomerOrders, setLoadingCustomerOrders] = useState(true);
+    const [detailOrder, setDetailOrder] = useState(null); // Change 3: order detail modal
 
     const showToast = (msg, duration = 3000) => {
         setToast(msg);
@@ -296,11 +352,20 @@ export default function AdminOrders() {
         }
 
         return {
-            ...d, // Preserve all properties like isArchived
+            ...d,
             id: d.ref || ('REQ-' + d.id),
             keyId: d.id,
             supplier: d.supplier || d.supplier_name || d.supplier_id || 'Unknown Supplier',
             customer: 'J&K Watch Admin',
+            // Change 2: expose raw fields for new columns
+            model: d.model,
+            rawProduct: d.model,
+            rawImage: d.image || null,
+            brand: d.brand || '—',
+            category: d.category || '—',
+            qty: d.qty,
+            unit_price: d.price,
+            payment: d.payment,
             product: `${d.model} (Restock ×${d.qty})`,
             date: displayDate,
             amount: (d.price != null && d.qty != null)
@@ -321,6 +386,15 @@ export default function AdminOrders() {
             id: o.ref,
             keyId: o.id,
             customer: o.customer_name || o.user?.name || 'Unknown',
+            // Change 2: expose brand/category/image for new columns
+            brand: o.brand?.name || o.brand_name || '—',
+            category: o.product?.category?.name || '—',
+            rawImage: o.product?.image || null,
+            rawProduct: o.product_name || (o.product ? o.product.name : ''),
+            model: o.product_name || (o.product ? o.product.name : ''),
+            qty: o.quantity,
+            unit_price: o.unit_price,
+            payment: o.payment_method,
             product: `${o.product_name || (o.product ? o.product.name : 'Unknown Product')} (x${o.quantity})`,
             rawValue: o.total_amount,
             amount: formatCurrency(o.total_amount),
@@ -399,7 +473,8 @@ export default function AdminOrders() {
         }
     };
 
-    const colSpan = orderType === 'supplier' ? 8 : 7;
+    // Change 2: updated column spans to include Image, Brand, Category
+    const colSpan = orderType === 'supplier' ? 11 : 10;
 
     return (
         <AdminLayout>
@@ -494,6 +569,9 @@ export default function AdminOrders() {
                     <thead>
                         <tr>
                             <th>Order ID</th>
+                            <th>Image</th>
+                            <th>Brand</th>
+                            <th>Category</th>
                             <th>{orderType === 'customer' ? 'Customer' : 'Company'}</th>
                             {orderType === 'supplier' && <th>Orderer</th>}
                             <th>Product Details</th>
@@ -512,9 +590,31 @@ export default function AdminOrders() {
                             </tr>
                         ) : filtered.map((o, idx) => {
                             const st = STATUS_STYLES[o.status] || STATUS_STYLES.Pending;
+                            // Change 2: image src logic
+                            const imgSrc = o.rawImage
+                                ? (o.rawImage.startsWith('http') ? o.rawImage : '/storage/' + o.rawImage)
+                                : null;
+                            // Change 1: action button logic based on status
+                            const isPending = o.status === 'Pending';
+                            const isDelivered = o.status === 'Delivered' || o.status === 'Completed';
+                            const isInProgress = ['Accepted','Preparing','Transporting','Assigned','Out for Delivery','Processing'].includes(o.status);
                             return (
                                 <tr key={o.keyId || o.id || idx}>
-                                    <td style={{ fontWeight: 700, color: '#C9A84C' }}>{o.id}</td>
+                                    {/* Change 3: Clickable Order ID */}
+                                    <td style={{ fontWeight: 700, color: '#C9A84C', cursor: 'pointer', textDecoration: 'underline', whiteSpace: 'nowrap' }}
+                                        onClick={() => setDetailOrder(o)}>{o.id}</td>
+                                    {/* Change 2: Image column */}
+                                    <td>
+                                        <div style={{ width: 38, height: 38, borderRadius: 7, background: '#111', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                            {imgSrc
+                                                ? <img src={imgSrc} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
+                                                : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
+                                        </div>
+                                    </td>
+                                    {/* Change 2: Brand column */}
+                                    <td className="admin-table__muted" style={{ fontSize: '0.82rem' }}>{o.brand || '—'}</td>
+                                    {/* Change 2: Category column */}
+                                    <td className="admin-table__muted" style={{ fontSize: '0.82rem' }}>{o.category || '—'}</td>
                                     <td>
                                         <div style={{ fontWeight: 600 }}>
                                             {orderType === 'customer' ? o.customer : o.supplier}
@@ -534,12 +634,52 @@ export default function AdminOrders() {
                                         <span className="admin-badge" style={{ background: st.bg, color: st.color, fontWeight: 700 }}>
                                             {o.status}
                                         </span>
-                                        {/* Status is 'Delivered' check moved to actions column since prompt requested 'ACTIONS column or above status badge' but actions column is more standard. Or below the status badge, wait, I will render it inside the Actions table data cell below. */}
                                     </td>
-                                    <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                        {!o.isArchived && (
+                                    {/* Change 1: Actions column with cancel/delete logic */}
+                                    <td style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                        {!o.isArchived && orderType === 'supplier' && isPending && (
                                             <button
-                                                title="Move to Archive"
+                                                title="Cancel Order"
+                                                onClick={() => handleDeleteClick({ ...o, _actionLabel: 'cancel' })}
+                                                style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                                                    padding: '0.3rem 0.7rem', borderRadius: 7,
+                                                    background: 'rgba(245,158,11,0.12)',
+                                                    border: '1px solid rgba(245,158,11,0.35)',
+                                                    color: '#f59e0b', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem',
+                                                    transition: 'background 0.2s',
+                                                }}
+                                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(245,158,11,0.25)'}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'rgba(245,158,11,0.12)'}
+                                            >
+                                                🚫 Cancel Order
+                                            </button>
+                                        )}
+                                        {!o.isArchived && orderType === 'supplier' && isDelivered && (
+                                            <button
+                                                title="Delete Order"
+                                                onClick={() => handleDeleteClick(o)}
+                                                style={{
+                                                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                                    width: 30, height: 30, borderRadius: 7,
+                                                    background: 'rgba(231,76,60,0.12)',
+                                                    border: '1px solid rgba(231,76,60,0.25)',
+                                                    color: '#e74c3c', cursor: 'pointer',
+                                                    transition: 'background 0.2s',
+                                                }}
+                                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.28)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.12)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)'; }}
+                                            >
+                                                <TrashIcon />
+                                            </button>
+                                        )}
+                                        {!o.isArchived && orderType === 'supplier' && isInProgress && (
+                                            <span style={{ fontSize: '0.72rem', color: '#6b7280', fontStyle: 'italic' }}>In progress</span>
+                                        )}
+                                        {/* Customer orders: trash for non-archive only */}
+                                        {!o.isArchived && orderType === 'customer' && (
+                                            <button
+                                                title="Delete Order"
                                                 onClick={() => handleDeleteClick(o)}
                                                 style={{
                                                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -549,14 +689,8 @@ export default function AdminOrders() {
                                                     color: '#e74c3c', cursor: 'pointer',
                                                     transition: 'background 0.2s, border-color 0.2s',
                                                 }}
-                                                onMouseEnter={e => {
-                                                    e.currentTarget.style.background = 'rgba(231,76,60,0.28)';
-                                                    e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)';
-                                                }}
-                                                onMouseLeave={e => {
-                                                    e.currentTarget.style.background = 'rgba(231,76,60,0.12)';
-                                                    e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)';
-                                                }}
+                                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.28)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.12)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)'; }}
                                             >
                                                 <TrashIcon />
                                             </button>
@@ -594,11 +728,15 @@ export default function AdminOrders() {
                 </table>
             </div>
 
-            {/* Confirm delete modal */}
+            {/* Change 3: Order detail modal */}
+            {detailOrder && <OrderDetailModal order={detailOrder} onClose={() => setDetailOrder(null)} />}
+
+            {/* Confirm delete/cancel modal */}
             {confirmDelete && (
                 <ConfirmDeleteModal
                     order={confirmDelete}
                     orderType={orderType}
+                    actionLabel={confirmDelete._actionLabel || 'delete'}
                     onCancel={() => setConfirmDelete(null)}
                     onConfirm={handleConfirmDelete}
                 />

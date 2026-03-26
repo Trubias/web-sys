@@ -125,9 +125,17 @@ function EditModal({ product, onClose, onSaved }) {
                     <button style={S.closeBtn} onClick={onClose} disabled={loading}>✕</button>
                 </div>
                 <div style={{ padding: '1.5rem' }}>
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <div style={{ fontWeight: 600, color: '#fff' }}>{product.name}</div>
-                        <div style={{ color: '#888', fontSize: '0.85rem' }}>{product.brand?.name} • {product.category?.name}</div>
+                    {/* Product image + name header */}
+                    <div style={{ display: 'flex', gap: '0.9rem', alignItems: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.9rem', marginBottom: '1.25rem' }}>
+                        <div style={{ width: 58, height: 58, borderRadius: 8, background: '#111', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {product.image
+                                ? <img src={IMG_BASE + product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
+                                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.95rem', marginBottom: 3 }}>{product.name}</div>
+                            <div style={{ color: '#888', fontSize: '0.8rem' }}>{product.brand?.name ?? '—'} &bull; {product.category?.name ?? '—'}</div>
+                        </div>
                     </div>
 
                     <div style={{ marginBottom: '1rem', background: notEnoughStock ? 'rgba(231,76,60,0.08)' : 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: 8, border: notEnoughStock ? '1px solid rgba(231,76,60,0.3)' : '1px solid transparent' }}>

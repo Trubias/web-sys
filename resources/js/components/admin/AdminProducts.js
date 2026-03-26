@@ -978,26 +978,50 @@ function PlaceInInventoryModal({ product, onClose, onSaved }) {
 
     return (
         <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
-            <div style={{ ...S.modal, maxWidth: 420 }}>
+            <div style={{ ...S.modal, maxWidth: 480 }}>
                 <div style={S.mHeader}>
                     <h2 style={{ ...S.mTitle, color: '#27ae60' }}>Place in Inventory</h2>
                     <button style={S.closeBtn} onClick={onClose}>✕</button>
                 </div>
                 <div style={{ padding: '1.5rem' }}>
-                    <p style={{ color: '#ccc', marginBottom: '1rem', lineHeight: 1.6 }}>
-                        Move <strong style={{ color: '#fff' }}>{product.name}</strong> to live inventory.
-                    </p>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', background: 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: 8 }}>
-                        <span style={{ color: '#aaa' }}>Available in Mgmt:</span>
-                        <span style={{ color: '#C9A84C', fontWeight: 800 }}>{product.stock} units</span>
+                    {/* Product details header */}
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: 'rgba(39,174,96,0.07)', border: '1px solid rgba(39,174,96,0.2)', borderRadius: 10, padding: '1rem', marginBottom: '1.25rem' }}>
+                        <div style={{ width: 70, height: 70, borderRadius: 8, background: '#111', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                            {product.image
+                                ? <img src={IMG_BASE + product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
+                                : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 800, color: '#fff', fontSize: '1rem', marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
+                            <div style={{ fontSize: '0.8rem', color: '#aaa', marginBottom: 4 }}>{product.brand?.name || '—'} &bull; {product.category?.name || '—'}</div>
+                            <div style={{ fontSize: '0.8rem', color: '#888' }}>🏢 {product.supplier?.name || '—'}</div>
+                        </div>
                     </div>
+
+                    {/* Detail grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem', marginBottom: '1.25rem' }}>
+                        {[
+                            { label: 'Unit Price', value: `₱${Number(product.price || 0).toLocaleString()}`, color: '#C9A84C' },
+                            { label: 'Available Stock', value: `${product.stock} units`, color: '#27ae60' },
+                            { label: 'Status', value: product.status || 'Active', color: '#aaa' },
+                        ].map(f => (
+                            <div key={f.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '0.6rem 0.8rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                <div style={{ fontSize: '0.68rem', color: '#666', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{f.label}</div>
+                                <div style={{ fontWeight: 800, color: f.color, fontSize: '0.88rem' }}>{f.value}</div>
+                            </div>
+                        ))}
+                    </div>
+
                     {error && <div style={S.errBox}>{error}</div>}
+
                     <div style={S.field}>
                         <label style={S.label}>Quantity to place in Inventory *</label>
                         <input type="number" min="1" max={product.stock} value={qty}
                                onChange={e => setQty(e.target.value)}
                                style={S.input} />
+                        <div style={{ fontSize: '0.75rem', color: '#666', marginTop: 4 }}>Max: {product.stock} units available</div>
                     </div>
+
                     <div style={S.mFooter}>
                         <button className="admin-btn-outline" onClick={onClose} disabled={loading}>Cancel</button>
                         <button className="admin-btn-gold" style={{ background: '#27ae60' }} onClick={handleConfirm} disabled={loading}>

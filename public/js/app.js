@@ -9929,7 +9929,7 @@ var S = {
 
 // ─── Edit Stock & Price Modal ────────────────────────────────────────────────
 function EditModal(_ref) {
-  var _product$brand, _product$category, _product$supplier, _product$brand2, _product$category2;
+  var _product$brand, _product$category, _product$supplier, _product$brand$name, _product$brand2, _product$category$nam, _product$category2;
   var product = _ref.product,
     onClose = _ref.onClose,
     onSaved = _ref.onSaved;
@@ -10118,20 +10118,76 @@ function EditModal(_ref) {
         },
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
           style: {
-            marginBottom: '1.5rem'
+            display: 'flex',
+            gap: '0.9rem',
+            alignItems: 'center',
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 10,
+            padding: '0.9rem',
+            marginBottom: '1.25rem'
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
             style: {
-              fontWeight: 600,
-              color: '#fff'
+              width: 58,
+              height: 58,
+              borderRadius: 8,
+              background: '#111',
+              border: '1px solid rgba(255,255,255,0.1)',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
             },
-            children: product.name
+            children: product.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
+              src: IMG_BASE + product.image,
+              alt: product.name,
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              },
+              onError: function onError(e) {
+                return e.target.style.display = 'none';
+              }
+            }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
+              width: "20",
+              height: "20",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "#555",
+              strokeWidth: "1.5",
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("rect", {
+                x: "3",
+                y: "3",
+                width: "18",
+                height: "18",
+                rx: "2"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("circle", {
+                cx: "9",
+                cy: "9",
+                r: "2"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                d: "M21 15l-5-5L5 21"
+              })]
+            })
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-            style: {
-              color: '#888',
-              fontSize: '0.85rem'
-            },
-            children: [(_product$brand2 = product.brand) === null || _product$brand2 === void 0 ? void 0 : _product$brand2.name, " \u2022 ", (_product$category2 = product.category) === null || _product$category2 === void 0 ? void 0 : _product$category2.name]
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+              style: {
+                fontWeight: 700,
+                color: '#fff',
+                fontSize: '0.95rem',
+                marginBottom: 3
+              },
+              children: product.name
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+              style: {
+                color: '#888',
+                fontSize: '0.8rem'
+              },
+              children: [(_product$brand$name = (_product$brand2 = product.brand) === null || _product$brand2 === void 0 ? void 0 : _product$brand2.name) !== null && _product$brand$name !== void 0 ? _product$brand$name : '—', " \u2022 ", (_product$category$nam = (_product$category2 = product.category) === null || _product$category2 === void 0 ? void 0 : _product$category2.name) !== null && _product$category$nam !== void 0 ? _product$category$nam : '—']
+            })]
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
           style: {
@@ -11530,13 +11586,229 @@ var TrashIcon = function TrashIcon() {
   });
 };
 
-// ─── Confirm Delete Modal ─────────────────────────────────────────────────────
-function ConfirmDeleteModal(_ref) {
+// ─── Order Detail Modal (Change 3) ────────────────────────────────────────────
+var IMG_BASE = '/storage/';
+function OrderDetailModal(_ref) {
   var order = _ref.order,
-    onCancel = _ref.onCancel,
-    onConfirm = _ref.onConfirm,
-    orderType = _ref.orderType;
-  var isSupplierOrder = orderType === 'supplier';
+    onClose = _ref.onClose;
+  if (!order) return null;
+  var st = STATUS_STYLES[order.status] || STATUS_STYLES.Pending;
+  var rows = [{
+    label: 'Order ID',
+    value: order.id
+  }, {
+    label: 'Product Name',
+    value: order.model || order.rawProduct
+  }, {
+    label: 'Brand',
+    value: order.brand
+  }, {
+    label: 'Category',
+    value: order.category
+  }, {
+    label: 'Company',
+    value: order.supplier
+  }, {
+    label: 'Orderer',
+    value: order.customer
+  }, {
+    label: 'Quantity',
+    value: order.qty != null ? "".concat(order.qty, " units") : order.quantity != null ? "".concat(order.quantity, " units") : '—'
+  }, {
+    label: 'Unit Price',
+    value: order.unit_price != null ? "\u20B1".concat(Number(order.unit_price).toLocaleString()) : '—'
+  }, {
+    label: 'Total Amount',
+    value: order.amount
+  }, {
+    label: 'Date',
+    value: order.date
+  }, {
+    label: 'Payment Method',
+    value: order.payment || order.payment_method || '—'
+  }];
+  var imgSrc = order.image || (order.rawImage ? order.rawImage.startsWith('http') ? order.rawImage : IMG_BASE + order.rawImage : null);
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 9999,
+      background: 'rgba(0,0,0,0.7)',
+      backdropFilter: 'blur(5px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    onClick: function onClick(e) {
+      return e.target === e.currentTarget && onClose();
+    },
+    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      style: {
+        background: '#1a1a1a',
+        borderRadius: 14,
+        width: '90%',
+        maxWidth: 520,
+        border: '1px solid rgba(255,255,255,0.1)',
+        boxShadow: '0 24px 60px rgba(0,0,0,0.8)',
+        overflow: 'hidden',
+        maxHeight: '90vh',
+        display: 'flex',
+        flexDirection: 'column'
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        style: {
+          padding: '1.1rem 1.4rem',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("h3", {
+          style: {
+            margin: 0,
+            color: '#C9A84C',
+            fontWeight: 700,
+            fontSize: '1.05rem'
+          },
+          children: ["Order Details \u2014 ", order.id]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+          onClick: onClose,
+          style: {
+            background: 'transparent',
+            border: 'none',
+            color: '#888',
+            cursor: 'pointer',
+            fontSize: '1.1rem'
+          },
+          children: "\u2715"
+        })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        style: {
+          padding: '1.4rem',
+          overflowY: 'auto'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+          style: {
+            display: 'flex',
+            gap: '1rem',
+            alignItems: 'center',
+            marginBottom: '1.25rem'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+            style: {
+              width: 80,
+              height: 80,
+              borderRadius: 10,
+              background: '#111',
+              border: '1px solid rgba(255,255,255,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              flexShrink: 0
+            },
+            children: imgSrc ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("img", {
+              src: imgSrc,
+              alt: "product",
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              },
+              onError: function onError(e) {
+                return e.target.style.display = 'none';
+              }
+            }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("svg", {
+              width: "28",
+              height: "28",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "#444",
+              strokeWidth: "1.5",
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("rect", {
+                x: "3",
+                y: "3",
+                width: "18",
+                height: "18",
+                rx: "2"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("circle", {
+                cx: "9",
+                cy: "9",
+                r: "2"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("path", {
+                d: "M21 15l-5-5L5 21"
+              })]
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+              style: {
+                fontWeight: 800,
+                color: '#fff',
+                fontSize: '1rem',
+                marginBottom: 4
+              },
+              children: order.model || order.rawProduct || '—'
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+              style: {
+                background: st.bg,
+                color: st.color,
+                borderRadius: 20,
+                padding: '0.2rem 0.75rem',
+                fontSize: '0.75rem',
+                fontWeight: 700
+              },
+              children: order.status
+            })]
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+          style: {
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '0.6rem'
+          },
+          children: rows.map(function (r) {
+            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+              style: {
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: 8,
+                padding: '0.6rem 0.9rem',
+                border: '1px solid rgba(255,255,255,0.06)'
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                style: {
+                  fontSize: '0.68rem',
+                  color: '#666',
+                  fontWeight: 600,
+                  marginBottom: 2,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em'
+                },
+                children: r.label
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                style: {
+                  fontWeight: 700,
+                  color: '#e5e5e5',
+                  fontSize: '0.88rem',
+                  wordBreak: 'break-word'
+                },
+                children: r.value || '—'
+              })]
+            }, r.label);
+          })
+        })]
+      })]
+    })
+  });
+}
+
+// ─── Confirm Delete Modal ─────────────────────────────────────────────────────
+function ConfirmDeleteModal(_ref2) {
+  var order = _ref2.order,
+    onCancel = _ref2.onCancel,
+    onConfirm = _ref2.onConfirm,
+    orderType = _ref2.orderType,
+    actionLabel = _ref2.actionLabel;
+  var isCancel = actionLabel === 'cancel';
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
     style: {
       position: 'fixed',
@@ -11570,15 +11842,15 @@ function ConfirmDeleteModal(_ref) {
           style: {
             fontSize: '1.15rem'
           },
-          children: "\uD83D\uDDD1\uFE0F"
+          children: isCancel ? '🚫' : '🗑️'
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("h3", {
           style: {
             margin: 0,
-            color: '#e74c3c',
+            color: isCancel ? '#f59e0b' : '#e74c3c',
             fontWeight: 700,
             fontSize: '1rem'
           },
-          children: "Delete Order"
+          children: isCancel ? 'Cancel Order' : 'Delete Order'
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
         style: {
@@ -11591,7 +11863,7 @@ function ConfirmDeleteModal(_ref) {
             fontSize: '0.9rem',
             lineHeight: 1.6
           },
-          children: ["Are you sure you want to permanently delete order", ' ', /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("strong", {
+          children: ["Are you sure you want to ", isCancel ? 'cancel' : 'permanently delete', " order", ' ', /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("strong", {
             style: {
               color: '#C9A84C'
             },
@@ -11604,14 +11876,14 @@ function ConfirmDeleteModal(_ref) {
             fontSize: '0.82rem'
           },
           children: [order.product, " \xB7 ", order.date]
-        }), isSupplierOrder && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
+        }), isCancel && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
           style: {
             color: '#f59e0b',
             margin: 0,
             fontSize: '0.82rem',
             fontWeight: 600
           },
-          children: "\u26A0\uFE0F This will remove the request from the Supplier's Active Requests. Stock will NOT be changed."
+          children: "\u26A0\uFE0F This will remove the request from the Supplier's Active Requests. No stock will be deducted."
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
           style: {
             marginTop: '1.4rem',
@@ -11636,15 +11908,15 @@ function ConfirmDeleteModal(_ref) {
             onClick: onConfirm,
             style: {
               padding: '0.55rem 1.2rem',
-              background: '#e74c3c',
+              background: isCancel ? '#f59e0b' : '#e74c3c',
               border: 'none',
               borderRadius: 8,
-              color: '#fff',
+              color: isCancel ? '#000' : '#fff',
               cursor: 'pointer',
               fontWeight: 700,
               fontSize: '0.88rem'
             },
-            children: "Yes, Delete"
+            children: isCancel ? 'Yes, Cancel Order' : 'Yes, Delete'
           })]
         })]
       })]
@@ -11653,14 +11925,14 @@ function ConfirmDeleteModal(_ref) {
 }
 
 // ─── Assign Rider Modal ───────────────────────────────────────────────────────
-function AssignRiderModal(_ref2) {
-  var order = _ref2.order,
-    riders = _ref2.riders,
-    onCancel = _ref2.onCancel,
-    onConfirm = _ref2.onConfirm,
-    isSubmitting = _ref2.isSubmitting,
-    errorMsg = _ref2.errorMsg,
-    successMsg = _ref2.successMsg;
+function AssignRiderModal(_ref3) {
+  var order = _ref3.order,
+    riders = _ref3.riders,
+    onCancel = _ref3.onCancel,
+    onConfirm = _ref3.onConfirm,
+    isSubmitting = _ref3.isSubmitting,
+    errorMsg = _ref3.errorMsg,
+    successMsg = _ref3.successMsg;
   var matchRiders = riders.filter(function (r) {
     return r.region === order.region;
   });
@@ -11963,6 +12235,11 @@ function AdminOrders() {
     _useState24 = _slicedToArray(_useState23, 2),
     loadingCustomerOrders = _useState24[0],
     setLoadingCustomerOrders = _useState24[1];
+  var _useState25 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState26 = _slicedToArray(_useState25, 2),
+    detailOrder = _useState26[0],
+    setDetailOrder = _useState26[1]; // Change 3: order detail modal
+
   var showToast = function showToast(msg) {
     var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3000;
     setToast(msg);
@@ -11971,7 +12248,7 @@ function AdminOrders() {
     }, duration);
   };
   var fetchCustomerOrders = /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
       var axios, res, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
@@ -12000,11 +12277,11 @@ function AdminOrders() {
       }, _callee, null, [[0, 3]]);
     }));
     return function fetchCustomerOrders() {
-      return _ref3.apply(this, arguments);
+      return _ref4.apply(this, arguments);
     };
   }();
   var fetchRiders = /*#__PURE__*/function () {
-    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
       var axios, res, _t2;
       return _regenerator().w(function (_context2) {
         while (1) switch (_context2.p = _context2.n) {
@@ -12033,7 +12310,7 @@ function AdminOrders() {
       }, _callee2, null, [[0, 3]]);
     }));
     return function fetchRiders() {
-      return _ref4.apply(this, arguments);
+      return _ref5.apply(this, arguments);
     };
   }();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
@@ -12061,10 +12338,10 @@ function AdminOrders() {
       window.removeEventListener('storage', sync);
     };
   }, []);
-  var _useState25 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('active'),
-    _useState26 = _slicedToArray(_useState25, 2),
-    viewMode = _useState26[0],
-    setViewMode = _useState26[1]; // 'active' | 'archive'
+  var _useState27 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('active'),
+    _useState28 = _slicedToArray(_useState27, 2),
+    viewMode = _useState28[0],
+    setViewMode = _useState28[1]; // 'active' | 'archive'
 
   var mappedSupplierOrders = deliveries.map(function (d) {
     var mappedStatus = mapStatus(d.status);
@@ -12077,11 +12354,19 @@ function AdminOrders() {
       displayDate = d.deliveredAt ? fmtDate(d.deliveredAt) : fmtDate(d.date);
     }
     return _objectSpread(_objectSpread({}, d), {}, {
-      // Preserve all properties like isArchived
       id: d.ref || 'REQ-' + d.id,
       keyId: d.id,
       supplier: d.supplier || d.supplier_name || d.supplier_id || 'Unknown Supplier',
       customer: 'J&K Watch Admin',
+      // Change 2: expose raw fields for new columns
+      model: d.model,
+      rawProduct: d.model,
+      rawImage: d.image || null,
+      brand: d.brand || '—',
+      category: d.category || '—',
+      qty: d.qty,
+      unit_price: d.price,
+      payment: d.payment,
       product: "".concat(d.model, " (Restock \xD7").concat(d.qty, ")"),
       date: displayDate,
       amount: d.price != null && d.qty != null ? (0,_utils_currency__WEBPACK_IMPORTED_MODULE_3__.formatCurrency)(Number(d.price) * Number(d.qty)) : '—',
@@ -12092,12 +12377,21 @@ function AdminOrders() {
   var allStatuses = ['All', 'Pending', 'Accepted', 'Preparing', 'Transporting', 'Delivered'];
   var customerStatusFilters = ['All', 'Completed', 'Pending', 'Processing', 'Out for Delivery'];
   var visibleCustomerOrders = customerOrders.map(function (o) {
-    var _o$user, _o$user2;
+    var _o$user, _o$brand, _o$product, _o$product2, _o$user2;
     var mappedStatus = mapStatus(o.status);
     return _objectSpread(_objectSpread({}, o), {}, {
       id: o.ref,
       keyId: o.id,
       customer: o.customer_name || ((_o$user = o.user) === null || _o$user === void 0 ? void 0 : _o$user.name) || 'Unknown',
+      // Change 2: expose brand/category/image for new columns
+      brand: ((_o$brand = o.brand) === null || _o$brand === void 0 ? void 0 : _o$brand.name) || o.brand_name || '—',
+      category: ((_o$product = o.product) === null || _o$product === void 0 || (_o$product = _o$product.category) === null || _o$product === void 0 ? void 0 : _o$product.name) || '—',
+      rawImage: ((_o$product2 = o.product) === null || _o$product2 === void 0 ? void 0 : _o$product2.image) || null,
+      rawProduct: o.product_name || (o.product ? o.product.name : ''),
+      model: o.product_name || (o.product ? o.product.name : ''),
+      qty: o.quantity,
+      unit_price: o.unit_price,
+      payment: o.payment_method,
       product: "".concat(o.product_name || (o.product ? o.product.name : 'Unknown Product'), " (x").concat(o.quantity, ")"),
       rawValue: o.total_amount,
       amount: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_3__.formatCurrency)(o.total_amount),
@@ -12123,7 +12417,7 @@ function AdminOrders() {
     return setConfirmDelete(o);
   };
   var handleConfirmDelete = /*#__PURE__*/function () {
-    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+    var _ref6 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
       var axios, isDelivered, _t3;
       return _regenerator().w(function (_context3) {
         while (1) switch (_context3.p = _context3.n) {
@@ -12186,11 +12480,11 @@ function AdminOrders() {
       }, _callee3, null, [[2, 5]]);
     }));
     return function handleConfirmDelete() {
-      return _ref5.apply(this, arguments);
+      return _ref6.apply(this, arguments);
     };
   }();
   var handleAssignRider = /*#__PURE__*/function () {
-    var _ref6 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(riderId) {
+    var _ref7 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(riderId) {
       var axios, res, _error$response, msg, _t4;
       return _regenerator().w(function (_context4) {
         while (1) switch (_context4.p = _context4.n) {
@@ -12242,10 +12536,12 @@ function AdminOrders() {
       }, _callee4, null, [[2, 5, 6, 7]]);
     }));
     return function handleAssignRider(_x) {
-      return _ref6.apply(this, arguments);
+      return _ref7.apply(this, arguments);
     };
   }();
-  var colSpan = orderType === 'supplier' ? 8 : 7;
+
+  // Change 2: updated column spans to include Image, Brand, Category
+  var colSpan = orderType === 'supplier' ? 11 : 10;
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_AdminLayout__WEBPACK_IMPORTED_MODULE_1__["default"], {
     children: [toast && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
       style: {
@@ -12451,6 +12747,12 @@ function AdminOrders() {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
               children: "Order ID"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+              children: "Image"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+              children: "Brand"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+              children: "Category"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
               children: orderType === 'customer' ? 'Customer' : 'Company'
             }), orderType === 'supplier' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
               children: "Orderer"
@@ -12480,13 +12782,83 @@ function AdminOrders() {
           }) : filtered.map(function (o, idx) {
             var _o$rider;
             var st = STATUS_STYLES[o.status] || STATUS_STYLES.Pending;
+            // Change 2: image src logic
+            var imgSrc = o.rawImage ? o.rawImage.startsWith('http') ? o.rawImage : '/storage/' + o.rawImage : null;
+            // Change 1: action button logic based on status
+            var isPending = o.status === 'Pending';
+            var isDelivered = o.status === 'Delivered' || o.status === 'Completed';
+            var isInProgress = ['Accepted', 'Preparing', 'Transporting', 'Assigned', 'Out for Delivery', 'Processing'].includes(o.status);
             return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("tr", {
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
                 style: {
                   fontWeight: 700,
-                  color: '#C9A84C'
+                  color: '#C9A84C',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  whiteSpace: 'nowrap'
+                },
+                onClick: function onClick() {
+                  return setDetailOrder(o);
                 },
                 children: o.id
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                  style: {
+                    width: 38,
+                    height: 38,
+                    borderRadius: 7,
+                    background: '#111',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                  },
+                  children: imgSrc ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("img", {
+                    src: imgSrc,
+                    alt: "",
+                    style: {
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    },
+                    onError: function onError(e) {
+                      return e.target.style.display = 'none';
+                    }
+                  }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("svg", {
+                    width: "14",
+                    height: "14",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "#444",
+                    strokeWidth: "1.5",
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("rect", {
+                      x: "3",
+                      y: "3",
+                      width: "18",
+                      height: "18",
+                      rx: "2"
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("circle", {
+                      cx: "9",
+                      cy: "9",
+                      r: "2"
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("path", {
+                      d: "M21 15l-5-5L5 21"
+                    })]
+                  })
+                })
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                className: "admin-table__muted",
+                style: {
+                  fontSize: '0.82rem'
+                },
+                children: o.brand || '—'
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                className: "admin-table__muted",
+                style: {
+                  fontSize: '0.82rem'
+                },
+                children: o.category || '—'
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
                 children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
                   style: {
@@ -12530,10 +12902,73 @@ function AdminOrders() {
                 style: {
                   display: 'flex',
                   gap: '8px',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  flexWrap: 'wrap'
                 },
-                children: [!o.isArchived && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-                  title: "Move to Archive",
+                children: [!o.isArchived && orderType === 'supplier' && isPending && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                  title: "Cancel Order",
+                  onClick: function onClick() {
+                    return handleDeleteClick(_objectSpread(_objectSpread({}, o), {}, {
+                      _actionLabel: 'cancel'
+                    }));
+                  },
+                  style: {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    padding: '0.3rem 0.7rem',
+                    borderRadius: 7,
+                    background: 'rgba(245,158,11,0.12)',
+                    border: '1px solid rgba(245,158,11,0.35)',
+                    color: '#f59e0b',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
+                    transition: 'background 0.2s'
+                  },
+                  onMouseEnter: function onMouseEnter(e) {
+                    return e.currentTarget.style.background = 'rgba(245,158,11,0.25)';
+                  },
+                  onMouseLeave: function onMouseLeave(e) {
+                    return e.currentTarget.style.background = 'rgba(245,158,11,0.12)';
+                  },
+                  children: "\uD83D\uDEAB Cancel Order"
+                }), !o.isArchived && orderType === 'supplier' && isDelivered && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                  title: "Delete Order",
+                  onClick: function onClick() {
+                    return handleDeleteClick(o);
+                  },
+                  style: {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 30,
+                    height: 30,
+                    borderRadius: 7,
+                    background: 'rgba(231,76,60,0.12)',
+                    border: '1px solid rgba(231,76,60,0.25)',
+                    color: '#e74c3c',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  },
+                  onMouseEnter: function onMouseEnter(e) {
+                    e.currentTarget.style.background = 'rgba(231,76,60,0.28)';
+                    e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)';
+                  },
+                  onMouseLeave: function onMouseLeave(e) {
+                    e.currentTarget.style.background = 'rgba(231,76,60,0.12)';
+                    e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)';
+                  },
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(TrashIcon, {})
+                }), !o.isArchived && orderType === 'supplier' && isInProgress && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                  style: {
+                    fontSize: '0.72rem',
+                    color: '#6b7280',
+                    fontStyle: 'italic'
+                  },
+                  children: "In progress"
+                }), !o.isArchived && orderType === 'customer' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                  title: "Delete Order",
                   onClick: function onClick() {
                     return handleDeleteClick(o);
                   },
@@ -12617,9 +13052,15 @@ function AdminOrders() {
           })
         })]
       })
+    }), detailOrder && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(OrderDetailModal, {
+      order: detailOrder,
+      onClose: function onClose() {
+        return setDetailOrder(null);
+      }
     }), confirmDelete && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(ConfirmDeleteModal, {
       order: confirmDelete,
       orderType: orderType,
+      actionLabel: confirmDelete._actionLabel || 'delete',
       onCancel: function onCancel() {
         return setConfirmDelete(null);
       },
@@ -14824,6 +15265,7 @@ function DeleteModal(_ref1) {
 
 // ─── Place In Inventory Modal ────────────────────────────────────────────────
 function PlaceInInventoryModal(_ref10) {
+  var _product$brand2, _product$category2, _product$supplier2;
   var product = _ref10.product,
     onClose = _ref10.onClose,
     onSaved = _ref10.onSaved;
@@ -15001,7 +15443,7 @@ function PlaceInInventoryModal(_ref10) {
     },
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
       style: _objectSpread(_objectSpread({}, S.modal), {}, {
-        maxWidth: 420
+        maxWidth: 480
       }),
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
         style: S.mHeader,
@@ -15019,39 +15461,140 @@ function PlaceInInventoryModal(_ref10) {
         style: {
           padding: '1.5rem'
         },
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("p", {
-          style: {
-            color: '#ccc',
-            marginBottom: '1rem',
-            lineHeight: 1.6
-          },
-          children: ["Move ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
-            style: {
-              color: '#fff'
-            },
-            children: product.name
-          }), " to live inventory."]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
           style: {
             display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '1rem',
-            background: 'rgba(255,255,255,0.05)',
-            padding: '0.75rem',
-            borderRadius: 8
+            gap: '1rem',
+            alignItems: 'center',
+            background: 'rgba(39,174,96,0.07)',
+            border: '1px solid rgba(39,174,96,0.2)',
+            borderRadius: 10,
+            padding: '1rem',
+            marginBottom: '1.25rem'
           },
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
             style: {
-              color: '#aaa'
+              width: 70,
+              height: 70,
+              borderRadius: 8,
+              background: '#111',
+              border: '1px solid rgba(255,255,255,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              flexShrink: 0
             },
-            children: "Available in Mgmt:"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+            children: product.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
+              src: IMG_BASE + product.image,
+              alt: product.name,
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              },
+              onError: function onError(e) {
+                return e.target.style.display = 'none';
+              }
+            }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
+              width: "22",
+              height: "22",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "#555",
+              strokeWidth: "1.5",
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("rect", {
+                x: "3",
+                y: "3",
+                width: "18",
+                height: "18",
+                rx: "2"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("circle", {
+                cx: "9",
+                cy: "9",
+                r: "2"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                d: "M21 15l-5-5L5 21"
+              })]
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
             style: {
-              color: '#C9A84C',
-              fontWeight: 800
+              flex: 1,
+              minWidth: 0
             },
-            children: [product.stock, " units"]
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+              style: {
+                fontWeight: 800,
+                color: '#fff',
+                fontSize: '1rem',
+                marginBottom: 3,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              },
+              children: product.name
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+              style: {
+                fontSize: '0.8rem',
+                color: '#aaa',
+                marginBottom: 4
+              },
+              children: [((_product$brand2 = product.brand) === null || _product$brand2 === void 0 ? void 0 : _product$brand2.name) || '—', " \u2022 ", ((_product$category2 = product.category) === null || _product$category2 === void 0 ? void 0 : _product$category2.name) || '—']
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+              style: {
+                fontSize: '0.8rem',
+                color: '#888'
+              },
+              children: ["\uD83C\uDFE2 ", ((_product$supplier2 = product.supplier) === null || _product$supplier2 === void 0 ? void 0 : _product$supplier2.name) || '—']
+            })]
           })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+          style: {
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: '0.6rem',
+            marginBottom: '1.25rem'
+          },
+          children: [{
+            label: 'Unit Price',
+            value: "\u20B1".concat(Number(product.price || 0).toLocaleString()),
+            color: '#C9A84C'
+          }, {
+            label: 'Available Stock',
+            value: "".concat(product.stock, " units"),
+            color: '#27ae60'
+          }, {
+            label: 'Status',
+            value: product.status || 'Active',
+            color: '#aaa'
+          }].map(function (f) {
+            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+              style: {
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: 8,
+                padding: '0.6rem 0.8rem',
+                border: '1px solid rgba(255,255,255,0.06)'
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                style: {
+                  fontSize: '0.68rem',
+                  color: '#666',
+                  fontWeight: 600,
+                  marginBottom: 2,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em'
+                },
+                children: f.label
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                style: {
+                  fontWeight: 800,
+                  color: f.color,
+                  fontSize: '0.88rem'
+                },
+                children: f.value
+              })]
+            }, f.label);
+          })
         }), error && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
           style: S.errBox,
           children: error
@@ -15069,6 +15612,13 @@ function PlaceInInventoryModal(_ref10) {
               return setQty(e.target.value);
             },
             style: S.input
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+            style: {
+              fontSize: '0.75rem',
+              color: '#666',
+              marginTop: 4
+            },
+            children: ["Max: ", product.stock, " units available"]
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
           style: S.mFooter,
