@@ -10,18 +10,34 @@ const authHead = () => ({ headers: { Authorization: 'Bearer ' + getToken() } });
 export default function AdminSettings() {
     const { user, fetchUser } = useAuth();
     const [form, setForm] = useState({
-        storeName: 'J&K Watch Store',
-        email: 'jekwat.store@gmail.com',
-        currency: getCurrencySettings(),
-        address: '123 Bonifacio High St, Taguig, Manila, Philippines',
-        description: '',
+        storeName: user?.store_name || 'J&K Watch Store',
+        email: user?.email || '',
+        currency: user?.currency || getCurrencySettings(),
+        address: user?.address || '123 Bonifacio High St, Taguig, Manila, Philippines',
+        description: user?.description || '',
         newOrder: user?.notify_new_order ?? true,
         password: '',
         confirmPassword: '',
+        photo: null,
+        removeAvatar: false,
     });
     
     const [showPass, setShowPass] = useState(false);
     const [showConf, setShowConf] = useState(false);
+    
+    useEffect(() => {
+        if (user) {
+            setForm(f => ({
+                ...f,
+                storeName: user.store_name || 'J&K Watch Store',
+                email: user.email || '',
+                currency: user.currency || getCurrencySettings(),
+                address: user.address || '123 Bonifacio High St, Taguig, Manila, Philippines',
+                description: user.description || '',
+                newOrder: user.notify_new_order ?? true,
+            }));
+        }
+    }, [user]);
     
     // Status banners
     const [successMsg, setSuccessMsg] = useState('');
@@ -41,16 +57,43 @@ export default function AdminSettings() {
         }
         
         // 2. Save Settings
-        // Save currency globally
+        // Save currency globally in localStorage as well
         setCurrencySettings(form.currency);
-        
-        // Save Notification Preferences to Database
+
+        // Save Avatar / Remove Avatar
         try {
-            await axios.put('/api/admin/settings', { notify_new_order: form.newOrder }, authHead());
-            if (fetchUser) fetchUser(); // Refresh user state if possible
+            if (form.removeAvatar) {
+                await axios.delete('/api/admin/avatar', authHead());
+            } else if (form.photo) {
+                const fd = new FormData();
+                fd.append('avatar', form.photo);
+                await axios.post('/api/admin/avatar', fd, {
+                    headers: { ...authHead().headers, 'Content-Type': 'multipart/form-data' }
+                });
+            }
+        } catch (e) {
+            console.error('Failed to save avatar', e);
+        }
+        
+        // Save ALL Settings to Database
+        try {
+            const savePayload = {
+                storeName: form.storeName,
+                email: form.email,
+                currency: form.currency,
+                address: form.address,
+                description: form.description,
+                notify_new_order: form.newOrder,
+            };
+            if (form.password) {
+                savePayload.password = form.password;
+            }
+
+            await axios.put('/api/admin/settings', savePayload, authHead());
+            if (fetchUser) await fetchUser(); // Await fetchUser so the layout instantly picks up changes
         } catch (error) {
             console.error('Failed to update settings', error);
-            setErrorMsg('Failed to save notification preferences.');
+            setErrorMsg(error.response?.data?.message || 'Failed to save settings.');
             return;
         }
 
@@ -59,11 +102,12 @@ export default function AdminSettings() {
         window.dispatchEvent(new Event('jk_notification_update'));
         
         // 3. Show Success
-        if (form.password && form.password === form.confirmPassword) {
+        if (form.password) {
             setSuccessMsg('Settings saved and Password updated successfully.');
-            setForm(f => ({ ...f, password: '', confirmPassword: '' })); // clear on success
+            setForm(f => ({ ...f, password: '', confirmPassword: '', photo: null, removeAvatar: false })); // clear on success
         } else {
             setSuccessMsg('Settings saved successfully.');
+            setForm(f => ({ ...f, photo: null, removeAvatar: false }));
         }
         
         setTimeout(() => setSuccessMsg(''), 4000);
@@ -133,19 +177,37 @@ export default function AdminSettings() {
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '1.2rem' }}>
-                        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: '#374151' }}>Photo</label>
-                        <div 
-                            onClick={() => document.getElementById('storePhotoInput').click()}
-                            style={{ width: '80px', height: '80px', border: '2px dashed #d1d5db', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontSize: '0.75rem', cursor: 'pointer', background: '#f9fafb', overflow: 'hidden', position: 'relative' }}
-                        >
-                            {form.photo ? (
-                                <img src={URL.createObjectURL(form.photo)} alt="Store" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                                <>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: '4px' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                    Upload
-                                </>
-                            )}
+                        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.75rem', display: 'block' }}>Photo</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div 
+                                style={{ width: '80px', height: '80px', border: `2px solid ${(!form.removeAvatar && (form.photo || user?.avatar)) ? '#C9A84C' : '#d1d5db'}`, borderRadius: '50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontSize: '1.6rem', background: '#f9fafb', overflow: 'hidden', position: 'relative', flexShrink: 0, fontWeight: 800 }}
+                            >
+                                {(!form.removeAvatar && form.photo) ? (
+                                    <img src={URL.createObjectURL(form.photo)} alt="Store Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (!form.removeAvatar && user?.avatar) ? (
+                                    <img src={user.avatar} alt="Store Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <span>{user?.name?.charAt(0)?.toUpperCase() || 'A'}</span>
+                                )}
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => document.getElementById('storePhotoInput').click()}
+                                    style={{ background: '#111827', color: '#C9A84C', border: '1.5px solid #C9A84C', borderRadius: 8, padding: '0.5rem 1.1rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                >
+                                    Change Avatar
+                                </button>
+                                {((user?.avatar && !form.removeAvatar) || form.photo) && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setForm(f => ({ ...f, photo: null, removeAvatar: true }))}
+                                        style={{ background: 'transparent', color: '#ef4444', border: '1.5px solid #ef4444', borderRadius: 8, padding: '0.5rem 1.1rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                    >
+                                        Remove Avatar
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <input 
                             type="file" 
@@ -154,7 +216,7 @@ export default function AdminSettings() {
                             accept="image/*"
                             onChange={e => {
                                 if (e.target.files && e.target.files[0]) {
-                                    set('photo', e.target.files[0]);
+                                    setForm(f => ({ ...f, photo: e.target.files[0], removeAvatar: false }));
                                 }
                             }} 
                         />

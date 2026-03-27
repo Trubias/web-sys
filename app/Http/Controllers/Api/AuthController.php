@@ -117,18 +117,17 @@ class AuthController extends Controller
     }
 
     /**
-     * Update the supplier's own profile.
-     * Year Established and Registration No. are intentionally excluded
-     * and will NEVER be updated regardless of what the request contains.
+     * Update the supplier's own profile (text fields).
+     * Year Established and Registration No. are intentionally excluded.
      */
     public function updateSupplierProfile(Request $request)
     {
         $user = $request->user();
 
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'brands' => 'sometimes|nullable|string|max:500',
-            'phone' => 'sometimes|nullable|string|max:20',
+            'name'    => 'sometimes|string|max:255',
+            'brands'  => 'sometimes|nullable|string|max:500',
+            'phone'   => 'sometimes|nullable|string|max:20',
             'address' => 'sometimes|nullable|string|max:500',
         ]);
 
@@ -136,6 +135,46 @@ class AuthController extends Controller
 
         return response()->json($user->fresh());
     }
+
+    /**
+     * POST /api/supplier/logo
+     * Upload or replace the supplier's profile logo.
+     */
+    public function uploadSupplierLogo(Request $request)
+    {
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:3072',
+        ]);
+
+        $user = $request->user();
+
+        // Delete old logo if it exists
+        if ($user->logo) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $user->logo));
+        }
+
+        $path = $request->file('logo')->store('supplier_logos', 'public');
+        $user->update(['logo' => '/storage/' . $path]);
+
+        return response()->json($user->fresh());
+    }
+
+    /**
+     * DELETE /api/supplier/logo
+     * Remove the supplier's profile avatar and revert to initials.
+     */
+    public function removeSupplierLogo(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->logo) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $user->logo));
+            $user->update(['logo' => null]);
+        }
+
+        return response()->json($user->fresh());
+    }
+
 
     /**
      * Update the standard user's profile.

@@ -65,52 +65,87 @@ const TrashIcon = () => (
     </svg>
 );
 
-// ─── Order Detail Modal (Change 3) ────────────────────────────────────────────
+// ─── Order Detail Modal ───────────────────────────────────────────────────────
 const IMG_BASE = '/storage/';
-function OrderDetailModal({ order, onClose }) {
+function OrderDetailModal({ order, onClose, isCustomer }) {
     if (!order) return null;
     const st = STATUS_STYLES[order.status] || STATUS_STYLES.Pending;
+
+    // Build rows — exclude Company for customer orders
     const rows = [
         { label: 'Order ID',       value: order.id },
-        { label: 'Product Name',   value: order.model || order.rawProduct },
-        { label: 'Brand',          value: order.brand },
-        { label: 'Category',       value: order.category },
-        { label: 'Company',        value: order.supplier },
-        { label: 'Orderer',        value: order.customer },
+        { label: 'Product Name',   value: order.model || order.rawProduct || '—' },
+        { label: 'Brand',          value: order.brand || '—' },
+        { label: 'Category',       value: order.category || '—' },
+        ...(isCustomer ? [] : [{ label: 'Company', value: order.supplier || '—' }]),
+        { label: isCustomer ? 'Customer' : 'Orderer', value: order.customer || '—' },
         { label: 'Quantity',       value: order.qty != null ? `${order.qty} units` : (order.quantity != null ? `${order.quantity} units` : '—') },
         { label: 'Unit Price',     value: order.unit_price != null ? `₱${Number(order.unit_price).toLocaleString()}` : '—' },
-        { label: 'Total Amount',   value: order.amount },
-        { label: 'Date',           value: order.date },
+        { label: 'Total Amount',   value: order.amount || '—' },
+        { label: 'Date',           value: order.date || '—' },
         { label: 'Payment Method', value: order.payment || order.payment_method || '—' },
+        { label: 'Status',         value: order.status || '—', isStatus: true },
     ];
-    const imgSrc = order.image || (order.rawImage ? (order.rawImage.startsWith('http') ? order.rawImage : IMG_BASE + order.rawImage) : null);
+
+    const imgSrc = order.image || (order.rawImage
+        ? (order.rawImage.startsWith('http') ? order.rawImage : IMG_BASE + order.rawImage)
+        : null);
+
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-             onClick={e => e.target === e.currentTarget && onClose()}>
-            <div style={{ background: '#1a1a1a', borderRadius: 14, width: '90%', maxWidth: 520, border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 24px 60px rgba(0,0,0,0.8)', overflow: 'hidden', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ padding: '1.1rem 1.4rem', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <h3 style={{ margin: 0, color: '#C9A84C', fontWeight: 700, fontSize: '1.05rem' }}>Order Details — {order.id}</h3>
-                    <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.1rem' }}>✕</button>
+        <div
+            style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+            onClick={e => e.target === e.currentTarget && onClose()}
+        >
+            <div style={{ background: '#111', borderRadius: 18, width: '100%', maxWidth: 540, border: '1px solid rgba(255,255,255,0.09)', boxShadow: '0 32px 80px rgba(0,0,0,0.85)', overflow: 'hidden', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}>
+
+                {/* Header bar */}
+                <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#161616' }}>
+                    <div>
+                        <div style={{ fontSize: '0.65rem', color: '#C9A84C', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 2 }}>Order Details</div>
+                        <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem', letterSpacing: '0.2px' }}>{order.id}</div>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: '#aaa', cursor: 'pointer', fontSize: '0.95rem', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = '#fff'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#aaa'; }}
+                    >✕</button>
                 </div>
-                <div style={{ padding: '1.4rem', overflowY: 'auto' }}>
-                    {/* Image + Status header */}
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.25rem' }}>
-                        <div style={{ width: 80, height: 80, borderRadius: 10, background: '#111', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+
+                <div style={{ overflowY: 'auto', flex: 1 }}>
+                    {/* Hero: product image + name + status */}
+                    <div style={{ padding: '1.4rem 1.5rem 1.2rem', display: 'flex', gap: '1.1rem', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#151515' }}>
+                        <div style={{ width: 78, height: 78, borderRadius: 12, background: '#fff', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
                             {imgSrc
-                                ? <img src={imgSrc} alt="product" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
-                                : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
+                                ? <img src={imgSrc} alt="product" style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => e.target.style.display = 'none'} />
+                                : <span style={{ fontSize: '2rem' }}>⌚</span>}
                         </div>
-                        <div>
-                            <div style={{ fontWeight: 800, color: '#fff', fontSize: '1rem', marginBottom: 4 }}>{order.model || order.rawProduct || '—'}</div>
-                            <span style={{ background: st.bg, color: st.color, borderRadius: 20, padding: '0.2rem 0.75rem', fontSize: '0.75rem', fontWeight: 700 }}>{order.status}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 800, color: '#fff', fontSize: '1rem', lineHeight: 1.35, marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {order.model || order.rawProduct || '—'}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: 8 }}>{order.brand || ''}{order.brand && order.category ? ' · ' : ''}{order.category || ''}</div>
+                            <span style={{
+                                display: 'inline-block',
+                                background: st.bg, color: st.color,
+                                borderRadius: 999, padding: '0.25rem 0.9rem',
+                                fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase',
+                                border: `1px solid ${st.color}33`,
+                            }}>{order.status}</span>
                         </div>
                     </div>
+
                     {/* Detail grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
-                        {rows.map(r => (
-                            <div key={r.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '0.6rem 0.9rem', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                <div style={{ fontSize: '0.68rem', color: '#666', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{r.label}</div>
-                                <div style={{ fontWeight: 700, color: '#e5e5e5', fontSize: '0.88rem', wordBreak: 'break-word' }}>{r.value || '—'}</div>
+                    <div style={{ padding: '1.25rem 1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                        {rows.filter(r => !r.isStatus).map(r => (
+                            <div key={r.label} style={{
+                                background: 'rgba(255,255,255,0.035)',
+                                borderRadius: 10, padding: '0.7rem 1rem',
+                                border: '1px solid rgba(255,255,255,0.06)',
+                                transition: 'background 0.15s',
+                            }}>
+                                <div style={{ fontSize: '0.63rem', color: '#555', fontWeight: 700, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{r.label}</div>
+                                <div style={{ fontWeight: 700, color: '#e0e0e0', fontSize: '0.875rem', wordBreak: 'break-word', lineHeight: 1.4 }}>{r.value}</div>
                             </div>
                         ))}
                     </div>
@@ -158,10 +193,10 @@ function ConfirmDeleteModal({ order, onCancel, onConfirm, orderType, actionLabel
                         </p>
                     )}
                     <div style={{ marginTop: '1.4rem', display: 'flex', justifyContent: 'flex-end', gap: '0.7rem' }}>
-                        <button onClick={onCancel} style={{
-                            padding: '0.55rem 1.2rem', background: 'transparent',
-                            border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8,
-                            color: '#aaa', cursor: 'pointer', fontWeight: 500, fontSize: '0.88rem',
+                        <button type="button" onClick={onCancel} style={{
+                            padding: '0.55rem 1.2rem', background: '#e74c3c',
+                            border: 'none', borderRadius: 8,
+                            color: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem',
                         }}>Cancel</button>
                         <button onClick={onConfirm} style={{
                             padding: '0.55rem 1.2rem', background: isCancel ? '#f59e0b' : '#e74c3c',
@@ -587,7 +622,7 @@ export default function AdminOrders() {
                             <th>Image</th>
                             <th>Brand</th>
                             <th>Category</th>
-                            <th>{orderType === 'customer' ? 'Customer' : 'Company'}</th>
+                            {orderType === 'supplier' ? <th>Company</th> : <th>Customer</th>}
                             {orderType === 'supplier' && <th>Orderer</th>}
                             <th>Product Details</th>
                             <th>Date</th>
@@ -748,8 +783,8 @@ export default function AdminOrders() {
                 </div>{/* end scroll wrapper */}
             </div>
 
-            {/* Change 3: Order detail modal */}
-            {detailOrder && <OrderDetailModal order={detailOrder} onClose={() => setDetailOrder(null)} />}
+            {/* Order detail modal */}
+            {detailOrder && <OrderDetailModal order={detailOrder} onClose={() => setDetailOrder(null)} isCustomer={orderType === 'customer'} />}
 
             {/* Confirm delete/cancel modal */}
             {confirmDelete && (

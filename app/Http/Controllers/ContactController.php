@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
+use App\Models\Admin;
+use Exception;
+
 class ContactController extends Controller
 {
     public function send(Request $request)
@@ -19,7 +22,8 @@ class ContactController extends Controller
         ]);
 
         try {
-            $to      = 'jayandkit.noreply@gmail.com';
+            $admin   = Admin::first();
+            $to      = $admin ? $admin->email : 'jayandkit.noreply@gmail.com';
             $name    = $validated['name'];
             $email   = $validated['email'];
             $subject = $validated['subject'];

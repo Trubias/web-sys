@@ -19,6 +19,7 @@ class Supplier extends Authenticatable
         'phone',
         'address',
         'brands',
+        'logo',
         'supplier_status',
         'interview_date',
         'role',

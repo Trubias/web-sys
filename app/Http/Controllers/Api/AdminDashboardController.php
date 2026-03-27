@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class AdminDashboardController extends Controller
 {
@@ -149,15 +150,67 @@ class AdminDashboardController extends Controller
 
     public function updateSettings(Request $request)
     {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
         $request->validate([
-            'notify_new_order' => 'required|boolean'
+            'email' => 'required|email|unique:admins,email,' . $user->id . '|unique:users,email|unique:suppliers,email|unique:riders,email',
+            'storeName' => 'nullable|string|max:255',
+            'currency' => 'nullable|string|max:10',
+            'address' => 'nullable|string|max:500',
+            'description' => 'nullable|string|max:1000',
+            'notify_new_order' => 'required|boolean',
+            'password' => 'nullable|string|min:3', // Matching seeder's pattern
+        ]);
+
+        $updateData = [
+            'email' => $request->email,
+            'store_name' => $request->storeName,
+            'currency' => $request->currency,
+            'address' => $request->address,
+            'description' => $request->description,
+            'notify_new_order' => $request->notify_new_order,
+        ];
+
+        if ($request->filled('password')) {
+            $updateData['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $user->update($updateData);
+
+        return response()->json(['message' => 'Settings updated successfully', 'user' => $user->fresh()]);
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:3072',
         ]);
 
         $user = auth()->user();
-        if ($user) {
-            $user->update(['notify_new_order' => $request->notify_new_order]);
+
+        // Delete old avatar if it exists
+        if ($user->avatar) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $user->avatar));
         }
 
-        return response()->json(['message' => 'Settings updated successfully']);
+        $path = $request->file('avatar')->store('admin_avatars', 'public');
+        $user->update(['avatar' => '/storage/' . $path]);
+
+        return response()->json($user->fresh());
+    }
+
+    public function removeAvatar(Request $request)
+    {
+        $user = auth()->user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $user->avatar));
+            $user->update(['avatar' => null]);
+        }
+
+        return response()->json($user->fresh());
     }
 }

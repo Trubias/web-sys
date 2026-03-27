@@ -31,6 +31,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class , 'me']);
     Route::put('/user/profile', [AuthController::class, 'updateUserProfile']);
     Route::put('/supplier/profile', [AuthController::class, 'updateSupplierProfile']);
+    Route::post('/supplier/logo', [AuthController::class, 'uploadSupplierLogo']);
+    Route::delete('/supplier/logo', [AuthController::class, 'removeSupplierLogo']);
 
     Route::get('/cart', [CartController::class , 'index']);
     Route::post('/cart', [CartController::class , 'store']);
@@ -70,6 +72,8 @@ Route::middleware('auth:sanctum')->group(function () {
             // Dashboard
             Route::get('/admin/dashboard', [AdminDashboardController::class, 'index']);
             Route::put('/admin/settings', [AdminDashboardController::class, 'updateSettings']);
+            Route::post('/admin/avatar', [AdminDashboardController::class, 'uploadAvatar']);
+            Route::delete('/admin/avatar', [AdminDashboardController::class, 'removeAvatar']);
 
             // Reports & Customer Orders
             Route::get('/admin/reports', [AdminReportsController::class, 'index']);

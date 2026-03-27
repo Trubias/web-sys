@@ -280,10 +280,13 @@ export default function SupplierDashboard() {
                         {/* K Avatar + Dropdown */}
                         <div ref={avatarRef} style={{ position: 'relative' }}>
                             <div className="admin-topbar__avatar"
-                                style={{ cursor: 'pointer', userSelect: 'none' }}
+                                style={{ cursor: 'pointer', userSelect: 'none', padding: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }}
                                 title="Account Menu">
-                                {user?.name?.charAt(0)?.toUpperCase() || 'S'}
+                                {user?.logo
+                                    ? <img src={user.logo} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
+                                    : (user?.name?.charAt(0)?.toUpperCase() || 'S')
+                                }
                             </div>
                             {avatarOpen && (
                                 <div style={{

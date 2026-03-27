@@ -16,10 +16,10 @@ export const INV_MODAL = {
     box: { background: '#fff', borderRadius: 16, width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' },
     hdr: { padding: '1.25rem 1.5rem', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa', borderRadius: '16px 16px 0 0' },
     title: { margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#111827' },
-    closeBtn: { background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#9ca3af', padding: 0 },
+    closeBtn: { background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#ef4444', padding: 0, fontWeight: 700 },
     lbl: { display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.35rem' },
     inp: { width: '100%', padding: '0.65rem 0.9rem', border: '1px solid #d1d5db', borderRadius: 8, fontSize: '0.9rem', color: '#1f2937', outline: 'none', transition: 'border-color 0.2s' },
     errBox: { background: '#fee2e2', color: '#ef4444', padding: '0.75rem 1rem', borderRadius: 8, marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 600 },
-    cancelBtn: { padding: '0.6rem 1.2rem', borderRadius: 8, background: '#e5e7eb', color: '#4b5563', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' },
+    cancelBtn: { padding: '0.6rem 1.2rem', borderRadius: 8, background: '#fff', color: '#ef4444', border: '1px solid #f87171', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', transition: 'all 0.2s' },
     saveBtn: { padding: '0.6rem 1.2rem', borderRadius: 8, background: 'linear-gradient(135deg,#C9A84C,#a8873d)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' },
 };

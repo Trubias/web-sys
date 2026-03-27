@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import AdminLayout from './AdminLayout';
 import axios from 'axios';
+
+const IMG_BASE = '/storage/';
 
 const getToken = () =>
     localStorage.getItem('admin_token') || localStorage.getItem('jk_token') || '';
@@ -91,16 +93,33 @@ function LineChart({ monthlyRevenue, height = 180 }) {
 export default function AdminReports() {
     useCurrency();
     const currentYear = new Date().getFullYear();
+    const [yearInput, setYearInput] = useState(currentYear.toString());
+    const [showSearch, setShowSearch] = useState(false);
+    const inputRef = useRef(null);
+
     const [year, setYear]       = useState(currentYear.toString());
     const [data, setData]       = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError]     = useState('');
 
-    const yearOptions = [
-        currentYear.toString(),
-        (currentYear - 1).toString(),
-        (currentYear - 2).toString(),
-    ];
+    const handleSearch = () => {
+        const y = parseInt(yearInput, 10);
+        if (!yearInput || isNaN(y) || y < 2020 || y > currentYear) return;
+        setYear(yearInput);
+        setShowSearch(false);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') handleSearch();
+        if (e.key === 'Escape') setShowSearch(false);
+    };
+
+    const toggleSearch = () => {
+        setShowSearch(prev => {
+            if (!prev) setTimeout(() => inputRef.current?.focus(), 50);
+            return !prev;
+        });
+    };
 
     const load = useCallback(() => {
         setLoading(true);
@@ -112,6 +131,7 @@ export default function AdminReports() {
     }, [year]);
 
     useEffect(() => { load(); }, [load]);
+
 
     // Build derived display values
     const totalRevenue   = data ? data.total_revenue   : 0;
@@ -166,30 +186,36 @@ export default function AdminReports() {
                 <div>
                     <h1 className="admin-page-title">Professional Analytics</h1>
                     <p style={{ color: '#6b7280', marginTop: '0.2rem', fontSize: '0.9rem' }}>
-                        Real sales data for {year}
+                        {data && data.order_count === 0
+                            ? `No data found for ${year}`
+                            : `Real sales data for ${year}`}
                     </p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <div style={{ position: 'relative' }}>
-                        <select
-                            value={year}
-                            onChange={e => setYear(e.target.value)}
-                            style={{
-                                appearance: 'none', background: '#fff',
-                                border: '1px solid #e5e7eb', borderRadius: 6,
-                                padding: '0.5rem 2.5rem 0.5rem 1rem',
-                                fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500,
-                            }}
-                        >
-                            {yearOptions.map(y => (
-                                <option key={y} value={y}>Year {y}</option>
-                            ))}
-                        </select>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                            style={{ position: 'absolute', right: '0.8rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                            <polyline points="6 9 12 15 18 9" />
-                        </svg>
+
+                {/* Search icon toggle */}
+                <div className="reports-search">
+                    <div className={`reports-search__input-wrap${showSearch ? ' reports-search__input-wrap--visible' : ''}`}>
+                        <input
+                            ref={inputRef}
+                            type="number"
+                            value={yearInput}
+                            min={2020}
+                            max={currentYear}
+                            onChange={e => setYearInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder={`Year, e.g. ${currentYear - 1}`}
+                        />
                     </div>
+                    <button
+                        className="reports-search__icon-btn"
+                        onClick={toggleSearch}
+                        title={showSearch ? 'Close search' : 'Search by year'}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -283,10 +309,15 @@ export default function AdminReports() {
                                 ) : topProducts.map((p, i) => (
                                     <tr key={i} style={{ borderBottom: i < topProducts.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
                                         <td style={{ padding: '0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <div style={{ width: 28, height: 28, background: '#f9fafb', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>⌚</div>
+                                            {/* Product image */}
+                                            <div style={{ width: 40, height: 40, borderRadius: 6, background: '#fff', border: '1px solid #e5e7eb', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {p.image_url
+                                                    ? <img src={p.image_url} alt={p.name} style={{ width: 40, height: 40, objectFit: 'cover', display: 'block' }} onError={e => { e.target.style.display = 'none'; e.target.parentNode.style.background = '#d1d5db'; }} />
+                                                    : <div style={{ width: 40, height: 40, background: '#d1d5db', borderRadius: 6 }} />}
+                                            </div>
                                             <div>
                                                 <div style={{ fontWeight: 600, fontSize: '0.82rem' }}>{p.name.split(' ')[0]}</div>
-                                                <div style={{ fontSize: '0.72rem', color: '#6b7280', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                <div style={{ fontSize: '0.72rem', color: '#6b7280', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                     {p.name.split(' ').slice(1).join(' ')}
                                                 </div>
                                             </div>

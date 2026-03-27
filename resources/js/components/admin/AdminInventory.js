@@ -21,11 +21,11 @@ const S = {
     modal: { background: '#1a1a1a', borderRadius: 12, width: '100%', maxWidth: 450, padding: 0, border: '1px solid rgba(201,168,76,0.2)', boxShadow: '0 24px 64px rgba(0,0,0,0.8)', overflow: 'hidden', animation: 'admin-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1)' },
     mHeader: { padding: '1.25rem 1.75rem', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     mTitle: { margin: 0, color: '#fff', fontSize: '1.15rem', fontWeight: 700 },
-    closeBtn: { background: 'rgba(255,255,255,0.05)', border: 'none', color: '#777', fontSize: '1.2rem', cursor: 'pointer', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    closeBtn: { background: 'rgba(231,76,60,0.1)', border: 'none', color: '#e74c3c', fontSize: '1.2rem', cursor: 'pointer', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' },
     label: { display: 'block', marginBottom: '0.4rem', color: '#aaa', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.03em' },
     input: { width: '100%', padding: '0.7rem 0.85rem', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#fff', outline: 'none', fontSize: '0.9rem', boxSizing: 'border-box', transition: 'all 0.2s ease' },
     mFooter: { padding: '1.5rem 1.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', background: '#1a1a1a' },
-    cancelBtn: { padding: '0.6rem 1.25rem', background: 'transparent', color: '#aaa', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 500 },
+    cancelBtn: { padding: '0.6rem 1.25rem', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 },
     saveBtn: { padding: '0.6rem 1.5rem', background: '#C9A84C', color: '#000', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 },
     thumb: { width: 44, height: 44, borderRadius: 8, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' },
     noImg: { width: 44, height: 44, borderRadius: 8, background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }
@@ -177,7 +177,7 @@ function EditModal({ product, onClose, onSaved }) {
                     </div>
 
                     <div style={S.mFooter}>
-                        <button className="admin-btn-outline" onClick={onClose} disabled={loading}>Cancel</button>
+                        <button type="button" style={{ padding: '0.6rem 1.25rem', borderRadius: 8, background: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }} onClick={onClose} disabled={loading}>Cancel</button>
                         <button className="admin-btn-gold" onClick={handleSave} disabled={loading}>
                             {loading ? 'Saving...' : 'Save Changes'}
                         </button>
@@ -236,7 +236,7 @@ function DeleteModal({ product, onClose, onDeleted }) {
                         The stock ({product.stock} units) will be returned to Product Management.
                     </p>
                     <div style={S.mFooter}>
-                        <button className="admin-btn-outline" onClick={onClose} disabled={loading}>Cancel</button>
+                        <button type="button" style={{ padding: '0.6rem 1.25rem', borderRadius: 8, background: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }} onClick={onClose} disabled={loading}>Cancel</button>
                         <button className="admin-btn-red" onClick={handleDelete} disabled={loading}>
                             {loading ? 'Removing...' : 'Yes, Remove & Restore'}
                         </button>

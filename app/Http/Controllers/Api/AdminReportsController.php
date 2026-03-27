@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminReportsController extends Controller
 {
@@ -18,7 +19,7 @@ class AdminReportsController extends Controller
 
         // ── Completed orders for the selected year ────────────────────────────
         $orders = Order::whereYear('created_at', $year)
-            ->where('status', 'completed')
+            ->whereIn('status', ['completed', 'delivered'])
             ->get();
 
         $totalRevenue  = $orders->sum('total_amount');
@@ -49,7 +50,7 @@ class AdminReportsController extends Controller
         // ── Revenue by month (1-12) ───────────────────────────────────────────
         $monthlyRaw = Order::selectRaw('MONTH(created_at) as month, SUM(total_amount) as revenue')
             ->whereYear('created_at', $year)
-            ->where('status', 'completed')
+            ->whereIn('status', ['completed', 'delivered'])
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -59,33 +60,62 @@ class AdminReportsController extends Controller
             $monthlyRevenue[(int) $row->month] = (float) $row->revenue;
         }
 
-        // ── Top products ──────────────────────────────────────────────────────
-        $productStats = [];
-        foreach ($orders as $o) {
-            $pName = $o->product_name;
-            if (!isset($productStats[$pName])) {
-                $productStats[$pName] = ['qty' => 0, 'rev' => 0];
-            }
-            $productStats[$pName]['qty'] += $o->quantity;
-            $productStats[$pName]['rev'] += $o->total_amount;
-        }
-        uasort($productStats, function ($a, $b) { return $b['qty'] - $a['qty']; });
+        // ── Top products (joined with products table for real image) ──────────
+        $topProductsRaw = DB::table('orders')
+            ->join('products', 'orders.product_id', '=', 'products.id')
+            ->select(
+                'products.id',
+                'products.name',
+                'products.image',
+                DB::raw('SUM(orders.quantity) as total_qty'),
+                DB::raw('SUM(orders.total_amount) as total_revenue')
+            )
+            ->whereYear('orders.created_at', $year)
+            ->whereIn('orders.status', ['completed', 'delivered'])
+            ->whereNotNull('orders.product_id')
+            ->groupBy('products.id', 'products.name', 'products.image')
+            ->orderByDesc('total_revenue')
+            ->limit(5)
+            ->get();
 
-        $topProducts = [];
-        $count = 0;
-        foreach ($productStats as $name => $stats) {
-            if ($count >= 5) break;
-            $topProducts[] = [
-                'name' => $name,
-                'qty'  => $stats['qty'],
-                'rev'  => $stats['rev'],
+        $topProducts = $topProductsRaw->map(function ($row) {
+            return [
+                'name'      => $row->name,
+                'qty'       => (int) $row->total_qty,
+                'rev'       => (float) $row->total_revenue,
+                'image_url' => $row->image ? asset('storage/' . $row->image) : null,
             ];
-            $count++;
+        })->values()->all();
+
+        // Fallback: orders without product_id (legacy data) — append if we have fewer than 5
+        if (count($topProducts) < 5) {
+            $legacyStats = [];
+            foreach ($orders->whereNull('product_id') as $o) {
+                $pName = $o->product_name;
+                if (!$pName) continue;
+                if (!isset($legacyStats[$pName])) {
+                    $legacyStats[$pName] = ['qty' => 0, 'rev' => 0];
+                }
+                $legacyStats[$pName]['qty'] += $o->quantity;
+                $legacyStats[$pName]['rev'] += $o->total_amount;
+            }
+            arsort($legacyStats);
+            $existing = array_column($topProducts, 'name');
+            foreach ($legacyStats as $name => $stats) {
+                if (count($topProducts) >= 5) break;
+                if (in_array($name, $existing)) continue;
+                $topProducts[] = [
+                    'name'      => $name,
+                    'qty'       => $stats['qty'],
+                    'rev'       => $stats['rev'],
+                    'image_url' => null,
+                ];
+            }
         }
 
         // ── Customer insights ─────────────────────────────────────────────────
         $customerIds = Order::whereYear('created_at', $year)
-            ->where('status', 'completed')
+            ->whereIn('status', ['completed', 'delivered'])
             ->whereNotNull('user_id')
             ->pluck('user_id')
             ->unique()
@@ -94,7 +124,7 @@ class AdminReportsController extends Controller
         $returningCount = 0;
         $newCount       = 0;
         foreach ($customerIds as $uid) {
-            $lifetime = Order::where('user_id', $uid)->where('status', 'completed')->count();
+            $lifetime = Order::where('user_id', $uid)->whereIn('status', ['completed', 'delivered'])->count();
             if ($lifetime > 1) {
                 $returningCount++;
             } else {
@@ -109,7 +139,7 @@ class AdminReportsController extends Controller
         $avgLTV = 0;
         if ($totalCustomers > 0 && count($customerIds) > 0) {
             $lifetimeRevenue = Order::whereIn('user_id', $customerIds)
-                ->where('status', 'completed')
+                ->whereIn('status', ['completed', 'delivered'])
                 ->sum('total_amount');
             $avgLTV = round($lifetimeRevenue / $totalCustomers, 2);
         }
@@ -160,7 +190,7 @@ class AdminReportsController extends Controller
      */
     public function orders(Request $request)
     {
-        $orders = Order::with(['user', 'product', 'brand', 'rider'])
+        $orders = Order::with(['user', 'product.category', 'brand', 'rider'])
             ->orderByDesc('created_at')
             ->get();
         return response()->json($orders);

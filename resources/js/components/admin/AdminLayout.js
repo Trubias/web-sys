@@ -354,46 +354,55 @@ export default function AdminLayout({ children }) {
                     <div className="admin-topbar__right">
                         {/* Functional notification bell */}
                         <NotificationBell user={user} />
-                        <div className="admin-topbar__avatar" ref={avatarRef} onClick={() => setAvatarOpen(o => !o)} style={{ cursor: 'pointer', position: 'relative' }}>
-                            {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                        <div ref={avatarRef} style={{ cursor: 'pointer', position: 'relative' }}>
+                            <div className="admin-topbar__avatar" onClick={() => setAvatarOpen(o => !o)} style={{ overflow: 'hidden' }}>
+                                {user?.avatar ? (
+                                    <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    user?.name?.charAt(0)?.toUpperCase() || 'A'
+                                )}
+                            </div>
 
                             {avatarOpen && (
                                 <div style={{
                                     position: 'absolute', top: 'calc(100% + 10px)', right: 0,
-                                    width: 170, background: '#1a1a1a',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    borderRadius: 8, boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                                    width: 180, background: '#0f172a', /* dark navy */
+                                    border: '1px solid #C9A84C', /* gold border */
+                                    borderRadius: 8, boxShadow: '0 10px 25px rgba(0,0,0,0.6)',
                                     zIndex: 999, padding: '0.4rem 0', display: 'flex', flexDirection: 'column'
                                 }}>
                                     <div
                                         onClick={() => { setAvatarOpen(false); navigate('/admin/settings'); }}
                                         style={{
-                                            padding: '0.75rem 1.2rem', color: '#e5e5e5', fontSize: '0.88rem', cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', gap: '0.6rem', transition: '0.2s'
+                                            padding: '0.75rem 1.2rem', color: '#ffffff', fontSize: '0.9rem', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', gap: '0.6rem', transition: 'all 0.2s',
+                                            fontWeight: 500
                                         }}
-                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                                     >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                                             <circle cx="12" cy="12" r="3" />
-                                            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                                            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
                                         </svg>
                                         Settings
                                     </div>
                                     <div
                                         onClick={(e) => { e.stopPropagation(); setAvatarOpen(false); handleLogout(); }}
                                         style={{
-                                            padding: '0.75rem 1.2rem', color: '#e74c3c', fontSize: '0.88rem', cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', gap: '0.6rem', transition: '0.2s', borderTop: '1px solid rgba(255,255,255,0.06)'
+                                            padding: '0.75rem 1.2rem', color: '#e74c3c', fontSize: '0.9rem', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', gap: '0.6rem', transition: 'all 0.2s', borderTop: '1px solid rgba(255,255,255,0.06)',
+                                            fontWeight: 500
                                         }}
-                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(231,76,60,0.1)'}
-                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.1)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                                     >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" />
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                            <polyline points="16 17 21 12 16 7" />
                                             <line x1="21" y1="12" x2="9" y2="12" />
                                         </svg>
-                                        Logout
+                                        Sign Out
                                     </div>
                                 </div>
                             )}

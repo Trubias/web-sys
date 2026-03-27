@@ -35,7 +35,7 @@ const S = {
     mHeader:  { display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '1.25rem 1.75rem', borderBottom: '1px solid rgba(255,255,255,0.07)' },
     mTitle:   { color: '#fff', fontWeight: 700, fontSize: '1.15rem', margin: 0 },
-    closeBtn: { background: 'rgba(255,255,255,0.05)', border: 'none', color: '#777', fontSize: '1.2rem',
+    closeBtn: { background: 'rgba(231,76,60,0.1)', border: 'none', color: '#e74c3c', fontSize: '1.2rem',
                 cursor: 'pointer', lineHeight: 1, padding: '0.25rem', borderRadius: '50%',
                 width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' },
     backBtn:  { background: 'rgba(255,255,255,0.07)', border: 'none',
@@ -54,8 +54,8 @@ const S = {
                 background: 'linear-gradient(135deg,#C9A84C,#a8873d)',
                 color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' },
     cancelBtn:{ padding: '0.6rem 1.4rem', borderRadius: 8,
-                border: '1px solid rgba(255,255,255,0.15)',
-                background: 'transparent', color: '#ccc', cursor: 'pointer', fontSize: '0.9rem' },
+                border: 'none',
+                background: '#e74c3c', color: '#fff', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 },
     errBox:   { background: 'rgba(231,76,60,0.12)', color: '#e74c3c',
                 border: '1px solid rgba(231,76,60,0.3)',
                 borderRadius: 8, padding: '0.7rem 1rem', marginBottom: '1rem', fontSize: '0.87rem' },
@@ -885,7 +885,7 @@ function DeleteModal({ product, onClose, onDeleted }) {
                         <strong style={{ color: '#fff' }}>{product.name}</strong>?
                     </p>
                     <div style={S.mFooter}>
-                        <button className="admin-btn-outline" onClick={onClose}>Cancel</button>
+                        <button type="button" style={{ padding: '0.6rem 1.4rem', borderRadius: 8, background: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }} onClick={onClose}>Cancel</button>
                         <button className="admin-btn-red" onClick={handleDelete}>
                             Yes, Delete
                         </button>
@@ -1023,7 +1023,7 @@ function PlaceInInventoryModal({ product, onClose, onSaved }) {
                     </div>
 
                     <div style={S.mFooter}>
-                        <button className="admin-btn-outline" onClick={onClose} disabled={loading}>Cancel</button>
+                        <button type="button" style={{ padding: '0.6rem 1.4rem', borderRadius: 8, background: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }} onClick={onClose} disabled={loading}>Cancel</button>
                         <button className="admin-btn-gold" style={{ background: '#27ae60' }} onClick={handleConfirm} disabled={loading}>
                             {loading ? 'Processing...' : 'Confirm'}
                         </button>

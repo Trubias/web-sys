@@ -23,7 +23,20 @@ export default function About() {
                             <p>Founded with a passion for precision and a dedication to luxury, J&amp;K Watch Store has become a moniker of fine timepieces for over centuries. Our story is one of heritage, craftsmanship, and an unwavering commitment to excellence.</p>
                             <p>From our humble beginnings in a small workshop in Geneva, we have grown into a globally recognized frontrunner for horological excellence. We believe that a watch is more than a tool for measuring time — it is a statement of personal style, a miraculous marvel, and a work of art.</p>
                         </div>
-                        <div className="about-section__image">🔭</div>
+                        <div className="about-section__image">
+                            <img
+                                src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&q=80"
+                                alt="Luxury watch craftsmanship workshop"
+                                style={{
+                                    width: '100%',
+                                    height: '420px',
+                                    objectFit: 'cover',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 12px 40px rgba(0,0,0,0.18)',
+                                    display: 'block',
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             </section>
@@ -32,7 +45,20 @@ export default function About() {
             <section className="about-section about-section--alt">
                 <div className="container">
                     <div className="about-section__grid mobile-stack">
-                        <div className="about-section__image">⌚</div>
+                        <div className="about-section__image">
+                            <img
+                                src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80"
+                                alt="Premium watch on clean background"
+                                style={{
+                                    width: '100%',
+                                    height: '420px',
+                                    objectFit: 'cover',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 12px 40px rgba(0,0,0,0.18)',
+                                    display: 'block',
+                                }}
+                            />
+                        </div>
                         <div>
                             <div className="about-section__label">OUR PURPOSE</div>
                             <h2>Our Mission</h2>

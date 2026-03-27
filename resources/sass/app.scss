@@ -2802,3 +2802,72 @@ $admin-dark-text-muted: rgba(255, 255, 255, 0.55);
         grid-template-columns: 1fr !important;
     }
 }
+
+// =============================================
+// Admin Reports — Search Icon Toggle
+// =============================================
+.reports-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-direction: row-reverse; // icon on the right, input slides in from the right
+
+    &__icon-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #C9A84C;
+        color: #111827;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            background: #dbc378;
+            transform: scale(1.08);
+            box-shadow: 0 4px 16px rgba(201, 168, 76, 0.4);
+        }
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    &__input-wrap {
+        overflow: hidden;
+        max-width: 0;
+        opacity: 0;
+        transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.28s ease;
+
+        &--visible {
+            max-width: 200px;
+            opacity: 1;
+        }
+
+        input {
+            background: #1f2937;
+            color: #f9fafb;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.85rem;
+            width: 175px;
+            outline: none;
+            transition: border-color 0.2s ease;
+
+            &:focus {
+                border-color: #C9A84C;
+            }
+
+            &::placeholder {
+                color: #6b7280;
+            }
+        }
+    }
+}
