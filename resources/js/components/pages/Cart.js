@@ -12,6 +12,7 @@ export default function Cart() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [orderNote, setOrderNote] = useState('');
+    const [selectedItems, setSelectedItems] = useState([]);
 
     useEffect(() => {
         if (!user) { navigate('/login'); return; }
@@ -37,6 +38,20 @@ export default function Cart() {
     const clearCart = async () => {
         await axios.delete('/api/cart');
         setItems([]);
+        setSelectedItems([]);
+        refreshCart();
+    };
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked) setSelectedItems(items.map(i => i.id));
+        else setSelectedItems([]);
+    };
+
+    const clearSelected = async () => {
+        if (selectedItems.length === 0) return;
+        await Promise.all(selectedItems.map(id => axios.delete(`/api/cart/${id}`)));
+        setItems(items => items.filter(i => !selectedItems.includes(i.id)));
+        setSelectedItems([]);
         refreshCart();
     };
 
@@ -62,9 +77,35 @@ export default function Cart() {
                 ) : (
                     <div className="cart-grid">
                         <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #eaeaea' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.9rem', color: '#333', fontWeight: 600 }}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={selectedItems.length > 0 && selectedItems.length === items.length}
+                                        onChange={handleSelectAll}
+                                        style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#C9A84C' }} 
+                                    />
+                                    Select All
+                                </label>
+                                <button 
+                                    onClick={clearSelected}
+                                    style={{ padding: '0.4rem 1rem', background: selectedItems.length > 0 ? 'red' : '#ccc', color: selectedItems.length > 0 ? '#fff' : '#666', border: 'none', borderRadius: '4px', fontWeight: 700, cursor: selectedItems.length > 0 ? 'pointer' : 'not-allowed', transition: 'all 0.2s', fontSize: '0.85rem' }}
+                                >
+                                    Clear Selected
+                                </button>
+                            </div>
                             <div className="cart-items">
                                 {items.map(item => (
                                     <div key={item.id} className="cart-item" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #eaeaea' }}>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={selectedItems.includes(item.id)}
+                                            onChange={() => {
+                                                if (selectedItems.includes(item.id)) setSelectedItems(selectedItems.filter(i => i !== item.id));
+                                                else setSelectedItems([...selectedItems, item.id]);
+                                            }}
+                                            style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#C9A84C' }} 
+                                        />
                                         <div className="cart-item__img" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '4px' }}>
                                             <img src={(item.product?.image && item.product.image.startsWith('http')) ? item.product.image : `/storage/${item.product?.image}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={item.product?.name} />
                                         </div>
@@ -80,7 +121,7 @@ export default function Cart() {
                                         </div>
 
                                         <div className="cart-item__price" style={{ fontWeight: 800, width: '100px', textAlign: 'right' }}>₱{fmt(item.product?.price)}</div>
-                                        <button className="cart-item__remove" onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', color: '#e74c3c', cursor: 'pointer', padding: '0.5rem' }}>
+                                        <button className="cart-item__remove" onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer', padding: '0.5rem' }}>
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                 <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2" />
                                             </svg>
@@ -89,7 +130,7 @@ export default function Cart() {
                                 ))}
                             </div>
                             <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-                                <button style={{ padding: '0.6rem 1rem', background: 'transparent', border: '1px solid #ccc', borderRadius: '4px', fontWeight: 500, cursor: 'pointer' }} onClick={clearCart}>Clear Cart</button>
+                                <button style={{ padding: '0.6rem 1rem', background: 'red', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 800, cursor: 'pointer' }} onClick={clearCart}>Clear Cart</button>
                                 <button style={{ padding: '0.6rem 1rem', background: 'transparent', border: '1px solid #ccc', borderRadius: '4px', fontWeight: 500, cursor: 'pointer' }} onClick={() => navigate('/user/browse')}>← Continue Shopping</button>
                             </div>
                         </div>

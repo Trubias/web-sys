@@ -24,7 +24,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 position: 'relative', boxShadow: '0 24px 48px rgba(0,0,0,0.2)'
             }} onClick={e => e.stopPropagation()}>
                 
-                <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', zIndex: 10 }}>×</button>
+                <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', zIndex: 10, color: 'red' }}>×</button>
                 
                 {/* Left Side: Images */}
                 <div style={{ flex: '1', background: '#000', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

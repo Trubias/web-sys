@@ -186,4 +186,23 @@ class RiderDeliveryController extends Controller
 
         return response()->json($user->fresh());
     }
+
+    /**
+     * Remove rider avatar
+     */
+    public function removeAvatar(Request $request)
+    {
+        $user = $request->user();
+        if ($user->role !== 'rider') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $user->avatar));
+            $user->avatar = null;
+            $user->save();
+        }
+
+        return response()->json(['message' => 'Avatar removed successfully', 'user' => $user->fresh()]);
+    }
 }

@@ -7957,7 +7957,7 @@ function Footer() {
                 points: "22,6 12,13 2,6"
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("span", {
-              children: "jayandkit.noreply@gmail.com"
+              children: "krickjay2000@gmail.com"
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
             className: "footer__contact-item",
@@ -8581,7 +8581,8 @@ function ProductModal(_ref) {
           border: 'none',
           fontSize: '1.5rem',
           cursor: 'pointer',
-          zIndex: 10
+          zIndex: 10,
+          color: 'red'
         },
         children: "\xD7"
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
@@ -20511,6 +20512,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _user_UserLayout__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../user/UserLayout */ "./resources/js/components/user/UserLayout.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -20554,6 +20559,10 @@ function Cart() {
     _useState6 = _slicedToArray(_useState5, 2),
     orderNote = _useState6[0],
     setOrderNote = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState8 = _slicedToArray(_useState7, 2),
+    selectedItems = _useState8[0],
+    setSelectedItems = _useState8[1];
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     if (!user) {
       navigate('/login');
@@ -20628,6 +20637,7 @@ function Cart() {
             return axios__WEBPACK_IMPORTED_MODULE_2___default()["delete"]('/api/cart');
           case 1:
             setItems([]);
+            setSelectedItems([]);
             refreshCart();
           case 2:
             return _context3.a(2);
@@ -20636,6 +20646,43 @@ function Cart() {
     }));
     return function clearCart() {
       return _ref3.apply(this, arguments);
+    };
+  }();
+  var handleSelectAll = function handleSelectAll(e) {
+    if (e.target.checked) setSelectedItems(items.map(function (i) {
+      return i.id;
+    }));else setSelectedItems([]);
+  };
+  var clearSelected = /*#__PURE__*/function () {
+    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+      return _regenerator().w(function (_context4) {
+        while (1) switch (_context4.n) {
+          case 0:
+            if (!(selectedItems.length === 0)) {
+              _context4.n = 1;
+              break;
+            }
+            return _context4.a(2);
+          case 1:
+            _context4.n = 2;
+            return Promise.all(selectedItems.map(function (id) {
+              return axios__WEBPACK_IMPORTED_MODULE_2___default()["delete"]("/api/cart/".concat(id));
+            }));
+          case 2:
+            setItems(function (items) {
+              return items.filter(function (i) {
+                return !selectedItems.includes(i.id);
+              });
+            });
+            setSelectedItems([]);
+            refreshCart();
+          case 3:
+            return _context4.a(2);
+        }
+      }, _callee4);
+    }));
+    return function clearSelected() {
+      return _ref4.apply(this, arguments);
     };
   }();
   var total = items.reduce(function (s, i) {
@@ -20719,7 +20766,52 @@ function Cart() {
       }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
         className: "cart-grid",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              marginBottom: '1rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #eaeaea'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("label", {
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                color: '#333',
+                fontWeight: 600
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
+                type: "checkbox",
+                checked: selectedItems.length > 0 && selectedItems.length === items.length,
+                onChange: handleSelectAll,
+                style: {
+                  width: 16,
+                  height: 16,
+                  cursor: 'pointer',
+                  accentColor: '#C9A84C'
+                }
+              }), "Select All"]
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+              onClick: clearSelected,
+              style: {
+                padding: '0.4rem 1rem',
+                background: selectedItems.length > 0 ? 'red' : '#ccc',
+                color: selectedItems.length > 0 ? '#fff' : '#666',
+                border: 'none',
+                borderRadius: '4px',
+                fontWeight: 700,
+                cursor: selectedItems.length > 0 ? 'pointer' : 'not-allowed',
+                transition: 'all 0.2s',
+                fontSize: '0.85rem'
+              },
+              children: "Clear Selected"
+            })]
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
             className: "cart-items",
             children: items.map(function (item) {
               var _item$product, _item$product2, _item$product3, _item$product4, _item$product5, _item$product7;
@@ -20733,7 +20825,21 @@ function Cart() {
                   paddingBottom: '1rem',
                   borderBottom: '1px solid #eaeaea'
                 },
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
+                  type: "checkbox",
+                  checked: selectedItems.includes(item.id),
+                  onChange: function onChange() {
+                    if (selectedItems.includes(item.id)) setSelectedItems(selectedItems.filter(function (i) {
+                      return i !== item.id;
+                    }));else setSelectedItems([].concat(_toConsumableArray(selectedItems), [item.id]));
+                  },
+                  style: {
+                    width: 18,
+                    height: 18,
+                    cursor: 'pointer',
+                    accentColor: '#C9A84C'
+                  }
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                   className: "cart-item__img",
                   style: {
                     width: '80px',
@@ -20831,7 +20937,7 @@ function Cart() {
                   style: {
                     background: 'none',
                     border: 'none',
-                    color: '#e74c3c',
+                    color: 'red',
                     cursor: 'pointer',
                     padding: '0.5rem'
                   },
@@ -20858,10 +20964,11 @@ function Cart() {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
               style: {
                 padding: '0.6rem 1rem',
-                background: 'transparent',
-                border: '1px solid #ccc',
+                background: 'red',
+                color: '#fff',
+                border: 'none',
                 borderRadius: '4px',
-                fontWeight: 500,
+                fontWeight: 800,
                 cursor: 'pointer'
               },
               onClick: clearCart,
@@ -21806,23 +21913,21 @@ function Checkout() {
               style: {
                 flex: 1,
                 padding: '1rem',
-                background: 'transparent',
-                color: '#666',
+                background: 'red',
+                color: '#fff',
                 fontWeight: 800,
                 textTransform: 'uppercase',
                 fontSize: '1.1rem',
-                border: '1px solid #ccc',
+                border: '1px solid red',
                 borderRadius: '4px',
                 cursor: isSubmitting ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s'
               },
               onMouseEnter: function onMouseEnter(e) {
-                if (!isSubmitting) e.target.style.background = '#f5f5f5';
-                e.target.style.color = '#333';
+                if (!isSubmitting) e.target.style.background = '#d32f2f';
               },
               onMouseLeave: function onMouseLeave(e) {
-                if (!isSubmitting) e.target.style.background = 'transparent';
-                e.target.style.color = '#666';
+                if (!isSubmitting) e.target.style.background = 'red';
               },
               children: "Cancel"
             })]
@@ -22299,7 +22404,7 @@ function Contact() {
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h4", {
                   children: "Contact Details"
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("p", {
-                  children: ["Phone: +63 2 1234 5678", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("br", {}), "Email: jayandkit.noreply@gmail.com"]
+                  children: ["Phone: +63 2 1234 5678", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("br", {}), "Email: krickjay2000@gmail.com"]
                 })]
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
@@ -25179,7 +25284,6 @@ function RiderProfile() {
               return formData.append(key, form[key]);
             });
             if (avatarFile) formData.append('avatar', avatarFile);
-            formData.append('_method', 'PUT');
             _context.n = 2;
             return Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23));
           case 2:
@@ -25220,6 +25324,56 @@ function RiderProfile() {
     }));
     return function handleSave(_x) {
       return _ref.apply(this, arguments);
+    };
+  }();
+  var handleRemoveAvatar = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+      var axios, _t2;
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.p = _context2.n) {
+          case 0:
+            setLoading(true);
+            setSuccessMsg('');
+            setErrorMsg('');
+            _context2.p = 1;
+            _context2.n = 2;
+            return Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23));
+          case 2:
+            axios = _context2.v["default"];
+            _context2.n = 3;
+            return axios["delete"]('/api/rider/avatar', {
+              headers: {
+                'Authorization': "Bearer ".concat(localStorage.getItem('jk_token'))
+              }
+            });
+          case 3:
+            _context2.n = 4;
+            return fetchUser();
+          case 4:
+            setAvatarFile(null);
+            setPreview(null);
+            setSuccessMsg('Avatar removed successfully!');
+            setTimeout(function () {
+              return setSuccessMsg('');
+            }, 4000);
+            _context2.n = 6;
+            break;
+          case 5:
+            _context2.p = 5;
+            _t2 = _context2.v;
+            console.error('Remove avatar failed', _t2);
+            setErrorMsg('Failed to remove avatar.');
+          case 6:
+            _context2.p = 6;
+            setLoading(false);
+            return _context2.f(6);
+          case 7:
+            return _context2.a(2);
+        }
+      }, _callee2, null, [[1, 5, 6, 7]]);
+    }));
+    return function handleRemoveAvatar() {
+      return _ref2.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)(_RiderLayout__WEBPACK_IMPORTED_MODULE_1__["default"], {
@@ -25283,22 +25437,47 @@ function RiderProfile() {
               fontWeight: 'bold'
             },
             children: user === null || user === void 0 || (_user$name = user.name) === null || _user$name === void 0 || (_user$name = _user$name.charAt(0)) === null || _user$name === void 0 ? void 0 : _user$name.toUpperCase()
-          }), isEditing && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.Fragment, {
+          }), isEditing && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+            style: {
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+              alignItems: 'center'
+            },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+              type: "button",
               onClick: function onClick() {
                 var _fileInputRef$current;
                 return (_fileInputRef$current = fileInputRef.current) === null || _fileInputRef$current === void 0 ? void 0 : _fileInputRef$current.click();
               },
               style: {
+                width: 130,
                 padding: '0.4rem 0.8rem',
                 fontSize: '0.8rem',
                 background: '#333',
                 color: '#fff',
                 border: '1px solid #555',
                 borderRadius: 4,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxSizing: 'border-box'
               },
-              children: "Change Photo"
+              children: "Change Avatar"
+            }), (user === null || user === void 0 ? void 0 : user.avatar) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+              type: "button",
+              onClick: handleRemoveAvatar,
+              disabled: loading,
+              style: {
+                width: 130,
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.8rem',
+                background: '#e74c3c',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer',
+                boxSizing: 'border-box'
+              },
+              children: loading ? '...' : 'Remove Avatar'
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
               type: "file",
               ref: fileInputRef,
@@ -25678,9 +25857,9 @@ function RiderProfile() {
                 },
                 style: {
                   padding: '0.7rem 1.5rem',
-                  background: 'transparent',
-                  color: '#aaa',
-                  border: '1px solid #555',
+                  background: '#e74c3c',
+                  color: '#fff',
+                  border: 'none',
                   borderRadius: 4,
                   fontWeight: 'bold',
                   cursor: 'pointer'
@@ -36434,7 +36613,7 @@ function UserWishlist() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: '#888'
+                  color: 'red'
                 },
                 title: "Remove from Wishlist",
                 children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("svg", {
@@ -36729,7 +36908,8 @@ function ProductModal(_ref) {
           border: 'none',
           fontSize: '1.5rem',
           cursor: 'pointer',
-          zIndex: 10
+          zIndex: 10,
+          color: 'red'
         },
         children: "\xD7"
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {

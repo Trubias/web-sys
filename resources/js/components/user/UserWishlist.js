@@ -143,7 +143,7 @@ export default function UserWishlist() {
                             <div style={{ position: 'absolute', top: '15px', right: '15px', display: 'flex', gap: '0.5rem', zIndex: 10 }}>
                                 <button 
                                     onClick={() => toggleWishlist(item.id)}
-                                    style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#888' }}
+                                    style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'red' }}
                                     title="Remove from Wishlist"
                                 >
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>

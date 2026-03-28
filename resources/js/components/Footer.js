@@ -50,7 +50,7 @@ export default function Footer() {
                         </div>
                         <div className="footer__contact-item">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-                            <span>jayandkit.noreply@gmail.com</span>
+                            <span>krickjay2000@gmail.com</span>
                         </div>
                         <div className="footer__contact-item">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>

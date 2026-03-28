@@ -28,7 +28,6 @@ export default function RiderProfile() {
             const formData = new FormData();
             Object.keys(form).forEach(key => formData.append(key, form[key]));
             if (avatarFile) formData.append('avatar', avatarFile);
-            formData.append('_method', 'PUT');
 
             const axios = (await import('axios')).default;
             await axios.post('/api/rider/profile', formData, {
@@ -46,6 +45,30 @@ export default function RiderProfile() {
         } catch (error) {
             console.error('Update failed', error);
             setErrorMsg('Failed to update profile.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRemoveAvatar = async () => {
+        setLoading(true);
+        setSuccessMsg('');
+        setErrorMsg('');
+        try {
+            const axios = (await import('axios')).default;
+            await axios.delete('/api/rider/avatar', {
+                headers: { 
+                    'Authorization': `Bearer ${localStorage.getItem('jk_token')}`
+                }
+            });
+            await fetchUser();
+            setAvatarFile(null);
+            setPreview(null);
+            setSuccessMsg('Avatar removed successfully!');
+            setTimeout(() => setSuccessMsg(''), 4000);
+        } catch (error) {
+            console.error('Remove avatar failed', error);
+            setErrorMsg('Failed to remove avatar.');
         } finally {
             setLoading(false);
         }
@@ -73,8 +96,13 @@ export default function RiderProfile() {
                             </div>
                         )}
                         {isEditing && (
-                            <>
-                                <button onClick={() => fileInputRef.current?.click()} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: '#333', color: '#fff', border: '1px solid #555', borderRadius: 4, cursor: 'pointer' }}>Change Photo</button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
+                                <button type="button" onClick={() => fileInputRef.current?.click()} style={{ width: 130, padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: '#333', color: '#fff', border: '1px solid #555', borderRadius: 4, cursor: 'pointer', boxSizing: 'border-box' }}>Change Avatar</button>
+                                {user?.avatar && (
+                                    <button type="button" onClick={handleRemoveAvatar} disabled={loading} style={{ width: 130, padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', boxSizing: 'border-box' }}>
+                                        {loading ? '...' : 'Remove Avatar'}
+                                    </button>
+                                )}
                                 <input 
                                     type="file" 
                                     ref={fileInputRef} 
@@ -87,7 +115,7 @@ export default function RiderProfile() {
                                         }
                                     }}
                                 />
-                            </>
+                            </div>
                         )}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginTop: 8 }}>
                             <span className="admin-badge admin-badge--green">Active Rider</span>
@@ -173,7 +201,7 @@ export default function RiderProfile() {
                                     <button type="submit" disabled={loading} style={{ flex: 1, padding: '0.7rem', background: '#C9A84C', color: '#000', border: 'none', borderRadius: 4, fontWeight: 'bold', cursor: 'pointer' }}>
                                         {loading ? 'Saving...' : 'Save Changes'}
                                     </button>
-                                    <button type="button" onClick={() => { setIsEditing(false); setPreview(null); setAvatarFile(null); }} style={{ padding: '0.7rem 1.5rem', background: 'transparent', color: '#aaa', border: '1px solid #555', borderRadius: 4, fontWeight: 'bold', cursor: 'pointer' }}>
+                                    <button type="button" onClick={() => { setIsEditing(false); setPreview(null); setAvatarFile(null); }} style={{ padding: '0.7rem 1.5rem', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 4, fontWeight: 'bold', cursor: 'pointer' }}>
                                         Cancel
                                     </button>
                                 </div>

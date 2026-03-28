@@ -22,8 +22,6 @@ class ContactController extends Controller
         ]);
 
         try {
-            $admin   = Admin::first();
-            $to      = $admin ? $admin->email : 'jayandkit.noreply@gmail.com';
             $name    = $validated['name'];
             $email   = $validated['email'];
             $subject = $validated['subject'];
@@ -32,36 +30,16 @@ class ContactController extends Controller
             $textContent =
                 "New contact form submission\n" .
                 str_repeat('-', 40) . "\n" .
-                "Name:    {$name}\n" .
-                "Email:   {$email}\n" .
-                "Subject: {$subject}\n\n" .
-                "Message:\n{$body}";
+                "Sender's Full Name:    {$name}\n" .
+                "Sender's Email Address:   {$email}\n" .
+                "Subject selected: {$subject}\n\n" .
+                "Message content:\n{$body}";
 
-            $response = Http::withHeaders([
-                'api-key'      => env('BREVO_API_KEY'),
-                'Content-Type' => 'application/json',
-                'Accept'       => 'application/json',
-            ])->post('https://api.brevo.com/v3/smtp/email', [
-                'sender' => [
-                    'name'  => 'J&K Watch',
-                    'email' => 'a5e76f001@smtp-brevo.com',
-                ],
-                'to' => [
-                    ['email' => $to, 'name' => 'J&K Watch'],
-                ],
-                'replyTo' => [
-                    'email' => $email,
-                    'name'  => $name,
-                ],
-                'subject'     => '[Contact] ' . $subject,
-                'textContent' => $textContent,
-            ]);
-
-            if ($response->failed()) {
-                $err = $response->json('message') ?? $response->body();
-                Log::error('Contact Form Brevo API Error: ' . $err);
-                return response()->json(['error' => $err], 500);
-            }
+            \Illuminate\Support\Facades\Mail::raw($textContent, function($m) use ($name, $email, $subject) {
+                $m->to('krickjay2000@gmail.com')
+                  ->replyTo($email, $name)
+                  ->subject('[Contact] ' . $subject);
+            });
 
             return response()->json(['success' => true]);
 
@@ -71,8 +49,8 @@ class ContactController extends Controller
             ]);
 
             return response()->json([
-                'error' => $e->getMessage(),
-            ], 500);
+                'error' => 'Failed to send message. Please try again later.',
+            ], 400);
         }
     }
 }

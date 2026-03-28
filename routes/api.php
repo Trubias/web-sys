@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/rider/deliveries/{id}/picked-up', [\App\Http\Controllers\Api\RiderDeliveryController::class, 'markAsPickedUp']);
     Route::put('/rider/deliveries/{id}/delivered', [\App\Http\Controllers\Api\RiderDeliveryController::class, 'markAsDelivered']);
     Route::post('/rider/profile', [\App\Http\Controllers\Api\RiderDeliveryController::class, 'updateProfile']);
+    Route::delete('/rider/avatar', [\App\Http\Controllers\Api\RiderDeliveryController::class, 'removeAvatar']);
 
     Route::get('/wishlist', [WishlistController::class , 'index']);
     Route::post('/wishlist', [WishlistController::class , 'store']);
