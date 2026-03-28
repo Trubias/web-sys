@@ -27,7 +27,7 @@ class ContactController extends Controller
             $subject = $validated['subject'];
             $body    = $validated['message'];
 
-            $apiKey = config('services.brevo.key');
+            $apiKey = env('BREVO_API_KEY');
 
             $response = Http::withHeaders([
                 'api-key' => $apiKey,
