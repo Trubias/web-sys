@@ -35,6 +35,16 @@ class ContactController extends Controller
                 "Subject selected: {$subject}\n\n" .
                 "Message content:\n{$body}";
 
+            config([
+                'mail.mailers.smtp.host' => env('MAIL_HOST'),
+                'mail.mailers.smtp.port' => env('MAIL_PORT'),
+                'mail.mailers.smtp.username' => env('MAIL_USERNAME'),
+                'mail.mailers.smtp.password' => env('MAIL_PASSWORD'),
+                'mail.mailers.smtp.encryption' => env('MAIL_ENCRYPTION'),
+                'mail.from.address' => env('MAIL_FROM_ADDRESS'),
+                'mail.from.name' => env('MAIL_FROM_NAME'),
+            ]);
+
             \Illuminate\Support\Facades\Mail::raw($textContent, function($m) use ($name, $email, $subject) {
                 $m->to('krickjay2000@gmail.com')
                   ->replyTo($email, $name)
@@ -49,8 +59,8 @@ class ContactController extends Controller
             ]);
 
             return response()->json([
-                'error' => 'Failed to send message. Please try again later.',
-            ], 400);
+                'error' => 'Failed to send message. Please try again later. Details: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }
