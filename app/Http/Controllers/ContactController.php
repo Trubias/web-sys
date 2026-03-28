@@ -27,31 +27,45 @@ class ContactController extends Controller
             $subject = $validated['subject'];
             $body    = $validated['message'];
 
-            $textContent =
-                "New contact form submission\n" .
-                str_repeat('-', 40) . "\n" .
-                "Sender's Full Name:    {$name}\n" .
-                "Sender's Email Address:   {$email}\n" .
-                "Subject selected: {$subject}\n\n" .
-                "Message content:\n{$body}";
+            $apiKey = config('services.brevo.key');
 
-            config([
-                'mail.mailers.smtp.host' => env('MAIL_HOST'),
-                'mail.mailers.smtp.port' => env('MAIL_PORT'),
-                'mail.mailers.smtp.username' => env('MAIL_USERNAME'),
-                'mail.mailers.smtp.password' => env('MAIL_PASSWORD'),
-                'mail.mailers.smtp.encryption' => env('MAIL_ENCRYPTION'),
-                'mail.from.address' => env('MAIL_FROM_ADDRESS'),
-                'mail.from.name' => env('MAIL_FROM_NAME'),
+            $response = Http::withHeaders([
+                'api-key' => $apiKey,
+                'accept' => 'application/json',
+                'content-type' => 'application/json',
+            ])->post('https://api.brevo.com/v3/smtp/email', [
+                'sender' => [
+                    'name' => 'J&K Watch',
+                    'email' => 'jayandkit.noreply@gmail.com'
+                ],
+                'to' => [
+                    [
+                        'email' => 'jayandkit.noreply@gmail.com',
+                        'name' => 'J&K Watch Admin'
+                    ]
+                ],
+                'replyTo' => [
+                    'email' => $request->email,
+                    'name'  => $request->name,
+                ],
+                'subject' => 'New Contact Message: ' . $request->subject,
+                'htmlContent' => '
+                    <h3>New Contact Message from J&K Watch Website</h3>
+                    <p><b>Name:</b> ' . $request->name . '</p>
+                    <p><b>Email:</b> ' . $request->email . '</p>
+                    <p><b>Subject:</b> ' . $request->subject . '</p>
+                    <p><b>Message:</b> ' . $request->message . '</p>
+                '
             ]);
 
-            \Illuminate\Support\Facades\Mail::raw($textContent, function($m) use ($name, $email, $subject) {
-                $m->to('krickjay2000@gmail.com')
-                  ->replyTo($email, $name)
-                  ->subject('[Contact] ' . $subject);
-            });
+            if ($response->failed()) {
+                \Log::error('Brevo error: ' . $response->body());
+                return response()->json([
+                    'message' => 'Failed: ' . $response->body()
+                ], 500);
+            }
 
-            return response()->json(['success' => true]);
+            return response()->json(['message' => 'Message sent successfully']);
 
         } catch (\Exception $e) {
             Log::error('Contact Form Error: ' . $e->getMessage(), [

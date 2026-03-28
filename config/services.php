@@ -30,4 +30,8 @@ return [
         'region' => 'us-east-1',
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+    ],
+
 ];
