@@ -91,7 +91,7 @@ export default function ProductRequestsPage({ user, setActivePage }) {
         if (!existing.find(d => String(d.reqId) === String(req.id))) {
             deliveryStore.add({
                 id: 'DEL-2026-' + String(existing.length + 1).padStart(3, '0'),
-                reqId: req.id, ref: req.ref, model: req.model,
+                reqId: req.id, ref: req.ref, product_id: req.product_id, model: req.model,
                 brand: req.brand, category: req.category,
                 qty: req.qty, price: req.price, payment: req.payment, supplier: req.supplier,
                 image: req.image, date: req.date, status: 'accepted',

@@ -40,7 +40,7 @@ class UserOrderController extends Controller
                 return response()->json(['message' => 'Product not found'], 404);
             }
             $cartItems = [
-                (object)[
+                (object) [
                     'product_id' => $product->id,
                     'quantity' => $directPurchase['quantity'],
                     'product' => $product
@@ -75,6 +75,7 @@ class UserOrderController extends Controller
                 'ref' => $ref,
                 'product_id' => $product->id,
                 'product_name' => $product->name,
+                'product_image' => $product->image,
                 'brand_id' => $product->brand_id,
                 'brand_name' => $product->brand ? $product->brand->name : null,
                 'quantity' => $item->quantity,
@@ -125,7 +126,7 @@ class UserOrderController extends Controller
             ->findOrFail($id);
 
         $order->delete();
-        
+
         return response()->json(['message' => 'Order cancelled successfully']);
     }
 }

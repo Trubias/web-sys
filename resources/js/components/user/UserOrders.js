@@ -8,36 +8,36 @@ import axios from 'axios';
 function normalizeStatus(rawStatus) {
     // Map backend statuses to customer-facing labels
     const map = {
-        pending:          'Pending',
-        processing:       'Processing',
-        assigned:         'Processing',   // admin assigned rider = Processing from customer view
-        accepted:         'Processing',
+        pending: 'Pending',
+        processing: 'Processing',
+        assigned: 'Processing',   // admin assigned rider = Processing from customer view
+        accepted: 'Processing',
         out_for_delivery: 'Out for Delivery',
-        delivered:        'Delivered',
-        completed:        'Delivered',
-        cancelled:        'Cancelled',
-        canceled:         'Cancelled',
+        delivered: 'Delivered',
+        completed: 'Delivered',
+        cancelled: 'Cancelled',
+        canceled: 'Cancelled',
     };
     return map[(rawStatus || '').toLowerCase()] || rawStatus || 'Pending';
 }
 
 function statusBadgeStyle(label) {
     const styles = {
-        'Pending':          { background: '#fef9c3', color: '#a16207', border: '1px solid #fde047' },
-        'Processing':       { background: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd' },
+        'Pending': { background: '#fef9c3', color: '#a16207', border: '1px solid #fde047' },
+        'Processing': { background: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd' },
         'Out for Delivery': { background: '#ede9fe', color: '#6d28d9', border: '1px solid #c4b5fd' },
-        'Delivered':        { background: '#dcfce7', color: '#15803d', border: '1px solid #86efac' },
-        'Cancelled':        { background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5' },
+        'Delivered': { background: '#dcfce7', color: '#15803d', border: '1px solid #86efac' },
+        'Cancelled': { background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5' },
     };
     return styles[label] || { background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' };
 }
 
 function formatPaymentMethod(method, bankName) {
     const labels = {
-        gcash:         'GCash',
-        maya:          'Maya',
+        gcash: 'GCash',
+        maya: 'Maya',
         bank_transfer: 'Bank Transfer',
-        cod:           'Cash on Delivery',
+        cod: 'Cash on Delivery',
     };
     const label = labels[(method || '').toLowerCase()] || method;
     if ((method || '').toLowerCase() === 'bank_transfer' && bankName) {
@@ -422,7 +422,7 @@ export default function UserOrders() {
                                                 <td style={tdStyle}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                                         <img src={imgSrc} alt={order.product_name}
-                                                            style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }} />
+                                                            style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }} />
                                                         <div>
                                                             <div style={{ fontWeight: 600, color: '#111', fontSize: '0.88rem', maxWidth: '180px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                                 {order.product_name}

@@ -136,4 +136,27 @@ class SupplierProductController extends Controller
         $product->delete();
         return response()->json(['message' => 'Deleted']);
     }
+
+    public function deductStock(Request $request, $id)
+    {
+        $product = SupplierProduct::findOrFail($id);
+        
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $product->stock = $product->stock - $request->quantity;
+        
+        if ($product->stock <= 0) {
+            $product->status = 'Out of Stock';
+        } elseif ($product->stock > 0 && $product->stock <= 10) {
+            $product->status = 'Low Stock';
+        } else {
+            $product->status = 'Active';
+        }
+
+        $product->save();
+
+        return response()->json($product);
+    }
 }

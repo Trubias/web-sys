@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { reqStore, deliveryStore, notificationStore, supplierStockStore } from '../sharedStore';
-import { BTN, INV_MODAL } from './supplierHelpers';
+import { reqStore, deliveryStore, notificationStore } from '../sharedStore';
+import { BTN, INV_MODAL, suppHead } from './supplierHelpers';
+import axios from 'axios';
 
 function StatCard({ title, val, icon, color, bg }) {
     return (
@@ -162,16 +163,31 @@ export default function DeliveriesPage({ user }) {
                 setProofFiles(p => ({ ...p, [id]: url }));
             }
         },
-        markDelivered: (d) => {
+        markDelivered: async (d) => {
             if (!proofFiles[d.id] && !d.proof) return;
             const now = new Date().toISOString();
-            reqStore.update(d.reqId, { status: 'completed', deliveredAt: now });
-            deliveryStore.update(d.id, { status: 'delivered', proof: proofFiles[d.id] || d.proof, deliveredAt: now });
-            notificationStore.add('admin', `Your order ${d.ref} has been successfully delivered. You can now place it in Inventory.`);
-            // ── Deduct supplier stock ONLY on confirmed delivery ──────────────────
-            if (d.product_id && d.qty) {
-                supplierStockStore.deduct(d.product_id, Number(d.qty));
+            
+            if (d.stock_deducted) {
+                reqStore.update(d.reqId, { status: 'completed', deliveredAt: now });
+                deliveryStore.update(d.id, { status: 'delivered', proof: proofFiles[d.id] || d.proof, deliveredAt: now });
+                notificationStore.add('admin', `Your order ${d.ref} has been successfully delivered. You can now place it in Inventory.`);
+                return;
             }
+
+            try {
+                if (d.product_id && d.qty) {
+                    await axios.put(`/api/supplier-products/${d.product_id}/deduct`, {
+                        quantity: Number(d.qty)
+                    }, suppHead());
+                    window.dispatchEvent(new Event('jk_supplier_stock_update'));
+                }
+            } catch (err) {
+                console.error("Failed to deduct stock:", err);
+            }
+
+            reqStore.update(d.reqId, { status: 'completed', deliveredAt: now });
+            deliveryStore.update(d.id, { status: 'delivered', proof: proofFiles[d.id] || d.proof, deliveredAt: now, stock_deducted: true });
+            notificationStore.add('admin', `Your order ${d.ref} has been successfully delivered. You can now place it in Inventory.`);
         }
     };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { formatCurrency, useCurrency } from '../utils/currency';
 import AdminLayout from './AdminLayout';
 import axios from 'axios';
-import { reqStore, notificationStore, inventoryStore, productMgmtStore, supplierStockStore } from '../sharedStore';
+import { reqStore, notificationStore, inventoryStore, productMgmtStore } from '../sharedStore';
 
 // ─── Auth helpers — use jk_token (same key stored by AuthContext/login) ───────
 const getToken  = () => localStorage.getItem('jk_token');
@@ -371,8 +371,7 @@ function AddProductModal({ onClose, onSaved }) {
                  r.data.forEach(p => {
                      const n = p.name ? p.name.trim().toLowerCase() : '';
                      const key = `${n}|${p.brand_id}|${p.category_id}`;
-                     const dec = supplierStockStore.getDeducted(p.id);
-                     const actualStock = Math.max(0, (Number(p.stock) || 0) - dec);
+                     const actualStock = Number(p.stock) || 0;
                      if (map.has(key)) {
                          map.get(key).stock += actualStock;
                      } else {

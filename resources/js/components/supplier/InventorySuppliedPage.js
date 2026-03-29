@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { supplierStockStore } from '../sharedStore';
 import { suppHead, IMG_BASE, INV_MODAL, getSuppToken } from './supplierHelpers';
 
 function EditStockModal({ product, onClose, onSaved }) {
@@ -331,8 +330,7 @@ export default function InventorySuppliedPage({ user }) {
             .then(r => {
                 const mine = r.data.filter(p => p.supplier_id === user.id || !p.supplier_id);
                 const adjusted = mine.map(p => {
-                    const deducted = supplierStockStore.getDeducted(p.id);
-                    return { ...p, stock: Math.max(0, (p.stock || 0) - deducted), _dbStock: p.stock || 0 };
+                    return { ...p, stock: p.stock || 0, _dbStock: p.stock || 0 };
                 });
                 setProducts(adjusted);
             })

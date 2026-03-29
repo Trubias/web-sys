@@ -4,6 +4,14 @@ import RiderLayout from './RiderLayout';
 export default function RiderHistory() {
     const [deliveries, setDeliveries] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedProof, setSelectedProof] = useState(null);
+
+    const getProofUrl = (path) => {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        const filename = path.split('/').pop();
+        return `/rider/proofs/${filename}`;
+    };
 
     useEffect(() => {
         const fetchDeliveries = async () => {
@@ -76,20 +84,26 @@ export default function RiderHistory() {
                             
                             {o.proof_of_delivery && (
                                 <div style={{ marginTop: '1.5rem' }}>
-                                    <a 
-                                        href={o.proof_of_delivery} 
-                                        target="_blank" 
-                                        rel="noreferrer"
-                                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.9rem', background: '#222', color: '#3498db', border: '1px solid rgba(52,152,219,0.3)', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', textDecoration: 'none', transition: 'background 0.2s' }}
-                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(52,152,219,0.1)'} onMouseLeave={e => e.currentTarget.style.background = '#222'}
+                                    <button 
+                                        onClick={() => setSelectedProof(getProofUrl(o.proof_of_delivery))}
+                                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.9rem', background: '#222', color: '#3498db', border: '1px solid rgba(52,152,219,0.3)', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.2s' }}
                                     >
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                                         View Proof of Delivery
-                                    </a>
+                                    </button>
                                 </div>
                             )}
                         </div>
                     ))}
+                </div>
+            )}
+
+            {selectedProof && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }} onClick={() => setSelectedProof(null)}>
+                    <div style={{ position: 'relative', maxWidth: '100%', maxHeight: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
+                        <button onClick={() => setSelectedProof(null)} style={{ position: 'absolute', top: '-40px', right: 0, background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', padding: '5px' }}>&times;</button>
+                        <img src={selectedProof} alt="Proof of Delivery" style={{ maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px', border: '2px solid rgba(255,255,255,0.1)' }} />
+                    </div>
                 </div>
             )}
         </RiderLayout>

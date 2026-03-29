@@ -112,6 +112,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/supplier-products', [SupplierProductController::class, 'index']);
         Route::post('/supplier-products', [SupplierProductController::class, 'store']);
         Route::put('/supplier-products/{id}', [SupplierProductController::class, 'update']);
+        Route::put('/supplier-products/{id}/deduct', [SupplierProductController::class, 'deductStock']);
         Route::delete('/supplier-products/{id}', [SupplierProductController::class, 'destroy']);
     });
 });

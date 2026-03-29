@@ -267,7 +267,8 @@ class AdminReportsController extends Controller
         // DO NOT touch stock here under any circumstances:
         // - Pending: stock was never deducted, so nothing to restore.
         // - Delivered: stock was already deducted by riderDeliveryController::markAsDelivered.
-        $order->delete();
+        $order->admin_archived = true;
+        $order->save();
 
         return response()->json([
             'message'       => 'Order deleted successfully',

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
-import { reqStore, deliveryStore, supplierStockStore } from '../sharedStore';
+import { reqStore, deliveryStore } from '../sharedStore';
 import { formatCurrency, useCurrency } from '../utils/currency';
 
 // ─── Format any date value to "Mar 19, 2026" ─────────────────────────────────
@@ -73,18 +73,18 @@ function OrderDetailModal({ order, onClose, isCustomer }) {
 
     // Build rows — exclude Company for customer orders
     const rows = [
-        { label: 'Order ID',       value: order.id },
-        { label: 'Product Name',   value: order.model || order.rawProduct || '—' },
-        { label: 'Brand',          value: order.brand || '—' },
-        { label: 'Category',       value: order.category || '—' },
+        { label: 'Order ID', value: order.id },
+        { label: 'Product Name', value: order.model || order.rawProduct || '—' },
+        { label: 'Brand', value: order.brand || '—' },
+        { label: 'Category', value: order.category || '—' },
         ...(isCustomer ? [] : [{ label: 'Company', value: order.supplier || '—' }]),
         { label: isCustomer ? 'Customer' : 'Orderer', value: order.customer || '—' },
-        { label: 'Quantity',       value: order.qty != null ? `${order.qty} units` : (order.quantity != null ? `${order.quantity} units` : '—') },
-        { label: 'Unit Price',     value: order.unit_price != null ? `₱${Number(order.unit_price).toLocaleString()}` : '—' },
-        { label: 'Total Amount',   value: order.amount || '—' },
-        { label: 'Date',           value: order.date || '—' },
+        { label: 'Quantity', value: order.qty != null ? `${order.qty} units` : (order.quantity != null ? `${order.quantity} units` : '—') },
+        { label: 'Unit Price', value: order.unit_price != null ? `₱${Number(order.unit_price).toLocaleString()}` : '—' },
+        { label: 'Total Amount', value: order.amount || '—' },
+        { label: 'Date', value: order.date || '—' },
         { label: 'Payment Method', value: order.payment || order.payment_method || '—' },
-        { label: 'Status',         value: order.status || '—', isStatus: true },
+        { label: 'Status', value: order.status || '—', isStatus: true },
     ];
 
     const imgSrc = order.image || (order.rawImage
@@ -214,7 +214,7 @@ function ConfirmDeleteModal({ order, onCancel, onConfirm, orderType, actionLabel
 function AssignRiderModal({ order, riders, onCancel, onConfirm, isSubmitting, errorMsg, successMsg }) {
     const matchRiders = riders.filter(r => r.region === order.region);
     const otherRiders = riders.filter(r => r.region !== order.region);
-    
+
     return (
         <div style={{
             position: 'fixed', inset: 0, zIndex: 9999,
@@ -253,7 +253,7 @@ function AssignRiderModal({ order, riders, onCancel, onConfirm, isSubmitting, er
                     <p style={{ color: '#aaa', margin: '0 0 1rem', fontSize: '0.95rem' }}>
                         Customer Region: <strong style={{ color: '#C9A84C' }}>{order.region || 'Unknown'}</strong>
                     </p>
-                    
+
                     <h4 style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '0.8rem' }}>Matched Riders (Same Region)</h4>
                     {matchRiders.length === 0 ? (
                         <div style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>No riders available in this region.</div>
@@ -275,7 +275,7 @@ function AssignRiderModal({ order, riders, onCancel, onConfirm, isSubmitting, er
                             ))}
                         </div>
                     )}
-                    
+
                     {otherRiders.length > 0 && (
                         <>
                             <h4 style={{ color: '#888', fontSize: '0.9rem', marginBottom: '0.8rem' }}>Other Active Riders</h4>
@@ -309,7 +309,6 @@ export default function AdminOrders() {
     const [orderType, setOrderType] = useState('customer');
     const [filter, setFilter] = useState('All');
     const [deliveries, setDeliveries] = useState([]);
-    const [deletedCustomerIds, setDeletedCustomerIds] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [assignModal, setAssignModal] = useState(null);
     const [isAssigning, setIsAssigning] = useState(false);
@@ -332,7 +331,7 @@ export default function AdminOrders() {
             const res = await axios.get('/api/admin/orders');
             setCustomerOrders(res.data);
             setLoadingCustomerOrders(false);
-        } catch(error) {
+        } catch (error) {
             console.error('Error fetching orders:', error);
             setLoadingCustomerOrders(false);
         }
@@ -343,7 +342,7 @@ export default function AdminOrders() {
             const axios = (await import('axios')).default;
             const res = await axios.get('/api/admin/riders');
             setRiders(res.data.filter(r => r.rider_status === 'active'));
-        } catch(error) {
+        } catch (error) {
             console.error('Error fetching riders:', error);
         }
     };
@@ -436,16 +435,16 @@ export default function AdminOrders() {
             date: fmtDate(o.created_at),
             status: mappedStatus,
             region: o.region || o.user?.region || '',
-            isArchived: deletedCustomerIds.includes(o.ref) || deletedCustomerIds.includes(o.id)
+            isArchived: o.admin_archived || o.isArchived
         };
     });
 
     const currentBaseData = orderType === 'customer'
         ? visibleCustomerOrders
         : mappedSupplierOrders.filter(o => o.status !== 'Declined');
-        
+
     const currentData = currentBaseData.filter(o => viewMode === 'archive' ? o.isArchived : !o.isArchived);
-        
+
     const filterList = orderType === 'customer' ? customerStatusFilters : allStatuses;
     const filtered = filter === 'All' ? currentData : currentData.filter(o => o.status === filter);
 
@@ -459,30 +458,22 @@ export default function AdminOrders() {
             try {
                 const axios = (await import('axios')).default;
                 await axios.delete(`/api/admin/orders/${confirmDelete.keyId}`);
-                setCustomerOrders(prev => prev.filter(o => o.id !== confirmDelete.keyId));
-                showToast('Order deleted successfully.');
+                setCustomerOrders(prev => prev.map(o => o.id === confirmDelete.keyId ? { ...o, admin_archived: 1 } : o));
+                showToast('Order archived successfully.');
             } catch (err) {
                 showToast('Failed to delete order.');
             }
         } else {
-            // Supplier/admin order: remove from reqStore so supplier no longer sees this request.
+            // Supplier/admin order: archive the request by updating reqStore.
             const isDelivered = confirmDelete.status === 'Delivered';
-            
-            // Always remove from reqStore (admin view clears regardless)
-            reqStore.remove(confirmDelete.keyId);
-            
+
+            // Archive in reqStore (moves to Archive tab, supplier remains unaffected)
+            reqStore.update(confirmDelete.keyId, { isArchived: true });
+
             if (isDelivered) {
-                // Delivered: keep supplier's delivery archive intact.
-                // Stock was already deducted on delivery — do NOT reverse it.
-                showToast('Order record removed. Supplier delivery archive preserved.');
+                showToast('Order archived. Supplier delivery archive preserved.');
             } else {
-                // Not yet delivered: remove from supplier delivery queue too,
-                // and restore any stock that was previously deducted (defensive).
-                deliveryStore.removeByReqId(confirmDelete.keyId);
-                if (confirmDelete.product_id) {
-                    supplierStockStore.restore(confirmDelete.product_id, Number(confirmDelete.qty));
-                }
-                showToast('Order removed. Supplier will no longer see this request.');
+                showToast('Order archived. Supplier will still process this request.');
             }
         }
         setConfirmDelete(null);
@@ -553,7 +544,7 @@ export default function AdminOrders() {
 
                 {/* Status filters and View Mode */}
                 <div style={{ display: 'flex', gap: '1rem', alignSelf: 'flex-end', paddingBottom: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    
+
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {filterList.map(f => (
                             <button
@@ -602,184 +593,184 @@ export default function AdminOrders() {
             <div className="admin-card">
                 {/* Problem 1: scrollable wrapper so table never squishes */}
                 <div style={{ overflowX: 'auto', width: '100%' }}>
-                <table className="admin-table" style={{ minWidth: 1200, tableLayout: 'fixed' }}>
-                    <colgroup>
-                        <col style={{ minWidth: 130 }} />
-                        <col style={{ width: 70 }} />
-                        <col style={{ minWidth: 100 }} />
-                        <col style={{ minWidth: 110 }} />
-                        <col style={{ minWidth: 90 }} />
-                        {orderType === 'supplier' && <col style={{ minWidth: 130 }} />}
-                        <col style={{ minWidth: 150 }} />
-                        <col style={{ minWidth: 100 }} />
-                        <col style={{ minWidth: 90 }} />
-                        <col style={{ minWidth: 110 }} />
-                        <col style={{ minWidth: 140 }} />
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Image</th>
-                            <th>Brand</th>
-                            <th>Category</th>
-                            {orderType === 'supplier' ? <th>Company</th> : <th>Customer</th>}
-                            {orderType === 'supplier' && <th>Orderer</th>}
-                            <th>Product Details</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtered.length === 0 ? (
+                    <table className="admin-table" style={{ minWidth: 1200, tableLayout: 'fixed' }}>
+                        <colgroup>
+                            <col style={{ minWidth: 130 }} />
+                            <col style={{ width: 70 }} />
+                            <col style={{ minWidth: 100 }} />
+                            <col style={{ minWidth: 110 }} />
+                            <col style={{ minWidth: 90 }} />
+                            {orderType === 'supplier' && <col style={{ minWidth: 130 }} />}
+                            <col style={{ minWidth: 150 }} />
+                            <col style={{ minWidth: 100 }} />
+                            <col style={{ minWidth: 90 }} />
+                            <col style={{ minWidth: 110 }} />
+                            <col style={{ minWidth: 140 }} />
+                        </colgroup>
+                        <thead>
                             <tr>
-                                <td colSpan={colSpan} style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-                                    No {viewMode === 'archive' ? 'archived' : 'active'} {orderType} orders found for this status.
-                                </td>
+                                <th>Order ID</th>
+                                <th>Image</th>
+                                <th>Brand</th>
+                                <th>Category</th>
+                                {orderType === 'supplier' ? <th>Company</th> : <th>Customer</th>}
+                                {orderType === 'supplier' && <th>Orderer</th>}
+                                <th>Product Details</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        ) : filtered.map((o, idx) => {
-                            const st = STATUS_STYLES[o.status] || STATUS_STYLES.Pending;
-                            // Change 2: image src logic
-                            const imgSrc = o.rawImage
-                                ? (o.rawImage.startsWith('http') ? o.rawImage : '/storage/' + o.rawImage)
-                                : null;
-                            // Change 1: action button logic based on status
-                            const isPending = o.status === 'Pending';
-                            const isDelivered = o.status === 'Delivered' || o.status === 'Completed';
-                            const isInProgress = ['Accepted','Preparing','Transporting','Assigned','Out for Delivery','Processing'].includes(o.status);
-                            return (
-                                <tr key={o.keyId || o.id || idx}>
-                                    {/* Change 3: Clickable Order ID */}
-                                    <td style={{ fontWeight: 700, color: '#C9A84C', cursor: 'pointer', textDecoration: 'underline', whiteSpace: 'nowrap' }}
-                                        onClick={() => setDetailOrder(o)}>{o.id}</td>
-                                    {/* Problem 3: 48×48 thumbnail — white bg for transparent PNGs */}
-                                    <td>
-                                        <div style={{ width: 48, height: 48, borderRadius: 6, background: '#fff', border: '1px solid #e5e7eb', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                                            {imgSrc
-                                                ? <img src={imgSrc} alt="" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 4 }} onError={e => e.target.style.display='none'} />
-                                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
-                                        </div>
+                        </thead>
+                        <tbody>
+                            {filtered.length === 0 ? (
+                                <tr>
+                                    <td colSpan={colSpan} style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                                        No {viewMode === 'archive' ? 'archived' : 'active'} {orderType} orders found for this status.
                                     </td>
-                                    {/* Change 2: Brand column */}
-                                    <td className="admin-table__muted" style={{ fontSize: '0.82rem' }}>{o.brand || '—'}</td>
-                                    {/* Change 2: Category column */}
-                                    <td className="admin-table__muted" style={{ fontSize: '0.82rem' }}>{o.category || '—'}</td>
-                                    <td>
-                                        <div style={{ fontWeight: 600 }}>
-                                            {orderType === 'customer' ? o.customer : o.supplier}
-                                        </div>
-                                    </td>
-                                    {orderType === 'supplier' && (
-                                        <td><div style={{ fontWeight: 600 }}>{o.customer}</div></td>
-                                    )}
-                                    <td>
-                                        <span style={{ color: orderType === 'supplier' ? '#2980b9' : 'inherit' }}>
-                                            {o.product}
-                                        </span>
-                                    </td>
-                                    <td className="admin-table__muted">{o.date}</td>
-                                    <td style={{ fontWeight: 700 }}>{o.amount}</td>
-                                    <td>
-                                        <span className="admin-badge" style={{ background: st.bg, color: st.color, fontWeight: 700 }}>
-                                            {o.status}
-                                        </span>
-                                    </td>
-                                    {/* Actions column */}
-                                    <td style={{ verticalAlign: 'middle' }}>
-                                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                                        {!o.isArchived && orderType === 'supplier' && isPending && (
-                                            /* Problem 2: compact red-bordered Cancel Order button */
-                                            <button
-                                                title="Cancel Order"
-                                                onClick={() => handleDeleteClick({ ...o, _actionLabel: 'cancel' })}
-                                                style={{
-                                                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                                                    height: 32, padding: '0 10px', borderRadius: 6,
-                                                    background: 'transparent',
-                                                    border: '1px solid #e74c3c',
-                                                    color: '#e74c3c', cursor: 'pointer', fontWeight: 600, fontSize: '0.76rem',
-                                                    whiteSpace: 'nowrap', lineHeight: 1,
-                                                    transition: 'background 0.15s',
-                                                }}
-                                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(231,76,60,0.1)'}
-                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                            >
-                                                <span style={{ fontSize: '0.8rem' }}>✕</span> Cancel Order
-                                            </button>
-                                        )}
-                                        {!o.isArchived && orderType === 'supplier' && isDelivered && (
-                                            <button
-                                                title="Delete Order"
-                                                onClick={() => handleDeleteClick(o)}
-                                                style={{
-                                                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                                    width: 30, height: 30, borderRadius: 7,
-                                                    background: 'rgba(231,76,60,0.12)',
-                                                    border: '1px solid rgba(231,76,60,0.25)',
-                                                    color: '#e74c3c', cursor: 'pointer',
-                                                    transition: 'background 0.2s',
-                                                }}
-                                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.28)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)'; }}
-                                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.12)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)'; }}
-                                            >
-                                                <TrashIcon />
-                                            </button>
-                                        )}
-                                        {!o.isArchived && orderType === 'supplier' && isInProgress && (
-                                            <span style={{ fontSize: '0.72rem', color: '#6b7280', fontStyle: 'italic' }}>In progress</span>
-                                        )}
-                                        {/* Customer orders: trash for non-archive only */}
-                                        {!o.isArchived && orderType === 'customer' && (
-                                            <button
-                                                title="Delete Order"
-                                                onClick={() => handleDeleteClick(o)}
-                                                style={{
-                                                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                                    width: 30, height: 30, borderRadius: 7,
-                                                    background: 'rgba(231,76,60,0.12)',
-                                                    border: '1px solid rgba(231,76,60,0.25)',
-                                                    color: '#e74c3c', cursor: 'pointer',
-                                                    transition: 'background 0.2s, border-color 0.2s',
-                                                }}
-                                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.28)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)'; }}
-                                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.12)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)'; }}
-                                            >
-                                                <TrashIcon />
-                                            </button>
-                                        )}
-                                        {/* Problem 4: styled Archived badge pill */}
-                                        {o.isArchived && (
-                                            <span style={{ background: '#f0f0f0', color: '#888', borderRadius: 999, padding: '4px 10px', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>
-                                                Archived
-                                            </span>
-                                        )}
-                                        {orderType === 'customer' && !o.rider_id && o.status !== 'Out for Delivery' && o.status !== 'Delivered' && o.status !== 'Assigned' && !o.isArchived && (
-                                            <button onClick={() => setAssignModal(o)} style={{
-                                                padding: '0.35rem 0.6rem', borderRadius: '4px', background: 'transparent', border: '1px solid #3498db',
-                                                color: '#3498db', fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer'
-                                            }}>
-                                                Assign Rider
-                                            </button>
-                                        )}
-                                        {orderType === 'customer' && o.rider_id && !o.isArchived && (
-                                            <div style={{ fontSize: '0.75rem', color: '#27ae60', fontWeight: 'bold' }}>
-                                                {o.rider?.name || 'Rider Assigned'}
-                                            </div>
-                                        )}
-                                        {orderType === 'customer' && o.status === 'Delivered' && o.proof_of_delivery && !o.isArchived && (
-                                            <a href={o.proof_of_delivery.startsWith('http') ? o.proof_of_delivery : (o.proof_of_delivery.startsWith('/storage') ? o.proof_of_delivery : `/storage/${o.proof_of_delivery}`)} target="_blank" rel="noopener noreferrer" style={{
-                                                marginTop: 4, display: 'block', color: '#3498db', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none'
-                                            }} onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'} onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
-                                                View Proof of Delivery
-                                            </a>
-                                        )}
-                                    </div></td>
                                 </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                            ) : filtered.map((o, idx) => {
+                                const st = STATUS_STYLES[o.status] || STATUS_STYLES.Pending;
+                                // Change 2: image src logic
+                                const imgSrc = o.rawImage
+                                    ? (o.rawImage.startsWith('http') ? o.rawImage : '/storage/' + o.rawImage)
+                                    : null;
+                                // Change 1: action button logic based on status
+                                const isPending = o.status === 'Pending';
+                                const isDelivered = o.status === 'Delivered' || o.status === 'Completed';
+                                const isInProgress = ['Accepted', 'Preparing', 'Transporting', 'Assigned', 'Out for Delivery', 'Processing'].includes(o.status);
+                                return (
+                                    <tr key={o.keyId || o.id || idx}>
+                                        {/* Change 3: Clickable Order ID */}
+                                        <td style={{ fontWeight: 700, color: '#C9A84C', cursor: 'pointer', textDecoration: 'underline', whiteSpace: 'nowrap' }}
+                                            onClick={() => setDetailOrder(o)}>{o.id}</td>
+                                        {/* Problem 3: 48×48 thumbnail — white bg for transparent PNGs */}
+                                        <td>
+                                            <div style={{ width: 48, height: 48, borderRadius: 6, background: '#fff', border: '1px solid #e5e7eb', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                                                {imgSrc
+                                                    ? <img src={imgSrc} alt="" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 4 }} onError={e => e.target.style.display = 'none'} />
+                                                    : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="M21 15l-5-5L5 21" /></svg>}
+                                            </div>
+                                        </td>
+                                        {/* Change 2: Brand column */}
+                                        <td className="admin-table__muted" style={{ fontSize: '0.82rem' }}>{o.brand || '—'}</td>
+                                        {/* Change 2: Category column */}
+                                        <td className="admin-table__muted" style={{ fontSize: '0.82rem' }}>{o.category || '—'}</td>
+                                        <td>
+                                            <div style={{ fontWeight: 600 }}>
+                                                {orderType === 'customer' ? o.customer : o.supplier}
+                                            </div>
+                                        </td>
+                                        {orderType === 'supplier' && (
+                                            <td><div style={{ fontWeight: 600 }}>{o.customer}</div></td>
+                                        )}
+                                        <td>
+                                            <span style={{ color: orderType === 'supplier' ? '#2980b9' : 'inherit' }}>
+                                                {o.product}
+                                            </span>
+                                        </td>
+                                        <td className="admin-table__muted">{o.date}</td>
+                                        <td style={{ fontWeight: 700 }}>{o.amount}</td>
+                                        <td>
+                                            <span className="admin-badge" style={{ background: st.bg, color: st.color, fontWeight: 700 }}>
+                                                {o.status}
+                                            </span>
+                                        </td>
+                                        {/* Actions column */}
+                                        <td style={{ verticalAlign: 'middle' }}>
+                                            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                                                {!o.isArchived && orderType === 'supplier' && isPending && (
+                                                    /* Problem 2: compact red-bordered Cancel Order button */
+                                                    <button
+                                                        title="Cancel Order"
+                                                        onClick={() => handleDeleteClick({ ...o, _actionLabel: 'cancel' })}
+                                                        style={{
+                                                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                                                            height: 32, padding: '0 10px', borderRadius: 6,
+                                                            background: 'transparent',
+                                                            border: '1px solid #e74c3c',
+                                                            color: '#e74c3c', cursor: 'pointer', fontWeight: 600, fontSize: '0.76rem',
+                                                            whiteSpace: 'nowrap', lineHeight: 1,
+                                                            transition: 'background 0.15s',
+                                                        }}
+                                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(231,76,60,0.1)'}
+                                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                                    >
+                                                        <span style={{ fontSize: '0.8rem' }}>✕</span> Cancel Order
+                                                    </button>
+                                                )}
+                                                {!o.isArchived && orderType === 'supplier' && isDelivered && (
+                                                    <button
+                                                        title="Delete Order"
+                                                        onClick={() => handleDeleteClick(o)}
+                                                        style={{
+                                                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                                            width: 30, height: 30, borderRadius: 7,
+                                                            background: 'rgba(231,76,60,0.12)',
+                                                            border: '1px solid rgba(231,76,60,0.25)',
+                                                            color: '#e74c3c', cursor: 'pointer',
+                                                            transition: 'background 0.2s',
+                                                        }}
+                                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.28)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)'; }}
+                                                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.12)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)'; }}
+                                                    >
+                                                        <TrashIcon />
+                                                    </button>
+                                                )}
+                                                {!o.isArchived && orderType === 'supplier' && isInProgress && (
+                                                    <span style={{ fontSize: '0.72rem', color: '#6b7280', fontStyle: 'italic' }}>In progress</span>
+                                                )}
+                                                {/* Customer orders: trash for non-archive only */}
+                                                {!o.isArchived && orderType === 'customer' && (
+                                                    <button
+                                                        title="Delete Order"
+                                                        onClick={() => handleDeleteClick(o)}
+                                                        style={{
+                                                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                                            width: 30, height: 30, borderRadius: 7,
+                                                            background: 'rgba(231,76,60,0.12)',
+                                                            border: '1px solid rgba(231,76,60,0.25)',
+                                                            color: '#e74c3c', cursor: 'pointer',
+                                                            transition: 'background 0.2s, border-color 0.2s',
+                                                        }}
+                                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.28)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.6)'; }}
+                                                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.12)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.25)'; }}
+                                                    >
+                                                        <TrashIcon />
+                                                    </button>
+                                                )}
+                                                {/* Problem 4: styled Archived badge pill */}
+                                                {o.isArchived && (
+                                                    <span style={{ background: '#f0f0f0', color: '#888', borderRadius: 999, padding: '4px 10px', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                                        Archived
+                                                    </span>
+                                                )}
+                                                {orderType === 'customer' && !o.rider_id && o.status !== 'Out for Delivery' && o.status !== 'Delivered' && o.status !== 'Assigned' && !o.isArchived && (
+                                                    <button onClick={() => setAssignModal(o)} style={{
+                                                        padding: '0.35rem 0.6rem', borderRadius: '4px', background: 'transparent', border: '1px solid #3498db',
+                                                        color: '#3498db', fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer'
+                                                    }}>
+                                                        Assign Rider
+                                                    </button>
+                                                )}
+                                                {orderType === 'customer' && o.rider_id && !o.isArchived && (
+                                                    <div style={{ fontSize: '0.75rem', color: '#27ae60', fontWeight: 'bold' }}>
+                                                        {o.rider?.name || 'Rider Assigned'}
+                                                    </div>
+                                                )}
+                                                {orderType === 'customer' && o.status === 'Delivered' && o.proof_of_delivery && !o.isArchived && (
+                                                    <a href={o.proof_of_delivery.startsWith('http') ? o.proof_of_delivery : (o.proof_of_delivery.startsWith('/storage') ? o.proof_of_delivery : `/storage/${o.proof_of_delivery}`)} target="_blank" rel="noopener noreferrer" style={{
+                                                        marginTop: 4, display: 'block', color: '#3498db', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none'
+                                                    }} onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'} onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
+                                                        View Proof of Delivery
+                                                    </a>
+                                                )}
+                                            </div></td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>{/* end scroll wrapper */}
             </div>
 
@@ -797,7 +788,7 @@ export default function AdminOrders() {
                 />
             )}
 
-            
+
             {/* Assign Rider modal */}
             {assignModal && (
                 <AssignRiderModal
