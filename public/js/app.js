@@ -8715,7 +8715,8 @@ function ProductModal(_ref) {
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
               display: 'flex',
-              gap: '1rem'
+              gap: '1rem',
+              flexWrap: 'wrap'
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
               style: {
@@ -8745,12 +8746,14 @@ function ProductModal(_ref) {
             display: 'flex',
             alignItems: 'stretch',
             gap: '1rem',
-            marginTop: 'auto'
+            marginTop: 'auto',
+            flexWrap: 'wrap'
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
               display: 'flex',
-              flex: 1,
+              flex: '1 1 auto',
+              minWidth: '100px',
               alignItems: 'center',
               border: '1px solid #ddd',
               borderRadius: '4px',
@@ -8775,6 +8778,7 @@ function ProductModal(_ref) {
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
               style: {
                 width: '40px',
+                flex: 1,
                 textAlign: 'center',
                 fontWeight: 600
               },
@@ -8804,7 +8808,7 @@ function ProductModal(_ref) {
               if (onAddToCart) onAddToCart(product, modalQty);
             },
             style: {
-              flex: 1,
+              flex: '1 1 120px',
               background: '#fff',
               border: '2px solid #C9A84C',
               color: '#C9A84C',
@@ -8849,7 +8853,7 @@ function ProductModal(_ref) {
               }, _callee);
             })),
             style: {
-              flex: 1,
+              flex: '1 1 120px',
               background: '#000',
               border: '2px solid #000',
               color: '#C9A84C',
@@ -11024,6 +11028,7 @@ function NotificationBell(_ref) {
         children: unreadCount > 9 ? '9+' : unreadCount
       })]
     }), open && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+      className: "mobile-notification-dropdown",
       style: {
         position: 'absolute',
         top: 'calc(100% + 10px)',
@@ -24713,6 +24718,7 @@ function NotificationBell() {
         children: unreadCount > 9 ? '9+' : unreadCount
       })]
     }), open && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      className: "mobile-notification-dropdown",
       style: {
         position: 'absolute',
         top: 'calc(100% + 15px)',
@@ -24859,14 +24865,31 @@ function RiderLayout(_ref5) {
     fetchUser = _useAuth.fetchUser;
   var location = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_2__.useLocation)();
   var navigate = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_2__.useNavigate)();
-  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(window.innerWidth > 768),
     _useState6 = _slicedToArray(_useState5, 2),
     sidebarOpen = _useState6[0],
     setSidebarOpen = _useState6[1];
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    var handleResize = function handleResize() {
+      if (window.innerWidth > 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return function () {
+      return window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // Guaranteed fresh DB check on mount/navigation to prevent stale status caching
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     if (fetchUser) fetchUser();
+    // Auto-close sidebar on mobile when route changes
+    if (window.innerWidth <= 768) {
+      setSidebarOpen(false);
+    }
   }, [location.pathname]);
   var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState8 = _slicedToArray(_useState7, 2),
@@ -25025,8 +25048,13 @@ function RiderLayout(_ref5) {
   }
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
     className: "admin-shell",
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("aside", {
-      className: "admin-sidebar".concat(sidebarOpen ? '' : ' admin-sidebar--collapsed'),
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+      className: "admin-sidebar-overlay".concat(sidebarOpen ? ' admin-sidebar-overlay--visible' : ''),
+      onClick: function onClick() {
+        return setSidebarOpen(false);
+      }
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("aside", {
+      className: "admin-sidebar".concat(sidebarOpen ? ' admin-sidebar--mobile-open' : ' admin-sidebar--collapsed'),
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
         className: "admin-sidebar__brand",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
@@ -25513,14 +25541,16 @@ function RiderProfile() {
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           style: {
-            flex: 1,
-            minWidth: 300
+            flex: '1 1 250px',
+            minWidth: 0
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '1rem',
               borderBottom: '1px solid rgba(255,255,255,0.1)',
               paddingBottom: '0.8rem',
               marginBottom: '1.5rem'
@@ -25571,8 +25601,8 @@ function RiderProfile() {
             children: errorMsg
           }), !isEditing ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
-              display: 'grid',
-              gridTemplateColumns: '1fr',
+              display: 'flex',
+              flexDirection: 'column',
               gap: '1.2rem'
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
@@ -25586,17 +25616,22 @@ function RiderProfile() {
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                 style: {
                   fontWeight: 600,
-                  fontSize: '1rem'
+                  fontSize: '1rem',
+                  wordBreak: 'break-word'
                 },
                 children: user === null || user === void 0 ? void 0 : user.name
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
               style: {
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                display: 'flex',
+                flexWrap: 'wrap',
                 gap: '1rem'
               },
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+                style: {
+                  flex: '1 1 45%',
+                  minWidth: 150
+                },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                   style: {
                     fontSize: '0.8rem',
@@ -25607,11 +25642,16 @@ function RiderProfile() {
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                   style: {
                     fontWeight: 600,
-                    fontSize: '0.95rem'
+                    fontSize: '0.95rem',
+                    wordBreak: 'break-all'
                   },
                   children: user === null || user === void 0 ? void 0 : user.email
                 })]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+                style: {
+                  flex: '1 1 45%',
+                  minWidth: 150
+                },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                   style: {
                     fontSize: '0.8rem',
@@ -25739,11 +25779,15 @@ function RiderProfile() {
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
               style: {
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                display: 'flex',
+                flexWrap: 'wrap',
                 gap: '1rem'
               },
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+                style: {
+                  flex: '1 1 45%',
+                  minWidth: 150
+                },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
                   style: {
                     display: 'block',
@@ -25780,6 +25824,10 @@ function RiderProfile() {
                   })]
                 })]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+                style: {
+                  flex: '1 1 45%',
+                  minWidth: 150
+                },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
                   style: {
                     display: 'block',
@@ -29253,6 +29301,7 @@ function SupplierDashboard() {
               children: unreadCount
             })]
           }), notifOpen && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+            className: "mobile-notification-dropdown",
             style: {
               position: 'absolute',
               top: 50,
@@ -33576,6 +33625,7 @@ function UserLayout(_ref) {
               children: unreadCount
             })]
           }), isNotifOpen && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+            className: "mobile-notification-dropdown",
             style: {
               position: 'absolute',
               top: '45px',

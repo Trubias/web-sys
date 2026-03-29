@@ -128,7 +128,7 @@ function NotificationBell() {
 
             {/* Notification panel */}
             {open && (
-                <div style={{
+                <div className="mobile-notification-dropdown" style={{
                     position: 'absolute', top: 'calc(100% + 15px)', right: -10,
                     width: 360, background: '#1a1a2e',
                     border: '1px solid rgba(255,255,255,0.1)',
@@ -205,11 +205,27 @@ export default function RiderLayout({ children }) {
     const { user, logout, fetchUser } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth > 768) {
+                setSidebarOpen(true);
+            } else {
+                setSidebarOpen(false);
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Guaranteed fresh DB check on mount/navigation to prevent stale status caching
     useEffect(() => {
         if (fetchUser) fetchUser();
+        // Auto-close sidebar on mobile when route changes
+        if (window.innerWidth <= 768) {
+            setSidebarOpen(false);
+        }
     }, [location.pathname]);
     const [avatarOpen, setAvatarOpen] = useState(false);
     const avatarRef = useRef(null);
@@ -279,8 +295,14 @@ export default function RiderLayout({ children }) {
 
     return (
         <div className="admin-shell">
+            {/* Mobile Overlay */}
+            <div 
+                className={`admin-sidebar-overlay${sidebarOpen ? ' admin-sidebar-overlay--visible' : ''}`}
+                onClick={() => setSidebarOpen(false)}
+            ></div>
+
             {/* Sidebar */}
-            <aside className={`admin-sidebar${sidebarOpen ? '' : ' admin-sidebar--collapsed'}`}>
+            <aside className={`admin-sidebar${sidebarOpen ? ' admin-sidebar--mobile-open' : ' admin-sidebar--collapsed'}`}>
                 <div className="admin-sidebar__brand">
                     <span className="admin-sidebar__logo">🛵</span>
                     {sidebarOpen && (

@@ -173,7 +173,7 @@ export default function UserLayout({ children }) {
                             )}
                         </button>
                         {isNotifOpen && (
-                            <div style={{ position: 'absolute', top: '45px', right: '-10px', width: '320px', background: '#1a1a1a', borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', zIndex: 100, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                            <div className="mobile-notification-dropdown" style={{ position: 'absolute', top: '45px', right: '-10px', width: '320px', background: '#1a1a1a', borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', zIndex: 100, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)' }}>
                                     <h3 style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: 700 }}>Notifications</h3>
                                     {notifications.length > 0 && (

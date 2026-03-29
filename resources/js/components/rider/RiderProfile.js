@@ -124,8 +124,8 @@ export default function RiderProfile() {
                     </div>
 
                     {/* Details side */}
-                    <div style={{ flex: 1, minWidth: 300 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.8rem', marginBottom: '1.5rem' }}>
+                    <div style={{ flex: '1 1 250px', minWidth: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.8rem', marginBottom: '1.5rem' }}>
                             <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Personal Information</h2>
                             {!isEditing && (
                                 <button onClick={() => setIsEditing(true)} style={{ padding: '0.4rem 1rem', background: '#C9A84C', color: '#000', border: 'none', borderRadius: 4, fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem' }}>Edit Details</button>
@@ -136,17 +136,17 @@ export default function RiderProfile() {
                         {errorMsg && <div style={{ background: 'rgba(231, 76, 60, 0.1)', color: '#e74c3c', padding: '0.8rem', borderRadius: '6px', marginBottom: '1rem', border: '1px solid rgba(231, 76, 60, 0.3)', fontWeight: 600 }}>{errorMsg}</div>}
 
                         {!isEditing ? (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.2rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                                 <div>
                                     <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: 2 }}>Full Name</div>
-                                    <div style={{ fontWeight: 600, fontSize: '1rem' }}>{user?.name}</div>
+                                    <div style={{ fontWeight: 600, fontSize: '1rem', wordBreak: 'break-word' }}>{user?.name}</div>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                                    <div style={{ flex: '1 1 45%', minWidth: 150 }}>
                                         <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: 2 }}>Email Address</div>
-                                        <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{user?.email}</div>
+                                        <div style={{ fontWeight: 600, fontSize: '0.95rem', wordBreak: 'break-all' }}>{user?.email}</div>
                                     </div>
-                                    <div>
+                                    <div style={{ flex: '1 1 45%', minWidth: 150 }}>
                                         <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: 2 }}>Phone Number</div>
                                         <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{user?.phone || 'N/A'}</div>
                                     </div>
@@ -178,8 +178,8 @@ export default function RiderProfile() {
                                     <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: 4 }}>Phone Number</label>
                                     <input type="text" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="admin-select" style={{ width: '100%', padding: '0.6rem' }} required />
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                                    <div style={{ flex: '1 1 45%', minWidth: 150 }}>
                                         <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: 4 }}>Region</label>
                                         <select value={form.region} onChange={e => setForm({...form, region: e.target.value})} className="admin-select" style={{ width: '100%', padding: '0.6rem' }} required>
                                             <option value="">Select Region</option>
@@ -188,7 +188,7 @@ export default function RiderProfile() {
                                             <option value="Mindanao">Mindanao</option>
                                         </select>
                                     </div>
-                                    <div>
+                                    <div style={{ flex: '1 1 45%', minWidth: 150 }}>
                                         <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: 4 }}>City / Province</label>
                                         <input type="text" value={form.city} onChange={e => setForm({...form, city: e.target.value})} className="admin-select" style={{ width: '100%', padding: '0.6rem' }} required />
                                     </div>

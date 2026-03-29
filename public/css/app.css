@@ -2509,3 +2509,49 @@ select {
 .reports-search__input-wrap input::placeholder {
   color: #6b7280;
 }
+
+@media (max-width: 768px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+    transition: transform 0.3s ease, width 0s;
+  }
+  .admin-sidebar--mobile-open {
+    transform: translateX(0);
+  }
+  .admin-sidebar__logo {
+    display: flex !important;
+  }
+  .admin-main {
+    margin-left: 0 !important;
+  }
+  .admin-sidebar--collapsed ~ .admin-main {
+    margin-left: 0 !important;
+  }
+  .admin-topbar__toggle {
+    display: block;
+  }
+  .admin-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .admin-sidebar-overlay--visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  .mobile-notification-dropdown {
+    position: fixed !important;
+    top: 65px !important;
+    right: 15px !important;
+    left: 15px !important;
+    width: auto !important;
+    max-width: none !important;
+    z-index: 9999 !important;
+  }
+}

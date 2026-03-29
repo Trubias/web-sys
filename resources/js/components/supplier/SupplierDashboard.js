@@ -234,7 +234,7 @@ export default function SupplierDashboard() {
                         </button>
 
                         {notifOpen && (
-                            <div style={{
+                            <div className="mobile-notification-dropdown" style={{
                                 position: 'absolute', top: 50, right: 60, width: 340, background: '#fff', zIndex: 100,
                                 borderRadius: 12, boxShadow: '0 15px 35px rgba(0,0,0,0.15)', border: '1px solid #e5e7eb', overflow: 'hidden'
                             }}>

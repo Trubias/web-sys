@@ -164,7 +164,7 @@ function NotificationBell({ user }) {
 
             {/* Notification panel */}
             {open && (
-                <div style={{
+                <div className="mobile-notification-dropdown" style={{
                     position: 'absolute', top: 'calc(100% + 10px)', right: 0,
                     width: 360, background: '#1a1a1a',
                     border: '1px solid rgba(255,255,255,0.1)',

@@ -59,7 +59,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                     {/* Payment Icons */}
                     <div style={{ marginBottom: '2rem' }}>
                         <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '0.5rem', fontWeight: 600 }}>Accepted Payments:</div>
-                        <div style={{ display: 'flex', gap: '1rem' }}>
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                             <span style={{ fontWeight: 800, color: '#0052E0', fontSize: '0.9rem' }}>GCash</span>
                             <span style={{ fontWeight: 800, color: '#62D9A2', fontSize: '0.9rem' }}>Maya</span>
                             <span style={{ fontWeight: 800, color: '#333', fontSize: '0.9rem' }}>Bank Transfer</span>
@@ -68,10 +68,10 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
                     {/* Actions */}
                     {product.stock > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'stretch', gap: '1rem', marginTop: 'auto' }}>
-                            <div style={{ display: 'flex', flex: 1, alignItems: 'center', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '48px' }}>
+                        <div style={{ display: 'flex', alignItems: 'stretch', gap: '1rem', marginTop: 'auto', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', flex: '1 1 auto', minWidth: '100px', alignItems: 'center', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', height: '48px' }}>
                                 <button onClick={() => setModalQty(q => Math.max(1, q - 1))} style={{ padding: '0 1rem', background: '#f9f9f9', border: 'none', cursor: 'pointer', fontWeight: 600, height: '100%' }}>−</button>
-                                <div style={{ width: '40px', textAlign: 'center', fontWeight: 600 }}>{modalQty}</div>
+                                <div style={{ width: '40px', flex: 1, textAlign: 'center', fontWeight: 600 }}>{modalQty}</div>
                                 <button onClick={() => setModalQty(q => Math.min(product.stock, q + 1))} style={{ padding: '0 1rem', background: '#f9f9f9', border: 'none', cursor: 'pointer', fontWeight: 600, height: '100%' }}>+</button>
                             </div>
                             <button 
@@ -79,7 +79,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                                     if (!auth.user) { navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`); return; }
                                     if (onAddToCart) onAddToCart(product, modalQty);
                                 }}
-                                style={{ flex: 1, background: '#fff', border: '2px solid #C9A84C', color: '#C9A84C', fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer', transition: 'background 0.2s', height: '48px', borderRadius: '4px' }}
+                                style={{ flex: '1 1 120px', background: '#fff', border: '2px solid #C9A84C', color: '#C9A84C', fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer', transition: 'background 0.2s', height: '48px', borderRadius: '4px' }}
                                 onMouseEnter={e => e.target.style.background = '#fefdf8'}
                                 onMouseLeave={e => e.target.style.background = '#fff'}
                             >
@@ -94,7 +94,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                                         navigate('/user/cart');
                                     }
                                 }}
-                                style={{ flex: 1, background: '#000', border: '2px solid #000', color: '#C9A84C', fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer', transition: 'background 0.2s', height: '48px', borderRadius: '4px' }}
+                                style={{ flex: '1 1 120px', background: '#000', border: '2px solid #000', color: '#C9A84C', fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer', transition: 'background 0.2s', height: '48px', borderRadius: '4px' }}
                                 onMouseEnter={e => e.target.style.background = '#111'}
                                 onMouseLeave={e => e.target.style.background = '#000'}
                             >
