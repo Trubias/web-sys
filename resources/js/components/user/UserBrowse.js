@@ -124,7 +124,7 @@ export default function UserBrowse() {
                 </div>
             )}
 
-            <div className="mobile-p-2" style={{ padding: '4rem 5rem', maxWidth: '1600px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
+            <div className="user-content-area mobile-p-2" style={{ padding: '4rem 5rem', maxWidth: '1600px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
 
                 {/* Header Logic */}
                 <div style={{ marginBottom: '2.5rem' }}>
@@ -137,7 +137,7 @@ export default function UserBrowse() {
                 </div>
 
                 {/* Unified Control Bar */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', background: '#fcfcfc', padding: '1rem', border: '1px dashed #C9A84C', borderRadius: '8px', marginBottom: '2.5rem' }}>
+                <div className="user-filter-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', background: '#fcfcfc', padding: '1rem', border: '1px dashed #C9A84C', borderRadius: '8px', marginBottom: '2.5rem' }}>
 
                     <div style={{ position: 'relative', flex: 1 }}>
                         <input
@@ -181,7 +181,7 @@ export default function UserBrowse() {
                                 <p>Try adjusting your search criteria or modifying the active filters.</p>
                             </div>
                         ) : (
-                            <div className="mobile-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+                            <div className="user-browse-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
                                 {displayedProducts.map(item => {
                                     const conditionString = getCondition(item);
                                     let badgeStyle = getConditionBadgeStyle(conditionString);

@@ -54,7 +54,7 @@ export default function UserDashboard() {
             )}
 
             {/* Hero / Banner */}
-            <div className="mobile-stack mobile-p-4" style={{
+            <div className="user-hero-section mobile-stack" style={{
                 background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, rgba(201, 168, 76, 0.6) 100%)',
                 color: '#fff',
                 padding: '4rem 5rem',
@@ -83,7 +83,7 @@ export default function UserDashboard() {
                     }}>
                         Exclusive Access to the World's Most Prestigious<br />Timepieces. Discover your next heirloom.
                     </p>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div className="user-hero-btns" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                         <Link to="/user/browse" style={{
                             flex: '1 1 auto',
                             textAlign: 'center',
@@ -95,7 +95,11 @@ export default function UserDashboard() {
                             borderRadius: '4px',
                             border: '1px solid #C9A84C',
                             transition: 'all 0.2s',
-                            fontSize: '0.95rem'
+                            fontSize: '0.95rem',
+                            minHeight: '48px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                         }}>Shop New Arrivals</Link>
                         <Link to="/user/wishlist" style={{
                             flex: '1 1 auto',
@@ -108,7 +112,11 @@ export default function UserDashboard() {
                             borderRadius: '4px',
                             border: '1px solid #C9A84C',
                             transition: 'all 0.2s',
-                            fontSize: '0.95rem'
+                            fontSize: '0.95rem',
+                            minHeight: '48px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                         }}>View Your Wishlist</Link>
                     </div>
                 </div>
@@ -149,7 +157,7 @@ export default function UserDashboard() {
             </div>
 
             {/* Content Container */}
-            <div className="mobile-p-2" style={{ padding: '4rem 5rem', maxWidth: '1400px', margin: '0 auto' }}>
+            <div className="user-content-area mobile-p-2" style={{ padding: '4rem 5rem', maxWidth: '1400px', margin: '0 auto' }}>
 
                 {/* Recommended Section */}
                 <div style={{ marginBottom: '4rem' }}>
@@ -157,7 +165,7 @@ export default function UserDashboard() {
                         <h2 style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '1.8rem', color: '#111' }}>Recommended for You</h2>
                     </div>
 
-                    <div className="mobile-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+                    <div className="user-recommended-grid mobile-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
                         {recommendations.map(item => (
                             <div key={item.id} style={{
                                 background: '#fff',
@@ -217,7 +225,7 @@ export default function UserDashboard() {
                             <h2 style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '1.5rem', color: '#111' }}>Recent Activity</h2>
                             <Link to="/user/orders" style={{ color: '#C9A84C', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}>View All Orders &rarr;</Link>
                         </div>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <div className="user-orders-table-wrap"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr>
                                     <th style={{ textAlign: 'left', paddingBottom: '1rem', color: '#888', fontSize: '0.75rem', fontWeight: 600, borderBottom: '1px solid #eee' }}>ORDER ID</th>
@@ -255,7 +263,7 @@ export default function UserDashboard() {
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
 
                     {/* Wishlist Preview */}

@@ -144,7 +144,7 @@ export default function Cart() {
                                 <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#333', marginBottom: '0.5rem', display: 'block' }}>Order Note (Optional)</label>
                                 <textarea value={orderNote} onChange={e => setOrderNote(e.target.value)} style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid #ddd', minHeight: '80px', fontFamily: 'inherit', resize: 'vertical' }} placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
                             </div>
-                            <button style={{ width: '100%', padding: '1rem', marginTop: '1rem', background: '#000', color: '#C9A84C', fontWeight: 800, textTransform: 'uppercase', fontSize: '1.1rem', border: '1px solid #000', borderRadius: '4px', cursor: 'pointer' }} onClick={() => navigate('/user/checkout', { state: { orderNote } })}>Proceed to Checkout</button>
+                            <button className="mobile-checkout-btn" onClick={() => navigate('/user/checkout', { state: { orderNote } })}>Proceed to Checkout</button>
                         </div>
                     </div>
                 )}
