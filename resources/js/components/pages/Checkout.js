@@ -7,6 +7,7 @@ import UserLayout from '../user/UserLayout';
 const LocationPicker = ({ lat, lng, address, city, region, country, onChange }) => {
     const mapRef = React.useRef(null);
     const markerRef = React.useRef(null);
+    const [geoError, setGeoError] = React.useState(false);
 
     React.useEffect(() => {
         let isMounted = true;
@@ -44,6 +45,7 @@ const LocationPicker = ({ lat, lng, address, city, region, country, onChange }) 
                 const toggleCtrl = window.L.control({ position: 'topright' });
                 toggleCtrl.onAdd = function() {
                     const btn = window.L.DomUtil.create('button', '');
+                    btn.type = 'button';
                     btn.innerHTML = '🗺️ Street View';
                     btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
                     window.L.DomEvent.on(btn, 'click', function(e) {
@@ -79,44 +81,38 @@ const LocationPicker = ({ lat, lng, address, city, region, country, onChange }) 
         };
     }, []);
 
-    // Step 6: Auto track based on exact Address, City, Region, Country
+    // Auto-geocode whenever Address, City, or Region changes
     React.useEffect(() => {
-        const timer = setTimeout(() => {
-            if (!lat && !lng && mapRef.current && markerRef.current) {
-                const queries = [];
-                // High precision query (Address + City works best without confusing region names)
-                if (address && city) queries.push(`${address}, ${city}, ${country || 'Philippines'}`);
-                // Fallback query (City only)
-                if (city) queries.push(`${city}, ${country || 'Philippines'}`);
-                
-                if (queries.length === 0) return;
-                
-                const tryGeocode = async (index) => {
-                    if (index >= queries.length || lat || lng) return;
-                    try {
-                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queries[index])}`);
-                        const data = await res.json();
-                        if (data && data.length > 0 && !lat && !lng) {
-                            const newLat = parseFloat(data[0].lat);
-                            const newLon = parseFloat(data[0].lon);
-                            mapRef.current.setView([newLat, newLon], index === 0 ? 16 : 13);
-                            markerRef.current.setLatLng([newLat, newLon]);
-                            setTimeout(() => { mapRef.current.invalidateSize(); }, 200);
-                            onChange(newLat, newLon);
-                        } else {
-                            tryGeocode(index + 1);
-                        }
-                    } catch (err) {
-                        tryGeocode(index + 1);
-                    }
-                };
-                
-                tryGeocode(0);
+        const parts = [address, city, region, country || 'Philippines'].filter(Boolean);
+        if (parts.length < 2) return;
+        const fullQuery = parts.join(', ');
+
+        const timer = setTimeout(async () => {
+            if (!mapRef.current || !markerRef.current) return;
+            try {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ph&q=${encodeURIComponent(fullQuery)}`
+                );
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const newLat = parseFloat(data[0].lat);
+                    const newLon = parseFloat(data[0].lon);
+                    const zoom = address && address.trim().length > 3 ? 16 : 13;
+                    mapRef.current.setView([newLat, newLon], zoom);
+                    markerRef.current.setLatLng([newLat, newLon]);
+                    mapRef.current.invalidateSize();
+                    onChange(newLat, newLon);
+                    setGeoError(false);
+                } else {
+                    setGeoError(true);
+                }
+            } catch {
+                // network error — leave map as-is
             }
-        }, 1500); // 1.5s debounce to prevent spamming
-        
+        }, 800);
+
         return () => clearTimeout(timer);
-    }, [address, city, region, country]);
+    }, [address, city, region]);
 
     const handleCurrentLocation = () => {
         const queries = [];
@@ -172,6 +168,11 @@ const LocationPicker = ({ lat, lng, address, city, region, country, onChange }) 
                 Use My Current Location
             </button>
             <div id="checkout-map" style={{ height: '300px', width: '100%', borderRadius: '8px', zIndex: 1, border: '1px solid #ddd' }}></div>
+            {geoError && (
+                <div style={{ marginTop: '0.5rem', padding: '0.45rem 0.8rem', background: '#fff8e1', border: '1px solid #f9a825', borderRadius: '4px', fontSize: '0.8rem', color: '#7a5c00', fontWeight: 600 }}>
+                    ⚠️ Location not found. Please drag the pin to your delivery location manually.
+                </div>
+            )}
             <div style={{ marginTop: '0.8rem', fontSize: '0.85rem', color: '#888' }}>
                 Latitude: {lat || '___'} | Longitude: {lng || '___'}
             </div>
@@ -191,6 +192,14 @@ export default function Checkout() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
 
+    // Saved delivery addresses
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const [selectedAddrId, setSelectedAddrId] = useState(null);
+    const [addrMode, setAddrMode] = useState(null); // null | 'add' | 'edit'
+    const [editingAddr, setEditingAddr] = useState(null);
+    const [addrForm, setAddrForm] = useState({ full_name: '', address: '', city: '', region: 'Luzon', phone: '', is_default: false });
+    const [addrSaving, setAddrSaving] = useState(false);
+
     const passedNote = location.state?.orderNote || '';
 
     const directPurchase = location.state?.directPurchase || null;
@@ -200,7 +209,7 @@ export default function Checkout() {
         name: '',
         address: '',
         city: '',
-        region: 'Metro Manila',
+        region: 'Luzon',
         phone: '',
         saveInfo: false,
         shippingMethod: 'Standard Delivery',
@@ -213,11 +222,24 @@ export default function Checkout() {
         billingName: '',
         billingAddress: '',
         billingCity: '',
-        billingRegion: 'Metro Manila',
+        billingRegion: 'Luzon',
         billingPhone: '',
         latitude: null,
         longitude: null
     });
+
+    // Fetch saved addresses on login
+    useEffect(() => {
+        if (!user) return;
+        axios.get('/api/delivery-addresses').then(res => {
+            setSavedAddresses(res.data);
+            if (res.data.length > 0) {
+                const def = res.data.find(a => a.is_default) || res.data[0];
+                setSelectedAddrId(def.id);
+                setForm(f => ({ ...f, name: def.full_name, address: def.address, city: def.city, region: normalizeRegion(def.region), phone: def.phone || f.phone }));
+            }
+        }).catch(() => {});
+    }, [user]);
 
     useEffect(() => {
         if (!user) {
@@ -232,7 +254,7 @@ export default function Checkout() {
             name: user.name || '',
             address: user.address || '',
             city: user.city || '',
-            region: user.region || 'Metro Manila',
+            region: normalizeRegion(user.region),
             phone: user.phone || ''
         }));
 
@@ -254,6 +276,69 @@ export default function Checkout() {
     }, [user, navigate]);
 
     const setVal = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+    const setAddrVal = (k, v) => setAddrForm(prev => ({ ...prev, [k]: v }));
+
+    const normalizeRegion = (r) => {
+        if (!r) return 'Luzon';
+        if (['Luzon', 'Visayas', 'Mindanao'].includes(r)) return r;
+        return 'Luzon'; // Metro Manila and any legacy value → Luzon
+    };
+
+    // Apply a saved address card into the checkout form
+    const applyAddress = (addr) => {
+        setSelectedAddrId(addr.id);
+        setForm(f => ({ ...f, name: addr.full_name, address: addr.address, city: addr.city, region: normalizeRegion(addr.region), phone: addr.phone || f.phone }));
+    };
+
+    const startAdd = () => {
+        setAddrForm({ full_name: form.name, address: '', city: '', region: 'Luzon', phone: form.phone, is_default: false });
+        setEditingAddr(null);
+        setAddrMode('add');
+    };
+
+    const startEdit = (addr) => {
+        setAddrForm({ full_name: addr.full_name, address: addr.address, city: addr.city, region: normalizeRegion(addr.region), phone: addr.phone || '', is_default: addr.is_default });
+        setEditingAddr(addr);
+        setAddrMode('edit');
+    };
+
+    const handleSaveAddress = async () => {
+        if (!addrForm.full_name.trim() || !addrForm.address.trim() || !addrForm.city.trim()) {
+            alert('Full Name, Address, and City are required.');
+            return;
+        }
+        setAddrSaving(true);
+        try {
+            if (addrMode === 'add') {
+                const res = await axios.post('/api/delivery-addresses', addrForm);
+                setSavedAddresses(prev => [...prev, res.data]);
+                applyAddress(res.data);
+            } else {
+                const res = await axios.put(`/api/delivery-addresses/${editingAddr.id}`, addrForm);
+                setSavedAddresses(prev => prev.map(a => a.id === editingAddr.id ? res.data : a));
+                if (selectedAddrId === editingAddr.id) applyAddress(res.data);
+            }
+            setAddrMode(null);
+            setEditingAddr(null);
+        } catch {
+            alert('Failed to save address. Please try again.');
+        } finally {
+            setAddrSaving(false);
+        }
+    };
+
+    const handleDeleteAddress = async (id) => {
+        if (!window.confirm('Remove this saved address?')) return;
+        try {
+            await axios.delete(`/api/delivery-addresses/${id}`);
+            setSavedAddresses(prev => prev.filter(a => a.id !== id));
+            if (selectedAddrId === id) {
+                setSelectedAddrId(null);
+            }
+        } catch {
+            alert('Failed to delete address.');
+        }
+    };
 
     const subtotal = cartItems.reduce((acc, i) => acc + (i.product?.price || 0) * i.quantity, 0);
     const shipping = 0; // Free shipping
@@ -263,6 +348,12 @@ export default function Checkout() {
         e.preventDefault();
         setError('');
         setIsSubmitting(true);
+
+        if (!form.address || !form.city || !form.name) {
+            setError('Please select or add a delivery address before placing your order.');
+            setIsSubmitting(false);
+            return;
+        }
 
         if (form.paymentMethod === 'Bank Transfer') {
             if (!form.selectedBank || !form.bankAccountName.trim() || !form.bankAccountNumber.trim()) {
@@ -343,43 +434,149 @@ export default function Checkout() {
                         <section style={{ marginBottom: '3rem' }}>
                             <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '1px solid #ddd', paddingBottom: '0.5rem' }}>Delivery Information</h2>
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#666', marginBottom: '0.4rem' }}>Country</label>
-                                <select disabled style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px', background: '#f3f4f6' }}>
-                                    <option>Philippines</option>
-                                </select>
-                            </div>
-
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#666', marginBottom: '0.4rem' }}>Full Name *</label>
-                                <input type="text" value={form.name} onChange={e => setVal('name', e.target.value)} required style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px' }} placeholder="John Doe" />
-                            </div>
-
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#666', marginBottom: '0.4rem' }}>Address *</label>
-                                <input type="text" value={form.address} onChange={e => setVal('address', e.target.value)} required style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px' }} placeholder="Street address" />
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                                <div style={{ flex: 1 }}>
-                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#666', marginBottom: '0.4rem' }}>City *</label>
-                                    <input type="text" value={form.city} onChange={e => setVal('city', e.target.value)} required style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px' }} />
+                            {/* ── Saved Address Cards ── */}
+                            {savedAddresses.length > 0 && (
+                                <div style={{ marginBottom: '1.2rem' }}>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.6rem' }}>Saved Addresses</div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        {savedAddresses.map(addr => (
+                                            <div key={addr.id}
+                                                onClick={() => applyAddress(addr)}
+                                                style={{
+                                                    border: selectedAddrId === addr.id ? '2px solid #C9A84C' : '1px solid #ddd',
+                                                    borderRadius: '8px', padding: '0.85rem 1rem',
+                                                    background: selectedAddrId === addr.id ? '#fdfbf6' : '#fff',
+                                                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.85rem', transition: 'all 0.15s'
+                                                }}>
+                                                <input type="radio" name="savedAddr" readOnly
+                                                    checked={selectedAddrId === addr.id}
+                                                    onChange={() => applyAddress(addr)}
+                                                    style={{ flexShrink: 0, accentColor: '#C9A84C', width: 16, height: 16 }} />
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#111' }}>{addr.full_name}</div>
+                                                    <div style={{ fontSize: '0.8rem', color: '#555', marginTop: 2 }}>{addr.address}, {addr.city}, {addr.region}</div>
+                                                    {addr.phone && <div style={{ fontSize: '0.78rem', color: '#888' }}>{addr.phone}</div>}
+                                                    {addr.is_default && <span style={{ fontSize: '0.7rem', background: '#C9A84C', color: '#000', borderRadius: 99, padding: '1px 8px', fontWeight: 700, marginTop: 3, display: 'inline-block' }}>Default</span>}
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                                                    <button type="button" onClick={e => { e.stopPropagation(); startEdit(addr); }}
+                                                        style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600, border: '1px solid #ddd', borderRadius: '4px', background: '#fff', cursor: 'pointer' }}>Edit</button>
+                                                    <button type="button" onClick={e => { e.stopPropagation(); handleDeleteAddress(addr.id); }}
+                                                        style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600, border: '1px solid #fecaca', borderRadius: '4px', background: '#fff', color: '#dc2626', cursor: 'pointer' }}>Remove</button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#666', marginBottom: '0.4rem' }}>Region *</label>
-                                    <select value={form.region} onChange={e => setVal('region', e.target.value)} style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px', background: '#fff' }}>
-                                        <option value="Metro Manila">Metro Manila</option>
-                                        <option value="Luzon">Luzon</option>
-                                        <option value="Visayas">Visayas</option>
-                                        <option value="Mindanao">Mindanao</option>
-                                    </select>
-                                </div>
-                            </div>
+                            )}
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#666', marginBottom: '0.4rem' }}>Phone *</label>
-                                <input type="tel" value={form.phone} onChange={e => setVal('phone', e.target.value)} required style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px' }} placeholder="+63 912 345 6789" />
-                            </div>
+                            {/* ── Add New Address button ── */}
+                            {addrMode === null && (
+                                <button type="button" onClick={startAdd} style={{
+                                    marginBottom: '1.5rem', padding: '0.6rem 1rem',
+                                    border: '1.5px dashed #C9A84C', borderRadius: '6px',
+                                    background: '#fdfbf6', color: '#7a5c00',
+                                    fontWeight: 700, fontSize: '0.83rem', cursor: 'pointer',
+                                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'
+                                }}>+ Add New Address</button>
+                            )}
+
+                            {/* ── Add / Edit Address inline form ── */}
+                            {addrMode !== null && (
+                                <div style={{ background: '#f8f9fa', border: '1px solid #ddd', borderRadius: '8px', padding: '1.2rem', marginBottom: '1.5rem' }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#111', marginBottom: '1rem' }}>
+                                        {addrMode === 'add' ? '+ New Address' : '✏️ Edit Address'}
+                                    </div>
+
+                                    <div style={{ marginBottom: '0.75rem' }}>
+                                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#666', marginBottom: '0.3rem' }}>Full Name *</label>
+                                        <input type="text" value={addrForm.full_name} onChange={e => setAddrVal('full_name', e.target.value)}
+                                            style={{ width: '100%', padding: '0.7rem', border: '1px solid #ddd', borderRadius: '4px' }} placeholder="Full Name" />
+                                    </div>
+                                    <div style={{ marginBottom: '0.75rem' }}>
+                                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#666', marginBottom: '0.3rem' }}>Address *</label>
+                                        <input type="text" value={addrForm.address} onChange={e => setAddrVal('address', e.target.value)}
+                                            style={{ width: '100%', padding: '0.7rem', border: '1px solid #ddd', borderRadius: '4px' }} placeholder="Street address" />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#666', marginBottom: '0.3rem' }}>City *</label>
+                                            <input type="text" value={addrForm.city} onChange={e => setAddrVal('city', e.target.value)}
+                                                style={{ width: '100%', padding: '0.7rem', border: '1px solid #ddd', borderRadius: '4px' }} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#666', marginBottom: '0.3rem' }}>Region *</label>
+                                            <select value={addrForm.region} onChange={e => setAddrVal('region', e.target.value)}
+                                                style={{ width: '100%', padding: '0.7rem', border: '1px solid #ddd', borderRadius: '4px', background: '#fff' }}>
+                                                <option value="Luzon">Luzon</option>
+                                                <option value="Visayas">Visayas</option>
+                                                <option value="Mindanao">Mindanao</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style={{ marginBottom: '0.75rem' }}>
+                                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#666', marginBottom: '0.3rem' }}>Phone</label>
+                                        <input type="tel" value={addrForm.phone} onChange={e => setAddrVal('phone', e.target.value)}
+                                            style={{ width: '100%', padding: '0.7rem', border: '1px solid #ddd', borderRadius: '4px' }} placeholder="+63 912 345 6789" />
+                                    </div>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.83rem', marginBottom: '1rem' }}>
+                                        <input type="checkbox" checked={!!addrForm.is_default} onChange={e => setAddrVal('is_default', e.target.checked)} />
+                                        Set as default address
+                                    </label>
+                                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                                        <button type="button" disabled={addrSaving} onClick={handleSaveAddress}
+                                            style={{ padding: '0.65rem 1.3rem', background: '#000', color: '#C9A84C', fontWeight: 700, border: '1px solid #000', borderRadius: '4px', cursor: addrSaving ? 'not-allowed' : 'pointer', fontSize: '0.83rem' }}>
+                                            {addrSaving ? 'Saving...' : addrMode === 'add' ? 'Save Address' : 'Save Changes'}
+                                        </button>
+                                        <button type="button" onClick={() => { setAddrMode(null); setEditingAddr(null); }}
+                                            style={{ padding: '0.65rem 1.1rem', background: '#fff', color: '#555', fontWeight: 600, border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '0.83rem' }}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {(savedAddresses.length > 0 || addrMode !== null) && (
+                                <div style={{ fontSize: '0.75rem', color: '#aaa', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '1rem', borderTop: '1px solid #eee', paddingTop: '1rem' }}>
+                                    Delivery details for this order
+                                </div>
+                            )}
+
+                            {/* Read-only delivery address summary */}
+                            {(!form.address && !form.city) ? (
+                                <div style={{ padding: '1.2rem', background: '#f8f9fa', border: '1px dashed #ddd', borderRadius: '8px', marginBottom: '1.2rem', textAlign: 'center', color: '#aaa', fontSize: '0.87rem' }}>
+                                    No address selected. Choose a saved address above or click <strong style={{ color: '#7a5c00' }}>+ Add New Address</strong>.
+                                </div>
+                            ) : (
+                                <div style={{ background: '#f8f9fa', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '1rem 1.2rem', marginBottom: '1.2rem' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem 1.5rem' }}>
+                                        <div>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>Full Name</div>
+                                            <div style={{ fontSize: '0.93rem', fontWeight: 600, color: '#111' }}>{form.name || '—'}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>Phone</div>
+                                            <div style={{ fontSize: '0.93rem', fontWeight: 600, color: '#111' }}>{form.phone || '—'}</div>
+                                        </div>
+                                        <div style={{ gridColumn: '1 / -1' }}>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>Address</div>
+                                            <div style={{ fontSize: '0.93rem', fontWeight: 600, color: '#111' }}>{form.address || '—'}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>City</div>
+                                            <div style={{ fontSize: '0.93rem', fontWeight: 600, color: '#111' }}>{form.city || '—'}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>Region</div>
+                                            <div style={{ fontSize: '0.93rem', fontWeight: 600, color: '#111' }}>{form.region || '—'}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>Country</div>
+                                            <div style={{ fontSize: '0.93rem', fontWeight: 600, color: '#111' }}>Philippines</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <LocationPicker 
                                 lat={form.latitude} 

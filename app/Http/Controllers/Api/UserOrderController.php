@@ -13,10 +13,36 @@ class UserOrderController extends Controller
 {
     public function index(Request $request)
     {
-        $orders = Order::with(['rider'])
+        $orders = Order::with(['rider', 'product'])
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Always use the freshest product image from the products table
+        $orders = $orders->map(function ($order) {
+            $data = $order->toArray();
+            $image = null;
+
+            // Primary: match by product_id (FK)
+            if ($order->product && $order->product->image) {
+                $image = $order->product->image;
+            }
+
+            // Fallback: match by product name (handles re-created products with new IDs)
+            if (!$image && $order->product_name) {
+                $p = Product::where('name', $order->product_name)->whereNotNull('image')->first();
+                if ($p) {
+                    $image = $p->image;
+                }
+            }
+
+            if ($image) {
+                $data['product_image'] = $image;
+            }
+
+            return $data;
+        });
+
         return response()->json($orders);
     }
 

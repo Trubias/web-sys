@@ -54,19 +54,36 @@ class AdminProductController extends Controller
             $imagePath = $request->existing_image;
         }
 
-        $product = Product::create([
-            'name'        => $request->name,
-            'slug'        => Str::slug($request->name) . '-' . Str::random(4),
+        // Reuse existing product record if one exists (prevents duplicate IDs / stale order FK)
+        $existing = Product::where('name', $request->name)
+            ->where('supplier_id', $request->supplier_id ?? null)
+            ->first();
+
+        $values = [
             'brand_id'    => $request->brand_id,
             'category_id' => $request->category_id,
             'price'       => $request->price,
             'stock'       => $request->stock,
             'description' => $request->description ?? '',
-            'image'       => $imagePath,
-            'supplier_id' => $request->supplier_id ?? null,
-        ]);
+        ];
+        if ($imagePath) {
+            $values['image'] = $imagePath;
+        }
 
-        return response()->json($product->load(['brand', 'category', 'supplier']), 201);
+        if ($existing) {
+            $existing->update($values);
+            $product = $existing->fresh(['brand', 'category', 'supplier']);
+        } else {
+            $product = Product::create(array_merge($values, [
+                'name'        => $request->name,
+                'slug'        => Str::slug($request->name) . '-' . Str::random(4),
+                'image'       => $imagePath,
+                'supplier_id' => $request->supplier_id ?? null,
+            ]));
+            $product->load(['brand', 'category', 'supplier']);
+        }
+
+        return response()->json($product, 201);
     }
 
     public function update(Request $request, $id)

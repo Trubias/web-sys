@@ -20623,21 +20623,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _user_UserLayout__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../user/UserLayout */ "./resources/js/components/user/UserLayout.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
-function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
-function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 
 
 
@@ -20654,6 +20658,10 @@ var LocationPicker = function LocationPicker(_ref) {
     onChange = _ref.onChange;
   var mapRef = react__WEBPACK_IMPORTED_MODULE_0___default().useRef(null);
   var markerRef = react__WEBPACK_IMPORTED_MODULE_0___default().useRef(null);
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0___default().useState(false),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    geoError = _React$useState2[0],
+    setGeoError = _React$useState2[1];
   react__WEBPACK_IMPORTED_MODULE_0___default().useEffect(function () {
     var isMounted = true;
     if (!document.getElementById('leaflet-css')) {
@@ -20689,6 +20697,7 @@ var LocationPicker = function LocationPicker(_ref) {
         });
         toggleCtrl.onAdd = function () {
           var btn = window.L.DomUtil.create('button', '');
+          btn.type = 'button';
           btn.innerHTML = '🗺️ Street View';
           btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
           window.L.DomEvent.on(btn, 'click', function (e) {
@@ -20732,77 +20741,62 @@ var LocationPicker = function LocationPicker(_ref) {
     };
   }, []);
 
-  // Step 6: Auto track based on exact Address, City, Region, Country
+  // Auto-geocode whenever Address, City, or Region changes
   react__WEBPACK_IMPORTED_MODULE_0___default().useEffect(function () {
-    var timer = setTimeout(function () {
-      if (!lat && !lng && mapRef.current && markerRef.current) {
-        var queries = [];
-        // High precision query (Address + City works best without confusing region names)
-        if (address && city) queries.push("".concat(address, ", ").concat(city, ", ").concat(country || 'Philippines'));
-        // Fallback query (City only)
-        if (city) queries.push("".concat(city, ", ").concat(country || 'Philippines'));
-        if (queries.length === 0) return;
-        var _tryGeocode = /*#__PURE__*/function () {
-          var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(index) {
-            var res, data, newLat, newLon, _t;
-            return _regenerator().w(function (_context) {
-              while (1) switch (_context.p = _context.n) {
-                case 0:
-                  if (!(index >= queries.length || lat || lng)) {
-                    _context.n = 1;
-                    break;
-                  }
-                  return _context.a(2);
-                case 1:
-                  _context.p = 1;
-                  _context.n = 2;
-                  return fetch("https://nominatim.openstreetmap.org/search?format=json&q=".concat(encodeURIComponent(queries[index])));
-                case 2:
-                  res = _context.v;
-                  _context.n = 3;
-                  return res.json();
-                case 3:
-                  data = _context.v;
-                  if (data && data.length > 0 && !lat && !lng) {
-                    newLat = parseFloat(data[0].lat);
-                    newLon = parseFloat(data[0].lon);
-                    mapRef.current.setView([newLat, newLon], index === 0 ? 16 : 13);
-                    markerRef.current.setLatLng([newLat, newLon]);
-                    setTimeout(function () {
-                      mapRef.current.invalidateSize();
-                    }, 200);
-                    onChange(newLat, newLon);
-                  } else {
-                    _tryGeocode(index + 1);
-                  }
-                  _context.n = 5;
-                  break;
-                case 4:
-                  _context.p = 4;
-                  _t = _context.v;
-                  _tryGeocode(index + 1);
-                case 5:
-                  return _context.a(2);
-              }
-            }, _callee, null, [[1, 4]]);
-          }));
-          return function tryGeocode(_x) {
-            return _ref2.apply(this, arguments);
-          };
-        }();
-        _tryGeocode(0);
-      }
-    }, 1500); // 1.5s debounce to prevent spamming
-
+    var parts = [address, city, region, country || 'Philippines'].filter(Boolean);
+    if (parts.length < 2) return;
+    var fullQuery = parts.join(', ');
+    var timer = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+      var res, data, newLat, newLon, zoom, _t;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.p = _context.n) {
+          case 0:
+            if (!(!mapRef.current || !markerRef.current)) {
+              _context.n = 1;
+              break;
+            }
+            return _context.a(2);
+          case 1:
+            _context.p = 1;
+            _context.n = 2;
+            return fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ph&q=".concat(encodeURIComponent(fullQuery)));
+          case 2:
+            res = _context.v;
+            _context.n = 3;
+            return res.json();
+          case 3:
+            data = _context.v;
+            if (data && data.length > 0) {
+              newLat = parseFloat(data[0].lat);
+              newLon = parseFloat(data[0].lon);
+              zoom = address && address.trim().length > 3 ? 16 : 13;
+              mapRef.current.setView([newLat, newLon], zoom);
+              markerRef.current.setLatLng([newLat, newLon]);
+              mapRef.current.invalidateSize();
+              onChange(newLat, newLon);
+              setGeoError(false);
+            } else {
+              setGeoError(true);
+            }
+            _context.n = 5;
+            break;
+          case 4:
+            _context.p = 4;
+            _t = _context.v;
+          case 5:
+            return _context.a(2);
+        }
+      }, _callee, null, [[1, 4]]);
+    })), 800);
     return function () {
       return clearTimeout(timer);
     };
-  }, [address, city, region, country]);
+  }, [address, city, region]);
   var handleCurrentLocation = function handleCurrentLocation() {
     var queries = [];
     if (address && city) queries.push("".concat(address, ", ").concat(city, ", ").concat(country || 'Philippines'));
     if (city) queries.push("".concat(city, ", ").concat(country || 'Philippines'));
-    var _tryGeocode2 = /*#__PURE__*/function () {
+    var _tryGeocode = /*#__PURE__*/function () {
       var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(index) {
         var res, data, newLat, newLon, _t2;
         return _regenerator().w(function (_context2) {
@@ -20852,24 +20846,24 @@ var LocationPicker = function LocationPicker(_ref) {
                   onChange(newLat, newLon);
                 }
               } else {
-                _tryGeocode2(index + 1);
+                _tryGeocode(index + 1);
               }
               _context2.n = 5;
               break;
             case 4:
               _context2.p = 4;
               _t2 = _context2.v;
-              _tryGeocode2(index + 1);
+              _tryGeocode(index + 1);
             case 5:
               return _context2.a(2);
           }
         }, _callee2, null, [[1, 4]]);
       }));
-      return function tryGeocode(_x2) {
+      return function tryGeocode(_x) {
         return _ref3.apply(this, arguments);
       };
     }();
-    _tryGeocode2(0);
+    _tryGeocode(0);
   };
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
     style: {
@@ -20911,6 +20905,18 @@ var LocationPicker = function LocationPicker(_ref) {
         zIndex: 1,
         border: '1px solid #ddd'
       }
+    }), geoError && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+      style: {
+        marginTop: '0.5rem',
+        padding: '0.45rem 0.8rem',
+        background: '#fff8e1',
+        border: '1px solid #f9a825',
+        borderRadius: '4px',
+        fontSize: '0.8rem',
+        color: '#7a5c00',
+        fontWeight: 600
+      },
+      children: "\u26A0\uFE0F Location not found. Please drag the pin to your delivery location manually."
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
       style: {
         marginTop: '0.8rem',
@@ -20955,14 +20961,47 @@ function Checkout() {
     _useState8 = _slicedToArray(_useState7, 2),
     error = _useState8[0],
     setError = _useState8[1];
+
+  // Saved delivery addresses
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState0 = _slicedToArray(_useState9, 2),
+    savedAddresses = _useState0[0],
+    setSavedAddresses = _useState0[1];
+  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState10 = _slicedToArray(_useState1, 2),
+    selectedAddrId = _useState10[0],
+    setSelectedAddrId = _useState10[1];
+  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState12 = _slicedToArray(_useState11, 2),
+    addrMode = _useState12[0],
+    setAddrMode = _useState12[1]; // null | 'add' | 'edit'
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState14 = _slicedToArray(_useState13, 2),
+    editingAddr = _useState14[0],
+    setEditingAddr = _useState14[1];
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+      full_name: '',
+      address: '',
+      city: '',
+      region: 'Luzon',
+      phone: '',
+      is_default: false
+    }),
+    _useState16 = _slicedToArray(_useState15, 2),
+    addrForm = _useState16[0],
+    setAddrForm = _useState16[1];
+  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState18 = _slicedToArray(_useState17, 2),
+    addrSaving = _useState18[0],
+    setAddrSaving = _useState18[1];
   var passedNote = ((_location$state = location.state) === null || _location$state === void 0 ? void 0 : _location$state.orderNote) || '';
   var directPurchase = ((_location$state2 = location.state) === null || _location$state2 === void 0 ? void 0 : _location$state2.directPurchase) || null;
-  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+  var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
       email: '',
       name: '',
       address: '',
       city: '',
-      region: 'Metro Manila',
+      region: 'Luzon',
       phone: '',
       saveInfo: false,
       shippingMethod: 'Standard Delivery',
@@ -20975,14 +21014,37 @@ function Checkout() {
       billingName: '',
       billingAddress: '',
       billingCity: '',
-      billingRegion: 'Metro Manila',
+      billingRegion: 'Luzon',
       billingPhone: '',
       latitude: null,
       longitude: null
     }),
-    _useState0 = _slicedToArray(_useState9, 2),
-    form = _useState0[0],
-    setForm = _useState0[1];
+    _useState20 = _slicedToArray(_useState19, 2),
+    form = _useState20[0],
+    setForm = _useState20[1];
+
+  // Fetch saved addresses on login
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    if (!user) return;
+    axios__WEBPACK_IMPORTED_MODULE_2___default().get('/api/delivery-addresses').then(function (res) {
+      setSavedAddresses(res.data);
+      if (res.data.length > 0) {
+        var def = res.data.find(function (a) {
+          return a.is_default;
+        }) || res.data[0];
+        setSelectedAddrId(def.id);
+        setForm(function (f) {
+          return _objectSpread(_objectSpread({}, f), {}, {
+            name: def.full_name,
+            address: def.address,
+            city: def.city,
+            region: normalizeRegion(def.region),
+            phone: def.phone || f.phone
+          });
+        });
+      }
+    })["catch"](function () {});
+  }, [user]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     if (!user) {
       navigate('/login?redirect=/user/checkout');
@@ -20996,7 +21058,7 @@ function Checkout() {
         name: user.name || '',
         address: user.address || '',
         city: user.city || '',
-        region: user.region || 'Metro Manila',
+        region: normalizeRegion(user.region),
         phone: user.phone || ''
       });
     });
@@ -21026,6 +21088,155 @@ function Checkout() {
       return _objectSpread(_objectSpread({}, prev), {}, _defineProperty({}, k, v));
     });
   };
+  var setAddrVal = function setAddrVal(k, v) {
+    return setAddrForm(function (prev) {
+      return _objectSpread(_objectSpread({}, prev), {}, _defineProperty({}, k, v));
+    });
+  };
+  var normalizeRegion = function normalizeRegion(r) {
+    if (!r) return 'Luzon';
+    if (['Luzon', 'Visayas', 'Mindanao'].includes(r)) return r;
+    return 'Luzon'; // Metro Manila and any legacy value → Luzon
+  };
+
+  // Apply a saved address card into the checkout form
+  var applyAddress = function applyAddress(addr) {
+    setSelectedAddrId(addr.id);
+    setForm(function (f) {
+      return _objectSpread(_objectSpread({}, f), {}, {
+        name: addr.full_name,
+        address: addr.address,
+        city: addr.city,
+        region: normalizeRegion(addr.region),
+        phone: addr.phone || f.phone
+      });
+    });
+  };
+  var startAdd = function startAdd() {
+    setAddrForm({
+      full_name: form.name,
+      address: '',
+      city: '',
+      region: 'Luzon',
+      phone: form.phone,
+      is_default: false
+    });
+    setEditingAddr(null);
+    setAddrMode('add');
+  };
+  var startEdit = function startEdit(addr) {
+    setAddrForm({
+      full_name: addr.full_name,
+      address: addr.address,
+      city: addr.city,
+      region: normalizeRegion(addr.region),
+      phone: addr.phone || '',
+      is_default: addr.is_default
+    });
+    setEditingAddr(addr);
+    setAddrMode('edit');
+  };
+  var handleSaveAddress = /*#__PURE__*/function () {
+    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+      var res, _res, _t3;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
+          case 0:
+            if (!(!addrForm.full_name.trim() || !addrForm.address.trim() || !addrForm.city.trim())) {
+              _context3.n = 1;
+              break;
+            }
+            alert('Full Name, Address, and City are required.');
+            return _context3.a(2);
+          case 1:
+            setAddrSaving(true);
+            _context3.p = 2;
+            if (!(addrMode === 'add')) {
+              _context3.n = 4;
+              break;
+            }
+            _context3.n = 3;
+            return axios__WEBPACK_IMPORTED_MODULE_2___default().post('/api/delivery-addresses', addrForm);
+          case 3:
+            res = _context3.v;
+            setSavedAddresses(function (prev) {
+              return [].concat(_toConsumableArray(prev), [res.data]);
+            });
+            applyAddress(res.data);
+            _context3.n = 6;
+            break;
+          case 4:
+            _context3.n = 5;
+            return axios__WEBPACK_IMPORTED_MODULE_2___default().put("/api/delivery-addresses/".concat(editingAddr.id), addrForm);
+          case 5:
+            _res = _context3.v;
+            setSavedAddresses(function (prev) {
+              return prev.map(function (a) {
+                return a.id === editingAddr.id ? _res.data : a;
+              });
+            });
+            if (selectedAddrId === editingAddr.id) applyAddress(_res.data);
+          case 6:
+            setAddrMode(null);
+            setEditingAddr(null);
+            _context3.n = 8;
+            break;
+          case 7:
+            _context3.p = 7;
+            _t3 = _context3.v;
+            alert('Failed to save address. Please try again.');
+          case 8:
+            _context3.p = 8;
+            setAddrSaving(false);
+            return _context3.f(8);
+          case 9:
+            return _context3.a(2);
+        }
+      }, _callee3, null, [[2, 7, 8, 9]]);
+    }));
+    return function handleSaveAddress() {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+  var handleDeleteAddress = /*#__PURE__*/function () {
+    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(id) {
+      var _t4;
+      return _regenerator().w(function (_context4) {
+        while (1) switch (_context4.p = _context4.n) {
+          case 0:
+            if (window.confirm('Remove this saved address?')) {
+              _context4.n = 1;
+              break;
+            }
+            return _context4.a(2);
+          case 1:
+            _context4.p = 1;
+            _context4.n = 2;
+            return axios__WEBPACK_IMPORTED_MODULE_2___default()["delete"]("/api/delivery-addresses/".concat(id));
+          case 2:
+            setSavedAddresses(function (prev) {
+              return prev.filter(function (a) {
+                return a.id !== id;
+              });
+            });
+            if (selectedAddrId === id) {
+              setSelectedAddrId(null);
+            }
+            _context4.n = 4;
+            break;
+          case 3:
+            _context4.p = 3;
+            _t4 = _context4.v;
+            alert('Failed to delete address.');
+          case 4:
+            return _context4.a(2);
+        }
+      }, _callee4, null, [[1, 3]]);
+    }));
+    return function handleDeleteAddress(_x2) {
+      return _ref5.apply(this, arguments);
+    };
+  }();
   var subtotal = cartItems.reduce(function (acc, i) {
     var _i$product;
     return acc + (((_i$product = i.product) === null || _i$product === void 0 ? void 0 : _i$product.price) || 0) * i.quantity;
@@ -21033,28 +21244,36 @@ function Checkout() {
   var shipping = 0; // Free shipping
   var total = subtotal + shipping;
   var handleSubmit = /*#__PURE__*/function () {
-    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(e) {
-      var res, _yield$import, notificationStore, _err$response, _t3, _t4;
-      return _regenerator().w(function (_context3) {
-        while (1) switch (_context3.p = _context3.n) {
+    var _ref6 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(e) {
+      var res, _yield$import, notificationStore, _err$response, _t5, _t6;
+      return _regenerator().w(function (_context5) {
+        while (1) switch (_context5.p = _context5.n) {
           case 0:
             e.preventDefault();
             setError('');
             setIsSubmitting(true);
+            if (!(!form.address || !form.city || !form.name)) {
+              _context5.n = 1;
+              break;
+            }
+            setError('Please select or add a delivery address before placing your order.');
+            setIsSubmitting(false);
+            return _context5.a(2);
+          case 1:
             if (!(form.paymentMethod === 'Bank Transfer')) {
-              _context3.n = 1;
+              _context5.n = 2;
               break;
             }
             if (!(!form.selectedBank || !form.bankAccountName.trim() || !form.bankAccountNumber.trim())) {
-              _context3.n = 1;
+              _context5.n = 2;
               break;
             }
             setError('Please select a bank and fill in your account details.');
             setIsSubmitting(false);
-            return _context3.a(2);
-          case 1:
-            _context3.p = 1;
-            _context3.n = 2;
+            return _context5.a(2);
+          case 2:
+            _context5.p = 2;
+            _context5.n = 3;
             return axios__WEBPACK_IMPORTED_MODULE_2___default().post('/api/orders', {
               address: form.address,
               city: form.city,
@@ -21076,13 +21295,13 @@ function Checkout() {
               latitude: form.latitude,
               longitude: form.longitude
             });
-          case 2:
-            res = _context3.v;
-            _context3.p = 3;
-            _context3.n = 4;
+          case 3:
+            res = _context5.v;
+            _context5.p = 4;
+            _context5.n = 5;
             return Promise.resolve(/*! import() */).then(__webpack_require__.bind(__webpack_require__, /*! ../sharedStore */ "./resources/js/components/sharedStore.js"));
-          case 4:
-            _yield$import = _context3.v;
+          case 5:
+            _yield$import = _context5.v;
             notificationStore = _yield$import.notificationStore;
             if (res.data && res.data.orders && Array.isArray(res.data.orders)) {
               res.data.orders.forEach(function (o) {
@@ -21092,43 +21311,43 @@ function Checkout() {
                 }).format(o.total_amount), " \u2014 Payment: ").concat(mPayment));
               });
             }
-            _context3.n = 6;
+            _context5.n = 7;
             break;
-          case 5:
-            _context3.p = 5;
-            _t3 = _context3.v;
-            console.error("Failed to append notification", _t3);
           case 6:
-            _context3.n = 7;
-            return refreshCart();
+            _context5.p = 6;
+            _t5 = _context5.v;
+            console.error("Failed to append notification", _t5);
           case 7:
+            _context5.n = 8;
+            return refreshCart();
+          case 8:
             if (!form.saveInfo) {
-              _context3.n = 8;
+              _context5.n = 9;
               break;
             }
-            _context3.n = 8;
+            _context5.n = 9;
             return fetchUser();
-          case 8:
+          case 9:
             // Update context user if saved
             navigate('/user/orders', {
               state: {
                 checkoutSuccess: true
               }
             });
-            _context3.n = 10;
+            _context5.n = 11;
             break;
-          case 9:
-            _context3.p = 9;
-            _t4 = _context3.v;
-            setError((_t4 === null || _t4 === void 0 || (_err$response = _t4.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'Failed to place order. Please try again.');
-            setIsSubmitting(false);
           case 10:
-            return _context3.a(2);
+            _context5.p = 10;
+            _t6 = _context5.v;
+            setError((_t6 === null || _t6 === void 0 || (_err$response = _t6.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'Failed to place order. Please try again.');
+            setIsSubmitting(false);
+          case 11:
+            return _context5.a(2);
         }
-      }, _callee3, null, [[3, 5], [1, 9]]);
+      }, _callee5, null, [[4, 6], [2, 10]]);
     }));
     return function handleSubmit(_x3) {
-      return _ref4.apply(this, arguments);
+      return _ref6.apply(this, arguments);
     };
   }();
   if (loading) return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
@@ -21245,189 +21464,541 @@ function Checkout() {
                 paddingBottom: '0.5rem'
               },
               children: "Delivery Information"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+            }), savedAddresses.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
               style: {
-                marginBottom: '1rem'
+                marginBottom: '1.2rem'
               },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                 style: {
-                  display: 'block',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  marginBottom: '0.4rem'
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  color: '#555',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  marginBottom: '0.6rem'
                 },
-                children: "Country"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("select", {
-                disabled: true,
+                children: "Saved Addresses"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                 style: {
-                  width: '100%',
-                  padding: '0.8rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  background: '#f3f4f6'
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem'
                 },
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
-                  children: "Philippines"
+                children: savedAddresses.map(function (addr) {
+                  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                    onClick: function onClick() {
+                      return applyAddress(addr);
+                    },
+                    style: {
+                      border: selectedAddrId === addr.id ? '2px solid #C9A84C' : '1px solid #ddd',
+                      borderRadius: '8px',
+                      padding: '0.85rem 1rem',
+                      background: selectedAddrId === addr.id ? '#fdfbf6' : '#fff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.85rem',
+                      transition: 'all 0.15s'
+                    },
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
+                      type: "radio",
+                      name: "savedAddr",
+                      readOnly: true,
+                      checked: selectedAddrId === addr.id,
+                      onChange: function onChange() {
+                        return applyAddress(addr);
+                      },
+                      style: {
+                        flexShrink: 0,
+                        accentColor: '#C9A84C',
+                        width: 16,
+                        height: 16
+                      }
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                      style: {
+                        flex: 1,
+                        minWidth: 0
+                      },
+                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                        style: {
+                          fontWeight: 700,
+                          fontSize: '0.88rem',
+                          color: '#111'
+                        },
+                        children: addr.full_name
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                        style: {
+                          fontSize: '0.8rem',
+                          color: '#555',
+                          marginTop: 2
+                        },
+                        children: [addr.address, ", ", addr.city, ", ", addr.region]
+                      }), addr.phone && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                        style: {
+                          fontSize: '0.78rem',
+                          color: '#888'
+                        },
+                        children: addr.phone
+                      }), addr.is_default && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                        style: {
+                          fontSize: '0.7rem',
+                          background: '#C9A84C',
+                          color: '#000',
+                          borderRadius: 99,
+                          padding: '1px 8px',
+                          fontWeight: 700,
+                          marginTop: 3,
+                          display: 'inline-block'
+                        },
+                        children: "Default"
+                      })]
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                      style: {
+                        display: 'flex',
+                        gap: '0.4rem',
+                        flexShrink: 0
+                      },
+                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+                        type: "button",
+                        onClick: function onClick(e) {
+                          e.stopPropagation();
+                          startEdit(addr);
+                        },
+                        style: {
+                          padding: '0.3rem 0.65rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          border: '1px solid #ddd',
+                          borderRadius: '4px',
+                          background: '#fff',
+                          cursor: 'pointer'
+                        },
+                        children: "Edit"
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+                        type: "button",
+                        onClick: function onClick(e) {
+                          e.stopPropagation();
+                          handleDeleteAddress(addr.id);
+                        },
+                        style: {
+                          padding: '0.3rem 0.65rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          border: '1px solid #fecaca',
+                          borderRadius: '4px',
+                          background: '#fff',
+                          color: '#dc2626',
+                          cursor: 'pointer'
+                        },
+                        children: "Remove"
+                      })]
+                    })]
+                  }, addr.id);
                 })
               })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+            }), addrMode === null && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+              type: "button",
+              onClick: startAdd,
               style: {
-                marginBottom: '1rem'
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
-                style: {
-                  display: 'block',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  marginBottom: '0.4rem'
-                },
-                children: "Full Name *"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
-                type: "text",
-                value: form.name,
-                onChange: function onChange(e) {
-                  return setVal('name', e.target.value);
-                },
-                required: true,
-                style: {
-                  width: '100%',
-                  padding: '0.8rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px'
-                },
-                placeholder: "John Doe"
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                marginBottom: '1rem'
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
-                style: {
-                  display: 'block',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  marginBottom: '0.4rem'
-                },
-                children: "Address *"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
-                type: "text",
-                value: form.address,
-                onChange: function onChange(e) {
-                  return setVal('address', e.target.value);
-                },
-                required: true,
-                style: {
-                  width: '100%',
-                  padding: '0.8rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px'
-                },
-                placeholder: "Street address"
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
+                marginBottom: '1.5rem',
+                padding: '0.6rem 1rem',
+                border: '1.5px dashed #C9A84C',
+                borderRadius: '6px',
+                background: '#fdfbf6',
+                color: '#7a5c00',
+                fontWeight: 700,
+                fontSize: '0.83rem',
+                cursor: 'pointer',
+                width: '100%',
                 display: 'flex',
-                gap: '1rem',
-                marginBottom: '1rem'
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem'
               },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+              children: "+ Add New Address"
+            }), addrMode !== null && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+              style: {
+                background: '#f8f9fa',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '1.2rem',
+                marginBottom: '1.5rem'
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                 style: {
-                  flex: 1
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  color: '#111',
+                  marginBottom: '1rem'
+                },
+                children: addrMode === 'add' ? '+ New Address' : '✏️ Edit Address'
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                style: {
+                  marginBottom: '0.75rem'
                 },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
                   style: {
                     display: 'block',
-                    fontSize: '0.85rem',
+                    fontSize: '0.82rem',
                     fontWeight: 600,
                     color: '#666',
-                    marginBottom: '0.4rem'
+                    marginBottom: '0.3rem'
                   },
-                  children: "City *"
+                  children: "Full Name *"
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
                   type: "text",
-                  value: form.city,
+                  value: addrForm.full_name,
                   onChange: function onChange(e) {
-                    return setVal('city', e.target.value);
+                    return setAddrVal('full_name', e.target.value);
                   },
-                  required: true,
                   style: {
                     width: '100%',
-                    padding: '0.8rem',
+                    padding: '0.7rem',
                     border: '1px solid #ddd',
                     borderRadius: '4px'
-                  }
+                  },
+                  placeholder: "Full Name"
                 })]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                 style: {
-                  flex: 1
+                  marginBottom: '0.75rem'
                 },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
                   style: {
                     display: 'block',
-                    fontSize: '0.85rem',
+                    fontSize: '0.82rem',
                     fontWeight: 600,
                     color: '#666',
-                    marginBottom: '0.4rem'
+                    marginBottom: '0.3rem'
                   },
-                  children: "Region *"
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("select", {
-                  value: form.region,
+                  children: "Address *"
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
+                  type: "text",
+                  value: addrForm.address,
                   onChange: function onChange(e) {
-                    return setVal('region', e.target.value);
+                    return setAddrVal('address', e.target.value);
                   },
                   style: {
                     width: '100%',
-                    padding: '0.8rem',
+                    padding: '0.7rem',
                     border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    background: '#fff'
+                    borderRadius: '4px'
                   },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
-                    value: "Metro Manila",
-                    children: "Metro Manila"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
-                    value: "Luzon",
-                    children: "Luzon"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
-                    value: "Visayas",
-                    children: "Visayas"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
-                    value: "Mindanao",
-                    children: "Mindanao"
+                  placeholder: "Street address"
+                })]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                style: {
+                  display: 'flex',
+                  gap: '0.75rem',
+                  marginBottom: '0.75rem'
+                },
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  style: {
+                    flex: 1
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
+                    style: {
+                      display: 'block',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      color: '#666',
+                      marginBottom: '0.3rem'
+                    },
+                    children: "City *"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
+                    type: "text",
+                    value: addrForm.city,
+                    onChange: function onChange(e) {
+                      return setAddrVal('city', e.target.value);
+                    },
+                    style: {
+                      width: '100%',
+                      padding: '0.7rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px'
+                    }
+                  })]
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  style: {
+                    flex: 1
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
+                    style: {
+                      display: 'block',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      color: '#666',
+                      marginBottom: '0.3rem'
+                    },
+                    children: "Region *"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("select", {
+                    value: addrForm.region,
+                    onChange: function onChange(e) {
+                      return setAddrVal('region', e.target.value);
+                    },
+                    style: {
+                      width: '100%',
+                      padding: '0.7rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      background: '#fff'
+                    },
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
+                      value: "Luzon",
+                      children: "Luzon"
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
+                      value: "Visayas",
+                      children: "Visayas"
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
+                      value: "Mindanao",
+                      children: "Mindanao"
+                    })]
                   })]
                 })]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                style: {
+                  marginBottom: '0.75rem'
+                },
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
+                  style: {
+                    display: 'block',
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
+                    color: '#666',
+                    marginBottom: '0.3rem'
+                  },
+                  children: "Phone"
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
+                  type: "tel",
+                  value: addrForm.phone,
+                  onChange: function onChange(e) {
+                    return setAddrVal('phone', e.target.value);
+                  },
+                  style: {
+                    width: '100%',
+                    padding: '0.7rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px'
+                  },
+                  placeholder: "+63 912 345 6789"
+                })]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("label", {
+                style: {
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '0.83rem',
+                  marginBottom: '1rem'
+                },
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
+                  type: "checkbox",
+                  checked: !!addrForm.is_default,
+                  onChange: function onChange(e) {
+                    return setAddrVal('is_default', e.target.checked);
+                  }
+                }), "Set as default address"]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                style: {
+                  display: 'flex',
+                  gap: '0.6rem'
+                },
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+                  type: "button",
+                  disabled: addrSaving,
+                  onClick: handleSaveAddress,
+                  style: {
+                    padding: '0.65rem 1.3rem',
+                    background: '#000',
+                    color: '#C9A84C',
+                    fontWeight: 700,
+                    border: '1px solid #000',
+                    borderRadius: '4px',
+                    cursor: addrSaving ? 'not-allowed' : 'pointer',
+                    fontSize: '0.83rem'
+                  },
+                  children: addrSaving ? 'Saving...' : addrMode === 'add' ? 'Save Address' : 'Save Changes'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+                  type: "button",
+                  onClick: function onClick() {
+                    setAddrMode(null);
+                    setEditingAddr(null);
+                  },
+                  style: {
+                    padding: '0.65rem 1.1rem',
+                    background: '#fff',
+                    color: '#555',
+                    fontWeight: 600,
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.83rem'
+                  },
+                  children: "Cancel"
+                })]
               })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+            }), (savedAddresses.length > 0 || addrMode !== null) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
               style: {
-                marginBottom: '1rem'
+                fontSize: '0.75rem',
+                color: '#aaa',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginBottom: '1rem',
+                borderTop: '1px solid #eee',
+                paddingTop: '1rem'
               },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
+              children: "Delivery details for this order"
+            }), !form.address && !form.city ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+              style: {
+                padding: '1.2rem',
+                background: '#f8f9fa',
+                border: '1px dashed #ddd',
+                borderRadius: '8px',
+                marginBottom: '1.2rem',
+                textAlign: 'center',
+                color: '#aaa',
+                fontSize: '0.87rem'
+              },
+              children: ["No address selected. Choose a saved address above or click ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
                 style: {
-                  display: 'block',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: '#666',
-                  marginBottom: '0.4rem'
+                  color: '#7a5c00'
                 },
-                children: "Phone *"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
-                type: "tel",
-                value: form.phone,
-                onChange: function onChange(e) {
-                  return setVal('phone', e.target.value);
-                },
-                required: true,
+                children: "+ Add New Address"
+              }), "."]
+            }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+              style: {
+                background: '#f8f9fa',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '1rem 1.2rem',
+                marginBottom: '1.2rem'
+              },
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                 style: {
-                  width: '100%',
-                  padding: '0.8rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px'
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '0.75rem 1.5rem'
                 },
-                placeholder: "+63 912 345 6789"
-              })]
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: '#999',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: '0.2rem'
+                    },
+                    children: "Full Name"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.93rem',
+                      fontWeight: 600,
+                      color: '#111'
+                    },
+                    children: form.name || '—'
+                  })]
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: '#999',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: '0.2rem'
+                    },
+                    children: "Phone"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.93rem',
+                      fontWeight: 600,
+                      color: '#111'
+                    },
+                    children: form.phone || '—'
+                  })]
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  style: {
+                    gridColumn: '1 / -1'
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: '#999',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: '0.2rem'
+                    },
+                    children: "Address"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.93rem',
+                      fontWeight: 600,
+                      color: '#111'
+                    },
+                    children: form.address || '—'
+                  })]
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: '#999',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: '0.2rem'
+                    },
+                    children: "City"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.93rem',
+                      fontWeight: 600,
+                      color: '#111'
+                    },
+                    children: form.city || '—'
+                  })]
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: '#999',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: '0.2rem'
+                    },
+                    children: "Region"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.93rem',
+                      fontWeight: 600,
+                      color: '#111'
+                    },
+                    children: form.region || '—'
+                  })]
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: '#999',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: '0.2rem'
+                    },
+                    children: "Country"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      fontSize: '0.93rem',
+                      fontWeight: 600,
+                      color: '#111'
+                    },
+                    children: "Philippines"
+                  })]
+                })]
+              })
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(LocationPicker, {
               lat: form.latitude,
               lng: form.longitude,
@@ -35387,6 +35958,10 @@ function OrderDetailModal(_ref3) {
               borderRadius: '6px',
               border: '1px solid #eee',
               flexShrink: 0
+            },
+            onError: function onError(e) {
+              e.target.onerror = null;
+              e.target.src = 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=200&auto=format&fit=crop';
             }
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
             style: {
@@ -36001,6 +36576,10 @@ function UserOrders() {
                           borderRadius: '6px',
                           border: '1px solid #eee',
                           flexShrink: 0
+                        },
+                        onError: function onError(e) {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=80&auto=format&fit=crop';
                         }
                       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
                         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {

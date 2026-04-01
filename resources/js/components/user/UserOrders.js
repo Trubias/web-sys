@@ -230,7 +230,8 @@ function OrderDetailModal({ order, onClose, onCancelOrder }) {
                     {/* Product */}
                     <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                         <img src={imgSrc} alt={order.product_name}
-                            style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }} />
+                            style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }}
+                            onError={e => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=200&auto=format&fit=crop'; }} />
                         <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#111', marginBottom: '0.2rem' }}>
                                 {order.product_name}
@@ -521,7 +522,8 @@ export default function UserOrders() {
                                                 <td style={tdStyle}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                                         <img src={imgSrc} alt={order.product_name}
-                                                            style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }} />
+                                                            style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }}
+                                                            onError={e => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=80&auto=format&fit=crop'; }} />
                                                         <div>
                                                             <div style={{ fontWeight: 600, color: '#111', fontSize: '0.88rem', maxWidth: '180px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                                 {order.product_name}

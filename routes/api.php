@@ -62,6 +62,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/wishlist', [WishlistController::class , 'store']);
     Route::delete('/wishlist/{id}', [WishlistController::class , 'destroy']);
 
+    // Delivery Addresses
+    Route::get('/delivery-addresses', [\App\Http\Controllers\Api\DeliveryAddressController::class, 'index']);
+    Route::post('/delivery-addresses', [\App\Http\Controllers\Api\DeliveryAddressController::class, 'store']);
+    Route::put('/delivery-addresses/{id}', [\App\Http\Controllers\Api\DeliveryAddressController::class, 'update']);
+    Route::delete('/delivery-addresses/{id}', [\App\Http\Controllers\Api\DeliveryAddressController::class, 'destroy']);
+
     // Admin routes
     Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function () {
             // Suppliers
