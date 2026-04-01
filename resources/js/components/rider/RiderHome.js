@@ -2,11 +2,161 @@ import React, { useState, useEffect } from 'react';
 import RiderLayout from './RiderLayout';
 import { useAuth } from '../../Context/AuthContext';
 
+const RiderMapModal = ({ order, onClose }) => {
+    const mapRef = React.useRef(null);
+    const lat = order?.latitude;
+    const lng = order?.longitude;
+
+    React.useEffect(() => {
+        if (!order || !lat || !lng) return;
+
+        let isMounted = true;
+        
+        if (!document.getElementById('leaflet-css')) {
+            const link = document.createElement('link'); link.id = 'leaflet-css'; link.rel = 'stylesheet'; link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(link);
+        }
+        if (!document.getElementById('leaflet-routing-css')) {
+            const linkR = document.createElement('link'); linkR.id = 'leaflet-routing-css'; linkR.rel = 'stylesheet'; linkR.href = 'https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css'; document.head.appendChild(linkR);
+        }
+
+        const loadScripts = async () => {
+            if (!window.L) {
+                if (!document.getElementById('leaflet-js')) {
+                    const script = document.createElement('script'); script.id = 'leaflet-js'; script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; document.head.appendChild(script);
+                }
+                while (!window.L) await new Promise(r => setTimeout(r, 100));
+            }
+            if (!window.L.Routing) {
+                if (!document.getElementById('leaflet-routing-js')) {
+                    const scriptR = document.createElement('script'); scriptR.id = 'leaflet-routing-js'; scriptR.src = 'https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js'; document.head.appendChild(scriptR);
+                }
+                while (!window.L.Routing) await new Promise(r => setTimeout(r, 100));
+            }
+
+            if (isMounted && !mapRef.current && document.getElementById('rider-map')) {
+                const map = window.L.map('rider-map').setView([lat, lng], 16);
+                const satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles courtesy of Esri and the GIS community', maxZoom: 19
+                });
+                const streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                });
+                satLayer.addTo(map);
+                let isSat = true;
+                const toggleCtrl = window.L.control({ position: 'topright' });
+                toggleCtrl.onAdd = function() {
+                    const btn = window.L.DomUtil.create('button', '');
+                    btn.innerHTML = '🗺️ Street View';
+                    btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
+                    window.L.DomEvent.on(btn, 'click', function(e) {
+                        window.L.DomEvent.stopPropagation(e);
+                        if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); btn.innerHTML = '🛰️ Satellite View'; isSat = false; }
+                        else { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
+                    });
+                    return btn;
+                };
+                toggleCtrl.addTo(map);
+
+                const redIcon = new window.L.Icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+
+                window.L.marker([lat, lng], {icon: redIcon}).addTo(map);
+                mapRef.current = map;
+                
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        if (!isMounted) return;
+                        const riderLat = pos.coords.latitude;
+                        const riderLng = pos.coords.longitude;
+                        
+                        const riderIcon = new window.L.Icon({
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png',
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18]
+                        });
+                        window.L.marker([riderLat, riderLng], {icon: riderIcon}).bindPopup('<b>Your Location</b>').addTo(map);
+
+                        window.L.Routing.control({
+                            waypoints: [
+                                window.L.latLng(riderLat, riderLng),
+                                window.L.latLng(lat, lng)
+                            ],
+                            lineOptions: { styles: [{ color: '#3498db', weight: 6, opacity: 0.8 }] },
+                            show: false,
+                            addWaypoints: false,
+                            createMarker: function() { return null; }
+                        }).addTo(map);
+                        
+                        const group = new window.L.featureGroup([
+                            window.L.marker([riderLat, riderLng]),
+                            window.L.marker([lat, lng])
+                        ]);
+                        map.fitBounds(group.getBounds(), { padding: [40, 40] });
+
+                    }, err => console.log('GPS tracking blocked or unavailable.'));
+                }
+                
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 200);
+            }
+        };
+        loadScripts();
+        return () => { isMounted = false; };
+    }, [order, lat, lng]);
+
+    if (!order) return null;
+
+    return (
+        <div style={{
+            position: 'fixed', inset: 0, zIndex: 99999,
+            background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }}>
+            <div style={{
+                background: '#1a1a1a', borderRadius: 12, width: '100%', maxWidth: 500,
+                border: '1px solid #333', overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.8)',
+                display: 'flex', flexDirection: 'column'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', borderBottom: '1px solid #333' }}>
+                    <h3 style={{ margin: 0, color: '#C9A84C', fontWeight: 700, fontSize: '1.1rem' }}>Customer Location</h3>
+                    <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', display: 'flex' }}>✕</button>
+                </div>
+                <div style={{ padding: '1.5rem', flex: 1 }}>
+                    {lat && lng ? (
+                        <>
+                            <div id="rider-map" style={{ height: '350px', width: '100%', borderRadius: '8px', zIndex: 1, background: '#222' }}></div>
+                            <a href={`https://www.google.com/maps?q=${lat},${lng}`} target="_blank" rel="noopener noreferrer" style={{
+                                marginTop: '1.5rem', display: 'block', background: '#C9A84C', color: '#000',
+                                textAlign: 'center', padding: '0.9rem', borderRadius: '6px', fontWeight: 800, textDecoration: 'none'
+                            }}>
+                                🧭 Navigate with Google Maps
+                            </a>
+                        </>
+                    ) : (
+                        <div style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', fontStyle: 'italic', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #333' }}>
+                            Customer did not pin a location.
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default function RiderHome() {
     const { user } = useAuth();
     const [deliveries, setDeliveries] = useState([]);
+    const [availableDeliveries, setAvailableDeliveries] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [cancelTarget, setCancelTarget] = useState(null); // for styled confirm modal
+    const [cancelTarget, setCancelTarget] = useState(null);
+    const [mapTarget, setMapTarget] = useState(null);
     const [toast, setToast] = useState('');
 
     const showToast = (msg, duration = 3000) => {
@@ -18,7 +168,12 @@ export default function RiderHome() {
         try {
             const axios = (await import('axios')).default;
             const res = await axios.get('/api/rider/deliveries');
-            setDeliveries(res.data);
+            if (res.data.available !== undefined) {
+                setAvailableDeliveries(res.data.available);
+                setDeliveries(res.data.mine);
+            } else {
+                setDeliveries(res.data);
+            }
             setLoading(false);
         } catch (error) {
             console.error('Error fetching deliveries:', error);
@@ -49,9 +204,9 @@ export default function RiderHome() {
             const axios = (await import('axios')).default;
             await axios.put(`/api/rider/deliveries/${cancelTarget.id}/cancel`);
             fetchDeliveries();
-            showToast('Delivery assignment cancelled.');
+            showToast('Delivery ignored.');
             const { notificationStore } = await import('../sharedStore');
-            notificationStore.add('admin', `Rider ${user?.name || 'A rider'} cancelled/declined delivery for Order #${cancelTarget.ref || cancelTarget.id}.`);
+            notificationStore.add('admin', `Rider ${user?.name || 'A rider'} rejected/ignored broadcast for Order #${cancelTarget.ref || cancelTarget.id}.`);
         } catch (error) {
             showToast('Failed to cancel delivery. Please try again.');
         } finally {
@@ -98,9 +253,9 @@ export default function RiderHome() {
                         border: '1px solid rgba(255,255,255,0.1)',
                         boxShadow: '0 24px 60px rgba(0,0,0,0.7)', padding: '1.5rem'
                     }}>
-                        <h3 style={{ margin: '0 0 0.8rem', color: '#e74c3c', fontWeight: 700 }}>Cancel Assignment?</h3>
+                        <h3 style={{ margin: '0 0 0.8rem', color: '#e74c3c', fontWeight: 700 }}>Ignore Broadcast?</h3>
                         <p style={{ color: '#ccc', fontSize: '0.9rem', lineHeight: 1.6, margin: '0 0 1.5rem' }}>
-                            Are you sure you want to cancel this delivery assignment? The order will return to unassigned status.
+                            Are you sure you want to ignore this delivery? It will be removed from your screen.
                         </p>
                         <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'flex-end' }}>
                             <button onClick={() => setCancelTarget(null)} style={{
@@ -118,6 +273,9 @@ export default function RiderHome() {
                 </div>
             )}
 
+            {/* Rider Map Modal */}
+            <RiderMapModal order={mapTarget} onClose={() => setMapTarget(null)} />
+
             <div className="admin-page-header">
                 <div>
                     <h1 className="admin-page-title">Rider Home</h1>
@@ -129,8 +287,8 @@ export default function RiderHome() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
                 <div style={{ background: '#1a1a1a', padding: '1.5rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ color: '#888', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>NEW ASSIGNMENTS</div>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f59e0b' }}>{pendingDeliveries.length}</div>
+                    <div style={{ color: '#888', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>AVAILABLE BROADCASTS</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#3498db' }}>{availableDeliveries.length}</div>
                 </div>
                 <div style={{ background: '#1a1a1a', padding: '1.5rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
                     <div style={{ color: '#888', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>COMPLETED TODAY</div>
@@ -142,7 +300,51 @@ export default function RiderHome() {
                 </div>
             </div>
 
-            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#fff' }}>Active Deliveries</h2>
+            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#fff' }}>Available Broadcasts</h2>
+            
+            {!loading && availableDeliveries.length === 0 ? (
+                <div style={{ color: '#888', padding: '2rem 0', background: '#1a1a1a', borderRadius: '12px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '2rem' }}>
+                    No pending broadcasts in your region right now.
+                </div>
+            ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
+                    {availableDeliveries.map(o => (
+                        <div key={o.id} style={{ background: '#1a1a1a', borderRadius: '12px', padding: '1.5rem', border: '1px solid #3498db', boxShadow: '0 4px 12px rgba(52,152,219,0.1)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                                <div>
+                                    <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '0.3rem', fontWeight: 600 }}>Order #{o.ref || o.id}</div>
+                                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#3498db' }}>
+                                        {o.product?.name || o.product_name || 'Product'}
+                                    </div>
+                                </div>
+                                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>₱{fmt(o.total_amount || 0)}</div>
+                            </div>
+                            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', marginTop: '1.2rem' }}>
+                                <div style={{ fontWeight: 600, color: '#fff', marginBottom: '0.25rem', fontSize: '1.05rem' }}>{o.user?.name || o.customer_name || 'Customer'}</div>
+                                <div style={{ fontSize: '0.95rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                                    <span>📍</span> {o.address || o.user?.address || 'No address provided'}
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <span style={{ background: 'rgba(52,152,219,0.15)', color: '#3498db', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                                        {o.region || o.user?.region || 'Region'}
+                                    </span>
+                                    <button onClick={() => setMapTarget(o)} style={{ background: '#2c2c2c', color: '#3498db', border: '1px solid #444', borderRadius: '6px', padding: '6px 12px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>🗺️ View Location</button>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                <button onClick={() => handleAccept(o)} style={{ flex: 1, padding: '0.9rem', background: '#3498db', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg> Accept Delivery
+                                </button>
+                                <button onClick={() => setCancelTarget(o)} style={{ flex: 1, padding: '0.9rem', background: 'transparent', color: '#e74c3c', border: '1px solid currentColor', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg> Ignore
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#fff' }}>My Active Deliveries</h2>
             
             {loading ? (
                 <div style={{ color: '#888', padding: '2rem 0' }}>Loading deliveries...</div>
@@ -181,10 +383,13 @@ export default function RiderHome() {
                                 <div style={{ fontSize: '0.95rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
                                     <span>📍</span> {o.address || o.user?.address || 'No address provided'}
                                 </div>
-                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <span style={{ background: 'rgba(234,179,8,0.15)', color: '#eab308', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
                                         {o.region || o.user?.region || 'Region'}
                                     </span>
+                                    <button onClick={() => setMapTarget(o)} style={{ background: '#2c2c2c', color: '#C9A84C', border: '1px solid #444', borderRadius: '6px', padding: '6px 12px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#3c3c3c'} onMouseLeave={e => e.currentTarget.style.background = '#2c2c2c'}>
+                                        🗺️ View Customer Location
+                                    </button>
                                 </div>
                             </div>
 
@@ -210,23 +415,14 @@ export default function RiderHome() {
                                 </div>
                             </div>
                             
-                            {/* Action Buttons */}
-                            {o.status === 'assigned' && (
-                                <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
-                                    <button onClick={() => handleAccept(o)} style={{ flex: 1, padding: '0.9rem', background: '#3498db', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2980b9'} onMouseLeave={e => e.currentTarget.style.background = '#3498db'}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                                        Accept
-                                    </button>
-                                    <button onClick={() => setCancelTarget(o)} style={{ flex: 1, padding: '0.9rem', background: 'transparent', color: '#e74c3c', border: '1px solid currentColor', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(231,76,60,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                                        Cancel
-                                    </button>
-                                </div>
-                            )}
-
                             {o.status === 'out_for_delivery' && (
                                 <div style={{ marginTop: '2.5rem', padding: '0.8rem', background: 'rgba(39,174,96,0.1)', border: '1px solid rgba(39,174,96,0.2)', borderRadius: '8px', textAlign: 'center', color: '#2ecc71', fontWeight: 700, fontSize: '0.9rem' }}>
                                     Out for delivery. Navigate to My Deliveries to complete it.
+                                </div>
+                            )}
+                            {o.status === 'accepted' && (
+                                <div style={{ marginTop: '2.5rem', padding: '0.8rem', background: 'rgba(52,152,219,0.1)', border: '1px solid rgba(52,152,219,0.2)', borderRadius: '8px', textAlign: 'center', color: '#3498db', fontWeight: 700, fontSize: '0.9rem' }}>
+                                    Accepted. Navigate to My Deliveries to process.
                                 </div>
                             )}
                         </div>

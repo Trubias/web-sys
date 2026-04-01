@@ -4,6 +4,183 @@ import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
 import UserLayout from '../user/UserLayout';
 
+const LocationPicker = ({ lat, lng, address, city, region, country, onChange }) => {
+    const mapRef = React.useRef(null);
+    const markerRef = React.useRef(null);
+
+    React.useEffect(() => {
+        let isMounted = true;
+        
+        if (!document.getElementById('leaflet-css')) {
+            const link = document.createElement('link');
+            link.id = 'leaflet-css';
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(link);
+        }
+        
+        if (!document.getElementById('leaflet-js')) {
+            const script = document.createElement('script');
+            script.id = 'leaflet-js';
+            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.async = true;
+            document.head.appendChild(script);
+        }
+
+        const checkL = setInterval(() => {
+            if (window.L && document.getElementById('checkout-map')) {
+                clearInterval(checkL);
+                if (!isMounted || mapRef.current) return;
+                
+                const map = window.L.map('checkout-map').setView([12.8797, 121.7740], 6);
+                const satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles courtesy of Esri and the GIS community', maxZoom: 19
+                });
+                const streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                });
+                satLayer.addTo(map);
+                let isSat = true;
+                const toggleCtrl = window.L.control({ position: 'topright' });
+                toggleCtrl.onAdd = function() {
+                    const btn = window.L.DomUtil.create('button', '');
+                    btn.innerHTML = '🗺️ Street View';
+                    btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
+                    window.L.DomEvent.on(btn, 'click', function(e) {
+                        window.L.DomEvent.stopPropagation(e);
+                        if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); btn.innerHTML = '🛰️ Satellite View'; isSat = false; }
+                        else { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
+                    });
+                    return btn;
+                };
+                toggleCtrl.addTo(map);
+
+                const marker = window.L.marker([12.8797, 121.7740], { draggable: true }).addTo(map);
+                marker.on('dragend', function (e) {
+                    const pos = marker.getLatLng();
+                    onChange(pos.lat, pos.lng);
+                });
+
+                mapRef.current = map;
+                markerRef.current = marker;
+
+                if (lat && lng) {
+                   map.setView([lat, lng], 16);
+                   marker.setLatLng([lat, lng]);
+                }
+                
+                setTimeout(() => { map.invalidateSize(); }, 200);
+            }
+        }, 100);
+
+        return () => { 
+            isMounted = false; 
+            clearInterval(checkL); 
+        };
+    }, []);
+
+    // Step 6: Auto track based on exact Address, City, Region, Country
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            if (!lat && !lng && mapRef.current && markerRef.current) {
+                const queries = [];
+                // High precision query (Address + City works best without confusing region names)
+                if (address && city) queries.push(`${address}, ${city}, ${country || 'Philippines'}`);
+                // Fallback query (City only)
+                if (city) queries.push(`${city}, ${country || 'Philippines'}`);
+                
+                if (queries.length === 0) return;
+                
+                const tryGeocode = async (index) => {
+                    if (index >= queries.length || lat || lng) return;
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queries[index])}`);
+                        const data = await res.json();
+                        if (data && data.length > 0 && !lat && !lng) {
+                            const newLat = parseFloat(data[0].lat);
+                            const newLon = parseFloat(data[0].lon);
+                            mapRef.current.setView([newLat, newLon], index === 0 ? 16 : 13);
+                            markerRef.current.setLatLng([newLat, newLon]);
+                            setTimeout(() => { mapRef.current.invalidateSize(); }, 200);
+                            onChange(newLat, newLon);
+                        } else {
+                            tryGeocode(index + 1);
+                        }
+                    } catch (err) {
+                        tryGeocode(index + 1);
+                    }
+                };
+                
+                tryGeocode(0);
+            }
+        }, 1500); // 1.5s debounce to prevent spamming
+        
+        return () => clearTimeout(timer);
+    }, [address, city, region, country]);
+
+    const handleCurrentLocation = () => {
+        const queries = [];
+        if (address && city) queries.push(`${address}, ${city}, ${country || 'Philippines'}`);
+        if (city) queries.push(`${city}, ${country || 'Philippines'}`);
+        
+        const tryGeocode = async (index) => {
+            // Fallback to GPS if address isn't provided or geocoding failed
+            if (index >= queries.length) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        const { latitude, longitude } = position.coords;
+                        onChange(latitude, longitude);
+                        if (mapRef.current && markerRef.current) {
+                            mapRef.current.setView([latitude, longitude], 16);
+                            markerRef.current.setLatLng([latitude, longitude]);
+                            setTimeout(() => { mapRef.current.invalidateSize(); }, 200);
+                        }
+                    }, (error) => {
+                        alert("Unable to find your typed address and GPS access was denied. Please drag the pin manually.");
+                    });
+                }
+                return;
+            }
+            
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queries[index])}`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const newLat = parseFloat(data[0].lat);
+                    const newLon = parseFloat(data[0].lon);
+                    if (mapRef.current && markerRef.current) {
+                        mapRef.current.setView([newLat, newLon], index === 0 ? 16 : 13);
+                        markerRef.current.setLatLng([newLat, newLon]);
+                        setTimeout(() => { mapRef.current.invalidateSize(); }, 200);
+                        onChange(newLat, newLon);
+                    }
+                } else {
+                    tryGeocode(index + 1);
+                }
+            } catch (err) {
+                tryGeocode(index + 1);
+            }
+        };
+        
+        tryGeocode(0);
+    };
+
+    return (
+        <div style={{ marginBottom: '1.5rem', background: '#fff', padding: '1.5rem', border: '1px solid #ddd', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+            <h3 style={{ fontSize: '1rem', marginBottom: '0.8rem', fontWeight: 700 }}>📍 Pin Your Delivery Location</h3>
+            <button type="button" onClick={handleCurrentLocation} style={{ marginBottom: '1rem', padding: '0.6rem 1.2rem', background: '#f8f9fa', color: '#333', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}>
+                Use My Current Location
+            </button>
+            <div id="checkout-map" style={{ height: '300px', width: '100%', borderRadius: '8px', zIndex: 1, border: '1px solid #ddd' }}></div>
+            <div style={{ marginTop: '0.8rem', fontSize: '0.85rem', color: '#888' }}>
+                Latitude: {lat || '___'} | Longitude: {lng || '___'}
+            </div>
+            <input type="hidden" name="latitude" id="latitude" value={lat || ''} />
+            <input type="hidden" name="longitude" id="longitude" value={lng || ''} />
+        </div>
+    );
+};
+
 export default function Checkout() {
     const { user, refreshCart, fetchUser } = useAuth();
     const navigate = useNavigate();
@@ -37,7 +214,9 @@ export default function Checkout() {
         billingAddress: '',
         billingCity: '',
         billingRegion: 'Metro Manila',
-        billingPhone: ''
+        billingPhone: '',
+        latitude: null,
+        longitude: null
     });
 
     useEffect(() => {
@@ -94,7 +273,7 @@ export default function Checkout() {
         }
 
         try {
-            await axios.post('/api/orders', {
+            const res = await axios.post('/api/orders', {
                 address: form.address,
                 city: form.city,
                 region: form.region,
@@ -108,7 +287,9 @@ export default function Checkout() {
                 billing_address: form.billingMode === 'different' ? form.billingAddress : null,
                 billing_city: form.billingMode === 'different' ? form.billingCity : null,
                 billing_region: form.billingMode === 'different' ? form.billingRegion : null,
-                billing_phone: form.billingMode === 'different' ? form.billingPhone : null
+                billing_phone: form.billingMode === 'different' ? form.billingPhone : null,
+                latitude: form.latitude,
+                longitude: form.longitude
             });
 
             try {
@@ -199,6 +380,19 @@ export default function Checkout() {
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#666', marginBottom: '0.4rem' }}>Phone *</label>
                                 <input type="tel" value={form.phone} onChange={e => setVal('phone', e.target.value)} required style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px' }} placeholder="+63 912 345 6789" />
                             </div>
+
+                            <LocationPicker 
+                                lat={form.latitude} 
+                                lng={form.longitude} 
+                                address={form.address}
+                                city={form.city}
+                                region={form.region}
+                                country="Philippines"
+                                onChange={(lat, lng) => {
+                                    setVal('latitude', lat);
+                                    setVal('longitude', lng);
+                                }} 
+                            />
 
                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#333' }}>
                                 <input type="checkbox" checked={form.saveInfo} onChange={e => setVal('saveInfo', e.target.checked)} />

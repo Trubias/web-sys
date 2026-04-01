@@ -196,39 +196,7 @@ class AdminReportsController extends Controller
         return response()->json($orders);
     }
 
-    /**
-     * PUT /api/admin/orders/{id}/assign-rider
-     */
-    public function assignRider(Request $request, $id)
-    {
-        $request->validate(['rider_id' => 'required|exists:riders,id']);
-        $order = Order::findOrFail($id);
-        
-        $order->rider_id = $request->rider_id;
-        $order->status = 'assigned';
-        $order->save();
 
-        // Notify the Rider
-        \App\Models\UserNotification::create([
-            'user_id' => $request->rider_id,
-            'title' => 'New Delivery Assigned',
-            'message' => 'You have been assigned to deliver order ' . $order->ref,
-            'type' => 'delivery_assigned',
-            'is_read' => false
-        ]);
-
-        if ($order->user_id) {
-            \App\Models\UserNotification::create([
-                'user_id' => $order->user_id,
-                'title' => 'Order Processing',
-                'message' => 'Your order ' . $order->ref . ' is now being processed. A rider has been assigned to deliver your order.',
-                'type' => 'order_status',
-                'is_read' => false
-            ]);
-        }
-
-        return response()->json($order->load(['user', 'product', 'brand', 'rider']));
-    }
 
     /**
      * DELETE /api/admin/orders/{id}

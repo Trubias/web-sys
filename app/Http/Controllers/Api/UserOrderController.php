@@ -28,7 +28,9 @@ class UserOrderController extends Controller
             'region' => 'required|string',
             'phone' => 'nullable|string',
             'payment_method' => 'required|string',
-            'order_note' => 'nullable|string'
+            'order_note' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric'
         ]);
 
         $user = $request->user();
@@ -88,6 +90,8 @@ class UserOrderController extends Controller
                 'phone' => $request->phone,
                 'payment_method' => $request->payment_method,
                 'order_note' => $request->order_note,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
             ]);
 
             $orders[] = $order;
@@ -108,9 +112,26 @@ class UserOrderController extends Controller
 
         \App\Models\UserNotification::create([
             'user_id' => $user->id,
+            'title' => 'Order Placed successfully',
             'message' => 'Your order ' . $ref . ' has been successfully placed.',
+            'type' => 'order_status',
             'is_read' => false,
         ]);
+
+        // Notify active Riders in the same region about the new broadcast
+        $ridersInRegion = \App\Models\Rider::where('rider_status', 'active')
+            ->where('region', $request->region)
+            ->pluck('id');
+
+        foreach ($ridersInRegion as $riderId) {
+            \App\Models\UserNotification::create([
+                'user_id' => $riderId,
+                'title' => 'New Delivery Broadcast!',
+                'message' => 'A new pending delivery ' . $ref . ' is available in your region. Check your Available Broadcasts.',
+                'type' => 'delivery_assigned',
+                'is_read' => false,
+            ]);
+        }
 
         return response()->json([
             'message' => 'Order placed successfully',

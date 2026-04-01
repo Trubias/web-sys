@@ -20,12 +20,26 @@ class RiderDeliveryController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $deliveries = Order::with(['user', 'product', 'brand'])
+        $available_deliveries = Order::with(['user', 'product', 'brand'])
+            ->where('status', 'pending')
+            ->whereNull('rider_id')
+            ->where('region', $user->region)
+            ->where(function ($query) use ($user) {
+                $query->whereNull('rejected_by_riders')
+                      ->orWhereJsonDoesntContain('rejected_by_riders', $user->id);
+            })
+            ->orderByDesc('created_at')
+            ->get();
+
+        $my_deliveries = Order::with(['user', 'product', 'brand'])
             ->where('rider_id', $user->id)
             ->orderByDesc('updated_at')
             ->get();
 
-        return response()->json($deliveries);
+        return response()->json([
+            'available' => $available_deliveries,
+            'mine' => $my_deliveries
+        ]);
     }
 
     /**
@@ -38,7 +52,15 @@ class RiderDeliveryController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $order = Order::where('rider_id', $user->id)->where('status', 'assigned')->findOrFail($orderId);
+        $order = Order::whereNull('rider_id')
+            ->where('status', 'pending')
+            ->find($orderId);
+
+        if (!$order) {
+            return response()->json(['error' => 'This order was already claimed by another rider or is no longer available.'], 400);
+        }
+
+        $order->rider_id = $user->id;
         $order->status = 'accepted';
         $order->save();
 
@@ -65,12 +87,16 @@ class RiderDeliveryController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $order = Order::where('rider_id', $user->id)->where('status', 'assigned')->findOrFail($orderId);
-        $order->status = 'pending';
-        $order->rider_id = null;
-        $order->save();
+        $order = Order::findOrFail($orderId);
+        
+        $rejected = $order->rejected_by_riders ?? [];
+        if (!in_array($user->id, $rejected)) {
+            $rejected[] = $user->id;
+            $order->rejected_by_riders = $rejected;
+            $order->save();
+        }
 
-        return response()->json($order);
+        return response()->json(['message' => 'Order hidden from your feed.']);
     }
 
     /**

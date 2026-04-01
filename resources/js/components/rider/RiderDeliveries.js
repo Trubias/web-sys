@@ -2,12 +2,172 @@ import React, { useState, useEffect, useRef } from 'react';
 import RiderLayout from './RiderLayout';
 import { useAuth } from '../../Context/AuthContext';
 
+const DeliveriesMapModal = ({ order, onClose }) => {
+    const mapRef = React.useRef(null);
+    const lat = order?.latitude;
+    const lng = order?.longitude;
+
+    React.useEffect(() => {
+        if (!order || !lat || !lng) return;
+
+        let isMounted = true;
+        
+        if (!document.getElementById('leaflet-css')) {
+            const link = document.createElement('link'); link.id = 'leaflet-css'; link.rel = 'stylesheet'; link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(link);
+        }
+        if (!document.getElementById('leaflet-routing-css')) {
+            const linkR = document.createElement('link'); linkR.id = 'leaflet-routing-css'; linkR.rel = 'stylesheet'; linkR.href = 'https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css'; document.head.appendChild(linkR);
+        }
+
+        const loadScripts = async () => {
+            if (!window.L) {
+                if (!document.getElementById('leaflet-js')) {
+                    const script = document.createElement('script'); script.id = 'leaflet-js'; script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; document.head.appendChild(script);
+                }
+                while (!window.L) await new Promise(r => setTimeout(r, 100));
+            }
+            if (!window.L.Routing) {
+                if (!document.getElementById('leaflet-routing-js')) {
+                    const scriptR = document.createElement('script'); scriptR.id = 'leaflet-routing-js'; scriptR.src = 'https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js'; document.head.appendChild(scriptR);
+                }
+                while (!window.L.Routing) await new Promise(r => setTimeout(r, 100));
+            }
+
+            if (isMounted && !mapRef.current && document.getElementById('delivery-map')) {
+                const map = window.L.map('delivery-map').setView([lat, lng], 16);
+                const satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles courtesy of Esri and the GIS community', maxZoom: 19
+                });
+                const streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                });
+                satLayer.addTo(map);
+                let isSat = true;
+                const toggleCtrl = window.L.control({ position: 'topright' });
+                toggleCtrl.onAdd = function() {
+                    const btn = window.L.DomUtil.create('button', '');
+                    btn.innerHTML = '🗺️ Street View';
+                    btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
+                    window.L.DomEvent.on(btn, 'click', function(e) {
+                        window.L.DomEvent.stopPropagation(e);
+                        if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); btn.innerHTML = '🛰️ Satellite View'; isSat = false; }
+                        else { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
+                    });
+                    return btn;
+                };
+                toggleCtrl.addTo(map);
+
+                const customerMarker = window.L.marker([lat, lng]).addTo(map);
+                const popupContent = `
+                    <div style="text-align:center; font-family:sans-serif; color:#000;">
+                        <strong style="display:block; margin-bottom:4px; font-size:14px;">${order.user?.name || order.customer_name || 'Customer'}</strong>
+                        <div style="font-size:12px;">${order.address || order.user?.address || ''}</div>
+                    </div>
+                `;
+                customerMarker.bindPopup(popupContent).openPopup();
+                
+                mapRef.current = map;
+                
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        if (!isMounted) return;
+                        const riderLat = pos.coords.latitude;
+                        const riderLng = pos.coords.longitude;
+                        
+                        const riderIcon = new window.L.Icon({
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png',
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18]
+                        });
+                        window.L.marker([riderLat, riderLng], {icon: riderIcon}).bindPopup('<b>Your Location</b>').addTo(map);
+
+                        window.L.Routing.control({
+                            waypoints: [
+                                window.L.latLng(riderLat, riderLng),
+                                window.L.latLng(lat, lng)
+                            ],
+                            lineOptions: { styles: [{ color: '#3498db', weight: 6, opacity: 0.8 }] },
+                            show: false,
+                            addWaypoints: false,
+                            createMarker: function() { return null; }
+                        }).addTo(map);
+                        
+                        const group = new window.L.featureGroup([
+                            window.L.marker([riderLat, riderLng]),
+                            window.L.marker([lat, lng])
+                        ]);
+                        map.fitBounds(group.getBounds(), { padding: [40, 40] });
+
+                    }, err => console.log('GPS tracking blocked or unavailable.'));
+                }
+                
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 200);
+            }
+        };
+        loadScripts();
+        return () => { isMounted = false; };
+    }, [order, lat, lng]);
+
+    if (!order) return null;
+
+    const handleCopy = () => {
+        if (lat && lng) {
+            navigator.clipboard.writeText(`${lat},${lng}`);
+            alert('Coordinates copied to clipboard!');
+        }
+    };
+
+    return (
+        <div style={{
+            position: 'fixed', inset: 0, zIndex: 99999,
+            background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }}>
+            <div style={{
+                background: '#1a1a1a', borderRadius: 12, width: '100%', maxWidth: 500,
+                border: '1px solid #333', overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.8)',
+                display: 'flex', flexDirection: 'column'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', borderBottom: '1px solid #333' }}>
+                    <h3 style={{ margin: 0, color: '#C9A84C', fontWeight: 700, fontSize: '1.1rem' }}>Delivery Location</h3>
+                    <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', display: 'flex' }}>✕</button>
+                </div>
+                <div style={{ padding: '1.5rem', flex: 1 }}>
+                    {lat && lng ? (
+                        <>
+                            <div id="delivery-map" style={{ height: '350px', width: '100%', borderRadius: '8px', zIndex: 1, background: '#222' }}></div>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                <a href={`https://www.google.com/maps?q=${lat},${lng}`} target="_blank" rel="noopener noreferrer" style={{
+                                    flex: 1, display: 'block', background: '#3498db', color: '#fff',
+                                    textAlign: 'center', padding: '0.9rem', borderRadius: '6px', fontWeight: 800, textDecoration: 'none'
+                                }}>
+                                    🧭 Open Navigation
+                                </a>
+                                <button onClick={handleCopy} style={{ flex: 1, background: '#333', color: '#fff', border: 'none', borderRadius: '6px', padding: '0.9rem', cursor: 'pointer', fontWeight: 700 }}>
+                                    📋 Copy Coordinates
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', fontStyle: 'italic', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #333' }}>
+                            Customer did not pin a location.
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default function RiderDeliveries() {
     const { user } = useAuth();
     const [deliveries, setDeliveries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [proofFile, setProofFile] = useState(null);
     const [activeOrderId, setActiveOrderId] = useState(null);
+    const [mapTarget, setMapTarget] = useState(null);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -18,7 +178,7 @@ export default function RiderDeliveries() {
         try {
             const axios = (await import('axios')).default;
             const res = await axios.get('/api/rider/deliveries');
-            setDeliveries(res.data.filter(d => d.status === 'accepted' || d.status === 'out_for_delivery'));
+            setDeliveries((res.data.mine || []).filter(d => d.status === 'accepted' || d.status === 'out_for_delivery'));
             setLoading(false);
         } catch (error) {
             console.error('Error fetching deliveries:', error);
@@ -75,6 +235,8 @@ export default function RiderDeliveries() {
                 </div>
             </div>
 
+            <DeliveriesMapModal order={mapTarget} onClose={() => setMapTarget(null)} />
+
             {loading ? (
                 <div style={{ color: '#888', padding: '2rem 0' }}>Loading active deliveries...</div>
             ) : deliveries.length === 0 ? (
@@ -93,11 +255,24 @@ export default function RiderDeliveries() {
                                         {o.brand?.name && <span style={{ color: '#666', fontSize: '0.9rem', marginLeft: '8px', fontWeight: 600 }}>— {o.brand?.name}</span>}
                                     </div>
                                 </div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', textAlign: 'right' }}>
-                                    ₱{fmt(o.total_amount || 0)}
-                                    <div style={{ fontSize: '0.75rem', color: '#27ae60', marginTop: '4px', textTransform: 'uppercase' }}>
-                                        {o.payment_method === 'cod' ? 'Cash on Delivery' : o.payment_method}
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', textAlign: 'right' }}>
+                                    <div>
+                                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
+                                            ₱{fmt(o.total_amount || 0)}
+                                        </div>
+                                        <div style={{ fontSize: '0.75rem', color: '#27ae60', marginTop: '4px', textTransform: 'uppercase' }}>
+                                            {o.payment_method === 'cod' ? 'Cash on Delivery' : o.payment_method}
+                                        </div>
                                     </div>
+                                    <button 
+                                        onClick={() => setMapTarget(o)}
+                                        title="View Location"
+                                        style={{ background: 'transparent', border: '1px solid #C9A84C', color: '#C9A84C', padding: '0.5rem', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, transition: 'background 0.2s' }}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.1)'} 
+                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                    >
+                                        📍
+                                    </button>
                                 </div>
                             </div>
                             

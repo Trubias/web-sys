@@ -80,7 +80,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/admin/reports', [AdminReportsController::class, 'index']);
             Route::get('/admin/orders', [AdminReportsController::class, 'orders']);
             Route::post('/admin/orders', [AdminReportsController::class, 'store']);
-            Route::put('/admin/orders/{id}/assign-rider', [AdminReportsController::class, 'assignRider']);
             Route::delete('/admin/orders/{id}', [AdminReportsController::class, 'destroyOrder']);
 
             // Users

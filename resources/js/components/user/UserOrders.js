@@ -56,6 +56,104 @@ function formatRef(ref) {
     return ref.startsWith('#') ? ref : `#${ref}`;
 }
 
+// ── Pinned Location Map ───────────────────────────────────────────────────────
+
+const PinnedLocationMap = ({ lat, lng }) => {
+    const [showMap, setShowMap] = useState(false);
+    const mapRef = React.useRef(null);
+
+    React.useEffect(() => {
+        if (!showMap || !lat || !lng) return;
+
+        let isMounted = true;
+        const loadLeaflet = async () => {
+            if (!document.getElementById('leaflet-css')) {
+                const link = document.createElement('link');
+                link.id = 'leaflet-css';
+                link.rel = 'stylesheet';
+                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                document.head.appendChild(link);
+            }
+            if (!document.getElementById('leaflet-js')) {
+                const script = document.createElement('script');
+                script.id = 'leaflet-js';
+                script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                script.async = true;
+                document.head.appendChild(script);
+                await new Promise(resolve => script.onload = resolve);
+            }
+
+            // Using a dynamic ID to prevent conflicts if multiple maps exist, though modal is single.
+            const mapId = `view-map-${lat}-${lng}`;
+            
+            if (isMounted && !mapRef.current && window.L && document.getElementById(mapId)) {
+                const map = window.L.map(mapId).setView([lat, lng], 16);
+                const satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles courtesy of Esri and the GIS community', maxZoom: 19
+                });
+                const streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                });
+                satLayer.addTo(map);
+                let isSat = true;
+                const toggleCtrl = window.L.control({ position: 'topright' });
+                toggleCtrl.onAdd = function() {
+                    const btn = window.L.DomUtil.create('button', '');
+                    btn.innerHTML = '🗺️ Street View';
+                    btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
+                    window.L.DomEvent.on(btn, 'click', function(e) {
+                        window.L.DomEvent.stopPropagation(e);
+                        if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); btn.innerHTML = '🛰️ Satellite View'; isSat = false; }
+                        else { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
+                    });
+                    return btn;
+                };
+                toggleCtrl.addTo(map);
+
+                window.L.marker([lat, lng]).addTo(map);
+                mapRef.current = map;
+                
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 200);
+            }
+        };
+        loadLeaflet();
+        return () => { isMounted = false; };
+    }, [showMap, lat, lng]);
+
+    if (!lat || !lng) {
+        return <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '0.5rem', fontStyle: 'italic', padding: '0.2rem 0' }}>No precise location pinned.</div>;
+    }
+
+    const mapId = `view-map-${lat}-${lng}`;
+
+    return (
+        <div style={{ marginTop: '0.8rem' }}>
+            {!showMap ? (
+                <button
+                    type="button"
+                    onClick={() => setShowMap(true)}
+                    style={{ background: '#f8f9fa', border: '1px solid #ddd', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#333', transition: 'background 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#e9ecef'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#f8f9fa'}
+                >
+                    📍 View Pinned Location
+                </button>
+            ) : (
+                <div style={{ border: '1px solid #eaeaea', borderRadius: '6px', overflow: 'hidden', marginTop: '0.5rem' }}>
+                    <div id={mapId} style={{ height: '250px', width: '100%', zIndex: 1, background: '#f0f0f0' }}></div>
+                    <div style={{ padding: '0.6rem', background: '#fafafa', textAlign: 'center', borderTop: '1px solid #eaeaea' }}>
+                        <a href={`https://www.google.com/maps?q=${lat},${lng}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: '#1d4ed8', textDecoration: 'none', fontWeight: 600 }}>
+                            Open in Google Maps ↗
+                        </a>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 // ── Order Detail Modal ────────────────────────────────────────────────────────
 
 function OrderDetailModal({ order, onClose, onCancelOrder }) {
@@ -154,6 +252,7 @@ function OrderDetailModal({ order, onClose, onCancelOrder }) {
                             <InfoRow label="Address" value={order.address || '—'} />
                             <InfoRow label="City" value={order.city || '—'} />
                             <InfoRow label="Region" value={order.region || '—'} />
+                            <PinnedLocationMap lat={order.latitude} lng={order.longitude} />
                         </InfoBox>
                     </div>
 

@@ -18,7 +18,7 @@ export default function RiderHistory() {
             try {
                 const axios = (await import('axios')).default;
                 const res = await axios.get('/api/rider/deliveries');
-                setDeliveries(res.data.filter(d => d.status === 'delivered' || d.status === 'completed'));
+                setDeliveries((res.data.mine || []).filter(d => d.status === 'delivered' || d.status === 'completed'));
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching deliveries:', error);

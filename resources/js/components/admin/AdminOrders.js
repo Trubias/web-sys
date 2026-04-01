@@ -210,99 +210,6 @@ function ConfirmDeleteModal({ order, onCancel, onConfirm, orderType, actionLabel
     );
 }
 
-// ─── Assign Rider Modal ───────────────────────────────────────────────────────
-function AssignRiderModal({ order, riders, onCancel, onConfirm, isSubmitting, errorMsg, successMsg }) {
-    const matchRiders = riders.filter(r => r.region === order.region);
-    const otherRiders = riders.filter(r => r.region !== order.region);
-
-    return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 9999,
-            background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-            <div style={{
-                background: '#1a1a1a', borderRadius: 14, width: '90%', maxWidth: 500,
-                border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: '0 24px 60px rgba(0,0,0,0.7)', overflow: 'hidden',
-                display: 'flex', flexDirection: 'column', maxHeight: '80vh'
-            }}>
-                <div style={{
-                    padding: '1.2rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.07)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                }}>
-                    <h3 style={{ margin: 0, color: '#fff', fontWeight: 700, fontSize: '1.2rem' }}>
-                        Assign Rider to Order {order.id}
-                    </h3>
-                    <button onClick={onCancel} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
-                </div>
-
-                {/* Inline feedback */}
-                {errorMsg && (
-                    <div style={{ margin: '0.75rem 1.5rem 0', padding: '0.7rem 1rem', background: 'rgba(231,76,60,0.15)', border: '1px solid rgba(231,76,60,0.4)', borderRadius: 8, color: '#e74c3c', fontSize: '0.88rem', fontWeight: 600 }}>
-                        ❌ {errorMsg}
-                    </div>
-                )}
-                {successMsg && (
-                    <div style={{ margin: '0.75rem 1.5rem 0', padding: '0.7rem 1rem', background: 'rgba(39,174,96,0.15)', border: '1px solid rgba(39,174,96,0.4)', borderRadius: 8, color: '#27ae60', fontSize: '0.88rem', fontWeight: 600 }}>
-                        ✅ {successMsg}
-                    </div>
-                )}
-
-                <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
-                    <p style={{ color: '#aaa', margin: '0 0 1rem', fontSize: '0.95rem' }}>
-                        Customer Region: <strong style={{ color: '#C9A84C' }}>{order.region || 'Unknown'}</strong>
-                    </p>
-
-                    <h4 style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '0.8rem' }}>Matched Riders (Same Region)</h4>
-                    {matchRiders.length === 0 ? (
-                        <div style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>No riders available in this region.</div>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                            {matchRiders.map(r => (
-                                <button key={r.id} onClick={() => onConfirm(r.id)} disabled={isSubmitting} style={{
-                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                    padding: '1rem', background: '#222', border: '1px solid currentColor', borderColor: 'rgba(255,255,255,0.1)',
-                                    borderRadius: '8px', cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#fff',
-                                    textAlign: 'left', transition: 'background 0.2s'
-                                }} onMouseEnter={e => e.currentTarget.style.background = '#2a2a2a'} onMouseLeave={e => e.currentTarget.style.background = '#222'}>
-                                    <div>
-                                        <div style={{ fontWeight: 600, fontSize: '1rem' }}>{r.name}</div>
-                                        <div style={{ color: '#aaa', fontSize: '0.8rem', marginTop: '4px' }}>{r.city}, {r.region}</div>
-                                    </div>
-                                    {isSubmitting ? <span style={{ color: '#888', fontSize: '0.85rem' }}>Assigning...</span> : <span style={{ color: '#3498db', fontWeight: 'bold' }}>Select</span>}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {otherRiders.length > 0 && (
-                        <>
-                            <h4 style={{ color: '#888', fontSize: '0.9rem', marginBottom: '0.8rem' }}>Other Active Riders</h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                {otherRiders.map(r => (
-                                    <button key={r.id} onClick={() => onConfirm(r.id)} disabled={isSubmitting} style={{
-                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                        padding: '0.8rem 1rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.05)',
-                                        borderRadius: '8px', cursor: isSubmitting ? 'not-allowed' : 'pointer', color: '#ccc',
-                                        textAlign: 'left', transition: 'background 0.2s'
-                                    }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                        <div>
-                                            <div style={{ fontWeight: 600 }}>{r.name}</div>
-                                            <div style={{ color: '#888', fontSize: '0.8rem' }}>{r.city}, {r.region}</div>
-                                        </div>
-                                        {!isSubmitting && <span style={{ color: '#666', fontSize: '0.85rem' }}>Select</span>}
-                                    </button>
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-}
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function AdminOrders() {
     useCurrency();
@@ -310,10 +217,6 @@ export default function AdminOrders() {
     const [filter, setFilter] = useState('All');
     const [deliveries, setDeliveries] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(null);
-    const [assignModal, setAssignModal] = useState(null);
-    const [isAssigning, setIsAssigning] = useState(false);
-    const [assignError, setAssignError] = useState('');
-    const [assignSuccess, setAssignSuccess] = useState('');
     const [toast, setToast] = useState('');
     const [customerOrders, setCustomerOrders] = useState([]);
     const [riders, setRiders] = useState([]);
@@ -479,25 +382,7 @@ export default function AdminOrders() {
         setConfirmDelete(null);
     };
 
-    const handleAssignRider = async (riderId) => {
-        if (!assignModal || !riderId) return;
-        setIsAssigning(true);
-        setAssignError('');
-        setAssignSuccess('');
-        try {
-            const axios = (await import('axios')).default;
-            const res = await axios.put(`/api/admin/orders/${assignModal.keyId}/assign-rider`, { rider_id: riderId });
-            // Update in-state with returned order (which has rider loaded)
-            setCustomerOrders(prev => prev.map(o => o.id === assignModal.keyId ? res.data : o));
-            setAssignSuccess('Rider assigned successfully!');
-            setTimeout(() => setAssignModal(null), 1200);
-        } catch (error) {
-            const msg = error?.response?.data?.message || 'Failed to assign rider. Please try again.';
-            setAssignError(msg);
-        } finally {
-            setIsAssigning(false);
-        }
-    };
+
 
     // Change 2: updated column spans to include Image, Brand, Category
     const colSpan = orderType === 'supplier' ? 11 : 10;
@@ -745,17 +630,14 @@ export default function AdminOrders() {
                                                         Archived
                                                     </span>
                                                 )}
-                                                {orderType === 'customer' && !o.rider_id && o.status !== 'Out for Delivery' && o.status !== 'Delivered' && o.status !== 'Assigned' && !o.isArchived && (
-                                                    <button onClick={() => setAssignModal(o)} style={{
-                                                        padding: '0.35rem 0.6rem', borderRadius: '4px', background: 'transparent', border: '1px solid #3498db',
-                                                        color: '#3498db', fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer'
-                                                    }}>
-                                                        Assign Rider
-                                                    </button>
+                                                {orderType === 'customer' && !o.rider_id && o.status === 'Pending' && !o.isArchived && (
+                                                    <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 'bold' }}>
+                                                        Pending Broadcast
+                                                    </div>
                                                 )}
                                                 {orderType === 'customer' && o.rider_id && !o.isArchived && (
-                                                    <div style={{ fontSize: '0.75rem', color: '#27ae60', fontWeight: 'bold' }}>
-                                                        {o.rider?.name || 'Rider Assigned'}
+                                                    <div style={{ fontSize: '0.75rem', color: '#3498db', fontWeight: 'bold' }}>
+                                                        {o.rider?.name ? `Accepted by ${o.rider.name}` : 'Accepted by Rider'}
                                                     </div>
                                                 )}
                                                 {orderType === 'customer' && o.status === 'Delivered' && o.proof_of_delivery && !o.isArchived && (
@@ -789,18 +671,6 @@ export default function AdminOrders() {
             )}
 
 
-            {/* Assign Rider modal */}
-            {assignModal && (
-                <AssignRiderModal
-                    order={assignModal}
-                    riders={riders}
-                    onCancel={() => { setAssignModal(null); setAssignError(''); setAssignSuccess(''); }}
-                    onConfirm={handleAssignRider}
-                    isSubmitting={isAssigning}
-                    errorMsg={assignError}
-                    successMsg={assignSuccess}
-                />
-            )}
         </AdminLayout>
     );
 }

@@ -28,13 +28,16 @@ class Order extends Model
         'order_note',
         'rider_id',
         'proof_of_delivery',
-        'expected_delivery_date'
+        'expected_delivery_date',
+        'latitude',
+        'longitude'
     ];
 
     protected $casts = [
         'unit_price' => 'float',
         'total_amount' => 'float',
         'quantity' => 'integer',
+        'rejected_by_riders' => 'array',
     ];
 
     public function user()
