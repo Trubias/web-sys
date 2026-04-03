@@ -73,6 +73,22 @@ class AuthController extends Controller
                 'region' => $request->region,
                 'city' => $request->city,
             ]);
+
+            // Rule 1: Auto-create a default DeliveryAddress from registration data
+            // so Checkout immediately has a pre-selected default address.
+            if ($request->address) {
+                \App\Models\DeliveryAddress::create([
+                    'user_id'    => $user->id,
+                    'full_name'  => $user->name,
+                    'phone'      => $user->phone ?? '',
+                    'address'    => $request->address,
+                    'city'       => $request->city ?? '',
+                    'region'     => $request->region ?? 'Luzon',
+                    'is_default' => true,
+                    'latitude'   => null,
+                    'longitude'  => null,
+                ]);
+            }
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;

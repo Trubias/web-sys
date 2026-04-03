@@ -8341,8 +8341,45 @@ var fmt = function fmt(price) {
     minimumFractionDigits: 0
   }).format(price);
 };
+var COLOR_CSS = {
+  black: '#111',
+  white: '#e5e5e5',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  'rose gold': '#B76E79',
+  blue: '#3B82F6',
+  navy: '#1E3A5F',
+  green: '#22C55E',
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  purple: '#A855F7',
+  pink: '#EC4899',
+  brown: '#92400E',
+  gray: '#6B7280',
+  grey: '#6B7280',
+  titanium: '#878681',
+  champagne: '#F7E7CE'
+};
+var getColorCSS = function getColorCSS(name) {
+  var _name$toLowerCase;
+  return COLOR_CSS[name === null || name === void 0 || (_name$toLowerCase = name.toLowerCase()) === null || _name$toLowerCase === void 0 ? void 0 : _name$toLowerCase.trim()] || '#888';
+};
+function parseColors(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try {
+    return JSON.parse(raw);
+  } catch (_unused) {
+    return [];
+  }
+}
+var isAutoNew = function isAutoNew(p) {
+  if (!(p !== null && p !== void 0 && p.created_at)) return false;
+  return Date.now() - new Date(p.created_at).getTime() < 7 * 24 * 60 * 60 * 1000;
+};
 function ProductCard(_ref) {
-  var _product$brand;
+  var _product$brand, _product$category;
   var product = _ref.product,
     onClick = _ref.onClick;
   var _useAuth = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_2__.useAuth)(),
@@ -8422,10 +8459,10 @@ function ProductCard(_ref) {
     style: {
       cursor: onClick ? 'pointer' : 'default'
     },
-    children: [product.is_new && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+    children: [isAutoNew(product) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
       className: "product-card__badge",
       children: "NEW"
-    }), !product.is_new && product.stock > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+    }), !isAutoNew(product) && product.stock > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
       className: "product-card__badge",
       style: {
         background: '#27ae60'
@@ -8461,6 +8498,62 @@ function ProductCard(_ref) {
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
         className: "product-card__name",
         children: product.name
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+        style: {
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '4px',
+          margin: '4px 0 2px'
+        },
+        children: [((_product$category = product.category) === null || _product$category === void 0 ? void 0 : _product$category.name) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+          style: {
+            fontSize: '0.7rem',
+            background: '#f3f4f6',
+            color: '#555',
+            borderRadius: 4,
+            padding: '1px 6px'
+          },
+          children: product.category.name
+        }), product.gender && product.gender !== 'All' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+          style: {
+            fontSize: '0.7rem',
+            background: '#f3f4f6',
+            color: '#555',
+            borderRadius: 4,
+            padding: '1px 6px'
+          },
+          children: product.gender
+        }), product.variant && product.variant !== 'All' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+          style: {
+            fontSize: '0.7rem',
+            background: '#f3f4f6',
+            color: '#555',
+            borderRadius: 4,
+            padding: '1px 6px'
+          },
+          children: product.variant
+        })]
+      }), parseColors(product.color_variants).length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+        style: {
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '4px',
+          margin: '5px 0 2px'
+        },
+        children: parseColors(product.color_variants).slice(0, 8).map(function (c, i) {
+          return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+            title: c,
+            style: {
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              background: getColorCSS(c),
+              border: '1.5px solid rgba(0,0,0,0.18)',
+              display: 'inline-block',
+              flexShrink: 0
+            }
+          }, i);
+        })
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
         className: "product-card__footer",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
@@ -8525,25 +8618,158 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
-function ProductModal(_ref) {
-  var _product$brand, _product$category;
-  var product = _ref.product,
-    onClose = _ref.onClose,
-    onAddToCart = _ref.onAddToCart;
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
+var COLOR_CSS = {
+  black: '#111',
+  white: '#e5e5e5',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  'rose gold': '#B76E79',
+  blue: '#3B82F6',
+  navy: '#1E3A5F',
+  green: '#22C55E',
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  purple: '#A855F7',
+  pink: '#EC4899',
+  brown: '#92400E',
+  gray: '#6B7280',
+  grey: '#6B7280',
+  titanium: '#878681',
+  champagne: '#F7E7CE'
+};
+var getColorCSS = function getColorCSS(n) {
+  var _n$toLowerCase;
+  return COLOR_CSS[n === null || n === void 0 || (_n$toLowerCase = n.toLowerCase()) === null || _n$toLowerCase === void 0 ? void 0 : _n$toLowerCase.trim()] || '#888';
+};
+function parseColors(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try {
+    return JSON.parse(raw);
+  } catch (_unused) {
+    return [];
+  }
+}
+var getImageUrl = function getImageUrl(img) {
+  return img ? img.startsWith('http') ? img : "/storage/".concat(img) : 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=400&auto=format&fit=crop';
+};
+
+// ─── component ────────────────────────────────────────────────────────────────
+// Accepts both prop-naming conventions:
+//   • user portal:   selectedProduct / closeModal / setToastMsg
+//   • public pages:  product         / onClose    / onAddToCart
+function ProductModal(props) {
+  var _ref, _props$selectedProduc, _ref2, _props$closeModal, _props$onAddToCart, _p$brand, _p$brand2, _p$category, _p$category2, _p$brand3, _p$category3;
+  // normalise prop names
+  var p = (_ref = (_props$selectedProduc = props.selectedProduct) !== null && _props$selectedProduc !== void 0 ? _props$selectedProduc : props.product) !== null && _ref !== void 0 ? _ref : null;
+  var closeModal = (_ref2 = (_props$closeModal = props.closeModal) !== null && _props$closeModal !== void 0 ? _props$closeModal : props.onClose) !== null && _ref2 !== void 0 ? _ref2 : function () {};
+  var onAddToCart = (_props$onAddToCart = props.onAddToCart) !== null && _props$onAddToCart !== void 0 ? _props$onAddToCart : null;
   var auth = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_2__.useAuth)() || {};
   var navigate = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_1__.useNavigate)();
   var location = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_1__.useLocation)();
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
     _useState2 = _slicedToArray(_useState, 2),
-    modalQty = _useState2[0],
-    setModalQty = _useState2[1];
-  if (!product) return null;
-  var getImageUrl = function getImageUrl(img) {
-    return img ? img.startsWith('http') ? img : "/storage/".concat(img) : 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=400&auto=format&fit=crop';
-  };
+    qty = _useState2[0],
+    setQty = _useState2[1];
+  if (!p) return null;
+  var colors = parseColors(p.color_variants);
+  var stockLabel = p.stock === 0 ? 'Out of Stock' : p.stock <= 5 ? "Low Stock (".concat(p.stock, " items left)") : "In Stock (".concat(p.stock, " items left)");
+  var stockBg = p.stock === 0 ? '#fee2e2' : p.stock <= 5 ? '#fef08a' : '#dcfce7';
+  var stockColor = p.stock === 0 ? '#b91c1c' : p.stock <= 5 ? '#854d0e' : '#166534';
+  var handleAddToCart = /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+      var _props$setToastMsg;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.n) {
+          case 0:
+            if (!(p.stock === 0)) {
+              _context.n = 1;
+              break;
+            }
+            return _context.a(2);
+          case 1:
+            if (auth.user) {
+              _context.n = 2;
+              break;
+            }
+            navigate("/login?redirect=".concat(encodeURIComponent(location.pathname)));
+            return _context.a(2);
+          case 2:
+            if (!onAddToCart) {
+              _context.n = 3;
+              break;
+            }
+            onAddToCart(p, qty);
+            _context.n = 5;
+            break;
+          case 3:
+            if (!auth.addToCart) {
+              _context.n = 5;
+              break;
+            }
+            _context.n = 4;
+            return auth.addToCart(p.id, qty);
+          case 4:
+            (_props$setToastMsg = props.setToastMsg) === null || _props$setToastMsg === void 0 || _props$setToastMsg.call(props, "Added ".concat(qty, " item(s) to Cart"));
+            setTimeout(function () {
+              var _props$setToastMsg2;
+              return (_props$setToastMsg2 = props.setToastMsg) === null || _props$setToastMsg2 === void 0 ? void 0 : _props$setToastMsg2.call(props, '');
+            }, 3000);
+          case 5:
+            closeModal();
+          case 6:
+            return _context.a(2);
+        }
+      }, _callee);
+    }));
+    return function handleAddToCart() {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+  var handleBuyNow = /*#__PURE__*/function () {
+    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.n) {
+          case 0:
+            if (!(p.stock === 0)) {
+              _context2.n = 1;
+              break;
+            }
+            return _context2.a(2);
+          case 1:
+            if (auth.user) {
+              _context2.n = 2;
+              break;
+            }
+            navigate("/login?redirect=".concat(encodeURIComponent(location.pathname)));
+            return _context2.a(2);
+          case 2:
+            closeModal();
+            navigate('/user/checkout', {
+              state: {
+                directPurchase: {
+                  product: p,
+                  quantity: qty
+                }
+              }
+            });
+          case 3:
+            return _context2.a(2);
+        }
+      }, _callee2);
+    }));
+    return function handleBuyNow() {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+
+  // ─── JSX ───────────────────────────────────────────────────────────────────
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
     className: "jk-modal-overlay",
-    onClick: onClose,
+    onClick: closeModal,
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
       className: "jk-modal-container",
       onClick: function onClick(e) {
@@ -8551,220 +8777,307 @@ function ProductModal(_ref) {
       },
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
         className: "jk-modal-drag-handle",
-        onClick: onClose
+        onClick: closeModal
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
         className: "jk-modal-close",
-        onClick: onClose,
+        onClick: closeModal,
+        "aria-label": "Close",
         children: "\xD7"
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
         className: "jk-modal-content",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
           className: "jk-modal-image-col",
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("img", {
-            src: getImageUrl(product.image),
-            alt: product.name,
+            src: getImageUrl(p.image),
+            alt: p.name,
             className: "jk-modal-image"
           })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           className: "jk-modal-info-col",
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
-              fontSize: '0.85rem',
-              color: '#666',
+              fontSize: '0.78rem',
+              color: '#888',
               textTransform: 'uppercase',
               letterSpacing: '1px',
-              fontWeight: 600,
+              fontWeight: 700,
               marginBottom: '0.5rem'
             },
-            children: [(_product$brand = product.brand) === null || _product$brand === void 0 ? void 0 : _product$brand.name, " \u2022 ", (_product$category = product.category) === null || _product$category === void 0 ? void 0 : _product$category.name]
+            children: [(_p$brand = p.brand) === null || _p$brand === void 0 ? void 0 : _p$brand.name, (_p$brand2 = p.brand) !== null && _p$brand2 !== void 0 && _p$brand2.name && (_p$category = p.category) !== null && _p$category !== void 0 && _p$category.name ? ' • ' : '', (_p$category2 = p.category) === null || _p$category2 === void 0 ? void 0 : _p$category2.name]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h2", {
             style: {
-              fontSize: '1.8rem',
+              fontSize: '1.7rem',
               fontFamily: '"Playfair Display", serif',
               fontWeight: 800,
-              marginBottom: '1rem',
+              margin: '0 0 0.75rem',
               color: '#111',
-              lineHeight: '1.2'
+              lineHeight: 1.2
             },
-            children: product.name
+            children: p.name
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
-              fontSize: '1.4rem',
+              fontSize: '1.5rem',
               fontWeight: 800,
               color: '#C9A84C',
-              marginBottom: '1.5rem'
+              marginBottom: '1rem'
             },
-            children: ["\u20B1", Number(product.price).toLocaleString('en-PH', {
+            children: ["\u20B1", Number(p.price).toLocaleString('en-PH', {
               minimumFractionDigits: 2
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
             style: {
-              marginBottom: '1.5rem'
+              marginBottom: '1.25rem'
             },
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
               style: {
-                padding: '0.3rem 0.6rem',
-                background: product.stock > 0 ? product.stock <= 5 ? '#fef08a' : '#dcfce7' : '#fee2e2',
-                color: product.stock > 0 ? product.stock <= 5 ? '#854d0e' : '#166534' : '#b91c1c',
+                display: 'inline-block',
+                padding: '0.3rem 0.7rem',
+                background: stockBg,
+                color: stockColor,
                 borderRadius: '4px',
-                fontSize: '0.8rem',
+                fontSize: '0.78rem',
                 fontWeight: 700
               },
-              children: product.stock === 0 ? 'Out of Stock' : product.stock <= 5 ? "Low Stock (".concat(product.stock, " items left)") : "In Stock (".concat(product.stock, " items left)")
+              children: stockLabel
             })
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '0.8rem',
-              marginBottom: '2rem'
-            },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-              style: {
-                fontSize: '0.75rem',
-                background: '#f3f4f6',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                color: '#374151',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              },
-              children: "\uD83D\uDD12 100% Secure Checkout"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-              style: {
-                fontSize: '0.75rem',
-                background: '#f3f4f6',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                color: '#374151',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              },
-              children: "\uD83D\uDE9A Cash on Delivery Available"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-              style: {
-                fontSize: '0.75rem',
-                background: '#f3f4f6',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                color: '#374151',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              },
-              children: "\uD83D\uDEE1\uFE0F Authorized Retailer"
-            })]
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-            style: {
-              marginBottom: '2rem'
+              background: '#f9f9f9',
+              border: '1px solid #eee',
+              borderRadius: '8px',
+              padding: '1rem 1.1rem',
+              marginBottom: '1.25rem'
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
               style: {
-                fontSize: '0.8rem',
-                color: '#666',
-                marginBottom: '0.5rem',
-                fontWeight: 600
+                fontSize: '0.68rem',
+                fontWeight: 700,
+                color: '#aaa',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '0.75rem'
               },
-              children: "Accepted Payments:"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+              children: "PRODUCT DETAILS"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
               style: {
-                display: 'flex',
-                gap: '1rem',
-                flexWrap: 'wrap'
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '0.6rem 1rem',
+                marginBottom: colors.length > 0 ? '0.75rem' : 0
               },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+              children: [{
+                label: 'Brand',
+                value: (_p$brand3 = p.brand) === null || _p$brand3 === void 0 ? void 0 : _p$brand3.name
+              }, {
+                label: 'Category',
+                value: (_p$category3 = p.category) === null || _p$category3 === void 0 ? void 0 : _p$category3.name
+              }, {
+                label: 'Gender',
+                value: p.gender || 'All'
+              }, {
+                label: 'Age Group',
+                value: p.variant || 'All'
+              }].map(function (_ref5) {
+                var label = _ref5.label,
+                  value = _ref5.value;
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+                    style: {
+                      fontSize: '0.68rem',
+                      color: '#bbb',
+                      fontWeight: 600,
+                      marginBottom: '2px'
+                    },
+                    children: label
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+                    style: {
+                      fontSize: '0.88rem',
+                      color: '#222',
+                      fontWeight: 700
+                    },
+                    children: value || '—'
+                  })]
+                }, label);
+              })
+            }), colors.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+              style: {
+                borderTop: '1px solid #eee',
+                paddingTop: '0.7rem'
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                 style: {
-                  fontWeight: 800,
-                  color: '#0052E0',
-                  fontSize: '0.9rem'
+                  fontSize: '0.68rem',
+                  color: '#bbb',
+                  fontWeight: 600,
+                  marginBottom: '0.5rem'
                 },
-                children: "GCash"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                children: "Color Variant"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                 style: {
-                  fontWeight: 800,
-                  color: '#62D9A2',
-                  fontSize: '0.9rem'
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '6px'
                 },
-                children: "Maya"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-                style: {
-                  fontWeight: 800,
-                  color: '#333',
-                  fontSize: '0.9rem'
-                },
-                children: "Bank Transfer"
+                children: colors.map(function (c, i) {
+                  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("span", {
+                    style: {
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      background: '#fff',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 20,
+                      padding: '3px 10px 3px 6px',
+                      fontSize: '0.8rem',
+                      color: '#333',
+                      fontWeight: 500
+                    },
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                      style: {
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        background: getColorCSS(c),
+                        border: '1.5px solid rgba(0,0,0,0.15)',
+                        display: 'inline-block',
+                        flexShrink: 0
+                      }
+                    }), c]
+                  }, i);
+                })
               })]
             })]
-          }), product.stock > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+            style: {
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.5rem',
+              marginBottom: '1.25rem'
+            },
+            children: [{
+              icon: '🔒',
+              label: '100% Secure Checkout'
+            }, {
+              icon: '🚚',
+              label: 'Cash on Delivery Available'
+            }, {
+              icon: '🛡️',
+              label: 'Authorized Retailer'
+            }].map(function (_ref6) {
+              var icon = _ref6.icon,
+                label = _ref6.label;
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("span", {
+                style: {
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '0.72rem',
+                  background: '#f3f4f6',
+                  padding: '4px 9px',
+                  borderRadius: '4px',
+                  color: '#374151',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap'
+                },
+                children: [icon, " ", label]
+              }, label);
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+            style: {
+              marginBottom: '1.5rem'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+              style: {
+                fontSize: '0.72rem',
+                color: '#aaa',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '0.5rem'
+              },
+              children: "Accepted Payments:"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+              style: {
+                display: 'flex',
+                gap: '0.75rem',
+                flexWrap: 'wrap',
+                alignItems: 'center'
+              },
+              children: [{
+                name: 'GCash',
+                color: '#0052E0'
+              }, {
+                name: 'Maya',
+                color: '#00A651'
+              }, {
+                name: 'Bank Transfer',
+                color: '#374151'
+              }, {
+                name: 'Cash on Delivery',
+                color: '#374151'
+              }].map(function (_ref7) {
+                var name = _ref7.name,
+                  color = _ref7.color;
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                  style: {
+                    fontWeight: 800,
+                    color: color,
+                    fontSize: '0.85rem',
+                    whiteSpace: 'nowrap'
+                  },
+                  children: name
+                }, name);
+              })
+            })]
+          }), p.stock > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             className: "jk-modal-actions",
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
               className: "jk-modal-stepper",
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+                className: "jk-stepper-btn",
                 onClick: function onClick() {
-                  return setModalQty(function (q) {
+                  return setQty(function (q) {
                     return Math.max(1, q - 1);
                   });
                 },
-                className: "jk-stepper-btn",
                 children: "\u2212"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
                 type: "text",
-                value: modalQty,
+                value: qty,
                 readOnly: true,
                 className: "jk-stepper-input"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+                className: "jk-stepper-btn",
                 onClick: function onClick() {
-                  return setModalQty(function (q) {
-                    return Math.min(product.stock, q + 1);
+                  return setQty(function (q) {
+                    return Math.min(p.stock, q + 1);
                   });
                 },
-                className: "jk-stepper-btn",
                 children: "+"
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
               className: "jk-modal-btn-group",
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
-                onClick: function onClick() {
-                  if (!auth.user) {
-                    navigate("/login?redirect=".concat(encodeURIComponent(location.pathname)));
-                    return;
-                  }
-                  if (onAddToCart) onAddToCart(product, modalQty);
-                },
                 className: "jk-btn-add",
-                children: "Add to Cart"
+                onClick: handleAddToCart,
+                children: "ADD TO CART"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
-                onClick: /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-                  return _regenerator().w(function (_context) {
-                    while (1) switch (_context.n) {
-                      case 0:
-                        if (auth.user) {
-                          _context.n = 1;
-                          break;
-                        }
-                        navigate("/login?redirect=".concat(encodeURIComponent(location.pathname)));
-                        return _context.a(2);
-                      case 1:
-                        if (!auth.addToCart) {
-                          _context.n = 3;
-                          break;
-                        }
-                        _context.n = 2;
-                        return auth.addToCart(product.id, modalQty);
-                      case 2:
-                        onClose();
-                        navigate('/user/cart');
-                      case 3:
-                        return _context.a(2);
-                    }
-                  }, _callee);
-                })),
                 className: "jk-btn-buy",
-                children: "Buy It Now"
+                onClick: handleBuyNow,
+                children: "BUY IT NOW"
               })]
             })]
+          }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+            style: {
+              padding: '1rem',
+              background: '#fee2e2',
+              borderRadius: '6px',
+              color: '#b91c1c',
+              fontWeight: 700,
+              textAlign: 'center',
+              fontSize: '0.9rem'
+            },
+            children: "This product is currently out of stock."
           })]
         })]
       })]
@@ -9661,14 +9974,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_currency__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/currency */ "./resources/js/components/utils/currency.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
-function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
-function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -9696,6 +10008,39 @@ var authHead = function authHead() {
   };
 };
 var IMG_BASE = '/storage/';
+var INV_COLOR_CSS = {
+  black: '#111',
+  white: '#e0e0e0',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  'rose gold': '#B76E79',
+  blue: '#3B82F6',
+  navy: '#1E3A5F',
+  green: '#22C55E',
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  purple: '#A855F7',
+  pink: '#EC4899',
+  brown: '#92400E',
+  gray: '#6B7280',
+  grey: '#6B7280',
+  titanium: '#878681',
+  champagne: '#F7E7CE'
+};
+var getInvColorCSS = function getInvColorCSS(name) {
+  var _name$toLowerCase;
+  return INV_COLOR_CSS[name === null || name === void 0 || (_name$toLowerCase = name.toLowerCase()) === null || _name$toLowerCase === void 0 ? void 0 : _name$toLowerCase.trim()] || '#888';
+};
+var parseInvColors = function parseInvColors(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try {
+    return JSON.parse(raw);
+  } catch (_unused) {
+    return [];
+  }
+};
 function stockStatus(stock) {
   if (stock === 0) return {
     bg: 'rgba(231,76,60,0.12)',
@@ -9826,448 +10171,56 @@ var S = {
   }
 };
 
-// ─── Edit Stock & Price Modal ────────────────────────────────────────────────
-function EditModal(_ref) {
-  var _product$brand, _product$category, _product$supplier, _product$brand$name, _product$brand2, _product$category$nam, _product$category2;
+// ─── Delete Modal ─────────────────────────────────────────────────────────────
+
+function DeleteModal(_ref) {
   var product = _ref.product,
     onClose = _ref.onClose,
-    onSaved = _ref.onSaved;
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(product.stock || 0),
+    onDeleted = _ref.onDeleted;
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState2 = _slicedToArray(_useState, 2),
-    newStock = _useState2[0],
-    setNewStock = _useState2[1];
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(product.price || 0),
-    _useState4 = _slicedToArray(_useState3, 2),
-    price = _useState4[0],
-    setPrice = _useState4[1];
-  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
-    _useState6 = _slicedToArray(_useState5, 2),
-    loading = _useState6[0],
-    setLoading = _useState6[1];
-  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
-    _useState8 = _slicedToArray(_useState7, 2),
-    error = _useState8[0],
-    setError = _useState8[1];
-
-  // Compute available stock in Product Management
-  var allReqs = _sharedStore__WEBPACK_IMPORTED_MODULE_3__.reqStore.getAll() || [];
-  var delivered = allReqs.filter(function (r) {
-    return (r === null || r === void 0 ? void 0 : r.status) === 'completed' && (r === null || r === void 0 ? void 0 : r._productSnapshot) && !(r !== null && r !== void 0 && r._placedInInventory) && !(r !== null && r !== void 0 && r._deletedFromMgmt);
-  });
-  var pKey = "".concat(product.name, "|").concat(((_product$brand = product.brand) === null || _product$brand === void 0 ? void 0 : _product$brand.name) || '', "|").concat(((_product$category = product.category) === null || _product$category === void 0 ? void 0 : _product$category.name) || '', "|").concat(((_product$supplier = product.supplier) === null || _product$supplier === void 0 ? void 0 : _product$supplier.name) || '');
-  var availableStock = 0;
-  var matchingReqs = [];
-  delivered.forEach(function (r) {
-    var _s$brand, _s$category, _s$supplier;
-    var s = r._productSnapshot;
-    var key = "".concat(s.name, "|").concat(((_s$brand = s.brand) === null || _s$brand === void 0 ? void 0 : _s$brand.name) || '', "|").concat(((_s$category = s.category) === null || _s$category === void 0 ? void 0 : _s$category.name) || '', "|").concat(((_s$supplier = s.supplier) === null || _s$supplier === void 0 ? void 0 : _s$supplier.name) || '');
-    if (key === pKey) {
-      availableStock += s.stock || 0;
-      matchingReqs.push(r);
-    }
-  });
-
-  // Live preview: projected available stock after the edit
-  var newStockNum = Number(newStock);
-  var diff = newStockNum - product.stock; // positive = taking from PM, negative = returning to PM
-  var projectedAvailable = availableStock - diff;
-  var notEnoughStock = diff > 0 && diff > availableStock;
-  var handleSave = /*#__PURE__*/function () {
+    loading = _useState2[0],
+    setLoading = _useState2[1];
+  var handleDelete = /*#__PURE__*/function () {
     var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-      var newStockNum, remainingToDeduct, _iterator, _step, _reqItem$_productSnap, reqItem, curStock, deductAmount, newCurStock, patch, _err$response, _t, _t2;
+      var all, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
-            setError('');
-            newStockNum = Number(newStock);
-            if (!(newStockNum < 0)) {
-              _context.n = 1;
-              break;
-            }
-            return _context.a(2, setError('Stock cannot be negative.'));
-          case 1:
-            if (!notEnoughStock) {
-              _context.n = 2;
-              break;
-            }
-            return _context.a(2, setError('Not enough stock in Product Management.'));
-          case 2:
             setLoading(true);
-            _context.p = 3;
-            _context.n = 4;
-            return axios__WEBPACK_IMPORTED_MODULE_2___default().put("/api/admin/products/".concat(product.id), {
-              stock: newStockNum,
-              price: Number(price)
-            }, authHead());
-          case 4:
-            if (!(diff < 0)) {
-              _context.n = 5;
-              break;
-            }
-            // Return stock to PM (Inventory stock decreased)
-            _sharedStore__WEBPACK_IMPORTED_MODULE_3__.reqStore.add({
-              id: 'RES-' + Date.now(),
-              _isRestoreRecord: true,
-              status: 'completed',
-              date: new Date().toISOString(),
-              _productSnapshot: _objectSpread(_objectSpread({}, product), {}, {
-                stock: Math.abs(diff)
-              })
-            });
-            _context.n = 14;
-            break;
-          case 5:
-            if (!(diff > 0)) {
-              _context.n = 14;
-              break;
-            }
-            // Deduct stock from PM (Inventory stock increased)
-            remainingToDeduct = diff;
-            _iterator = _createForOfIteratorHelper([].concat(matchingReqs).sort(function (a, b) {
-              return new Date(a.date) - new Date(b.date);
-            }));
-            _context.p = 6;
-            _iterator.s();
-          case 7:
-            if ((_step = _iterator.n()).done) {
-              _context.n = 11;
-              break;
-            }
-            reqItem = _step.value;
-            if (!(remainingToDeduct <= 0)) {
-              _context.n = 8;
-              break;
-            }
-            return _context.a(3, 11);
-          case 8:
-            curStock = ((_reqItem$_productSnap = reqItem._productSnapshot) === null || _reqItem$_productSnap === void 0 ? void 0 : _reqItem$_productSnap.stock) || 0;
-            if (!(curStock <= 0)) {
-              _context.n = 9;
-              break;
-            }
-            return _context.a(3, 10);
-          case 9:
-            deductAmount = Math.min(curStock, remainingToDeduct);
-            remainingToDeduct -= deductAmount;
-            newCurStock = curStock - deductAmount;
-            patch = {
-              _productSnapshot: _objectSpread(_objectSpread({}, reqItem._productSnapshot), {}, {
-                stock: newCurStock
-              })
-            };
-            if (newCurStock === 0) patch._placedInInventory = true;
-            _sharedStore__WEBPACK_IMPORTED_MODULE_3__.reqStore.update(reqItem.id, patch);
-          case 10:
-            _context.n = 7;
-            break;
-          case 11:
-            _context.n = 13;
-            break;
-          case 12:
-            _context.p = 12;
-            _t = _context.v;
-            _iterator.e(_t);
-          case 13:
-            _context.p = 13;
-            _iterator.f();
-            return _context.f(13);
-          case 14:
-            onSaved();
-            _context.n = 16;
-            break;
-          case 15:
-            _context.p = 15;
-            _t2 = _context.v;
-            console.error(_t2);
-            setError(((_err$response = _t2.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'Failed to update inventory.');
-          case 16:
-            _context.p = 16;
-            setLoading(false);
-            return _context.f(16);
-          case 17:
-            return _context.a(2);
-        }
-      }, _callee, null, [[6, 12, 13, 14], [3, 15, 16, 17]]);
-    }));
-    return function handleSave() {
-      return _ref2.apply(this, arguments);
-    };
-  }();
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-    style: S.overlay,
-    onClick: function onClick(e) {
-      return e.target === e.currentTarget && onClose();
-    },
-    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-      style: S.modal,
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-        style: S.mHeader,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
-          style: S.mTitle,
-          children: "Edit Product"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-          style: S.closeBtn,
-          onClick: onClose,
-          disabled: loading,
-          children: "\u2715"
-        })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-        style: {
-          padding: '1.5rem'
-        },
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          style: {
-            display: 'flex',
-            gap: '0.9rem',
-            alignItems: 'center',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 10,
-            padding: '0.9rem',
-            marginBottom: '1.25rem'
-          },
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-            style: {
-              width: 58,
-              height: 58,
-              borderRadius: 8,
-              background: '#111',
-              border: '1px solid rgba(255,255,255,0.1)',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            },
-            children: product.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
-              src: IMG_BASE + product.image,
-              alt: product.name,
-              style: {
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              },
-              onError: function onError(e) {
-                return e.target.style.display = 'none';
-              }
-            }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
-              width: "20",
-              height: "20",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "#555",
-              strokeWidth: "1.5",
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("rect", {
-                x: "3",
-                y: "3",
-                width: "18",
-                height: "18",
-                rx: "2"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("circle", {
-                cx: "9",
-                cy: "9",
-                r: "2"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                d: "M21 15l-5-5L5 21"
-              })]
-            })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-              style: {
-                fontWeight: 700,
-                color: '#fff',
-                fontSize: '0.95rem',
-                marginBottom: 3
-              },
-              children: product.name
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                color: '#888',
-                fontSize: '0.8rem'
-              },
-              children: [(_product$brand$name = (_product$brand2 = product.brand) === null || _product$brand2 === void 0 ? void 0 : _product$brand2.name) !== null && _product$brand$name !== void 0 ? _product$brand$name : '—', " \u2022 ", (_product$category$nam = (_product$category2 = product.category) === null || _product$category2 === void 0 ? void 0 : _product$category2.name) !== null && _product$category$nam !== void 0 ? _product$category$nam : '—']
-            })]
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          style: {
-            marginBottom: '1rem',
-            background: notEnoughStock ? 'rgba(231,76,60,0.08)' : 'rgba(255,255,255,0.05)',
-            padding: '0.75rem',
-            borderRadius: 8,
-            border: notEnoughStock ? '1px solid rgba(231,76,60,0.3)' : '1px solid transparent'
-          },
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-            style: {
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: notEnoughStock ? '0.4rem' : 0
-            },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-              style: {
-                color: '#aaa',
-                fontSize: '0.85rem'
-              },
-              children: "Available stock in Product Management:"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-              style: {
-                color: notEnoughStock ? '#e74c3c' : '#C9A84C',
-                fontWeight: 800
-              },
-              children: newStockNum === product.stock ? availableStock : projectedAvailable
-            })]
-          }), notEnoughStock && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-            style: {
-              color: '#e74c3c',
-              fontSize: '0.78rem',
-              fontWeight: 600
-            },
-            children: "Not enough stock in Product Management"
-          })]
-        }), error && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-          style: {
-            background: 'rgba(231,76,60,0.1)',
-            color: '#e74c3c',
-            padding: '0.75rem',
-            borderRadius: 8,
-            marginBottom: '1rem',
-            fontSize: '0.85rem',
-            fontWeight: 500,
-            border: '1px solid rgba(231,76,60,0.3)'
-          },
-          children: error
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          style: {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1rem',
-            marginBottom: '1rem'
-          },
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
-              style: S.label,
-              children: "Current Stock in Inventory"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
-              type: "text",
-              value: product.stock,
-              readOnly: true,
-              style: _objectSpread(_objectSpread({}, S.input), {}, {
-                background: '#222',
-                color: '#888',
-                cursor: 'not-allowed'
-              })
-            })]
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
-              style: S.label,
-              children: "New Stock Quantity"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
-              type: "number",
-              min: "0",
-              value: newStock,
-              onChange: function onChange(e) {
-                return setNewStock(e.target.value);
-              },
-              style: S.input
-            })]
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          style: {
-            marginBottom: '1.5rem'
-          },
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
-            style: S.label,
-            children: "New Unit Price"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
-            type: "number",
-            min: "0",
-            value: price,
-            onChange: function onChange(e) {
-              return setPrice(e.target.value);
-            },
-            style: S.input
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          style: S.mFooter,
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-            type: "button",
-            style: {
-              padding: '0.6rem 1.25rem',
-              borderRadius: 8,
-              background: '#e74c3c',
-              color: '#fff',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: 600
-            },
-            onClick: onClose,
-            disabled: loading,
-            children: "Cancel"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-            className: "admin-btn-gold",
-            onClick: handleSave,
-            disabled: loading,
-            children: loading ? 'Saving...' : 'Save Changes'
-          })]
-        })]
-      })]
-    })
-  });
-}
-
-// ─── Delete Modal ─────────────────────────────────────────────────────────────
-function DeleteModal(_ref3) {
-  var product = _ref3.product,
-    onClose = _ref3.onClose,
-    onDeleted = _ref3.onDeleted;
-  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
-    _useState0 = _slicedToArray(_useState9, 2),
-    loading = _useState0[0],
-    setLoading = _useState0[1];
-  var handleDelete = /*#__PURE__*/function () {
-    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
-      var _t3;
-      return _regenerator().w(function (_context2) {
-        while (1) switch (_context2.p = _context2.n) {
-          case 0:
-            setLoading(true);
-            _context2.p = 1;
-            _context2.n = 2;
+            _context.p = 1;
+            _context.n = 2;
             return axios__WEBPACK_IMPORTED_MODULE_2___default()["delete"]("/api/admin/products/".concat(product.id), authHead());
           case 2:
-            _sharedStore__WEBPACK_IMPORTED_MODULE_3__.reqStore.add({
-              id: 'RES-' + Date.now(),
-              _isRestoreRecord: true,
-              status: 'completed',
-              // Keep minimal request properties that might be needed
-              date: new Date().toISOString(),
-              _productSnapshot: {
-                name: product.name,
-                brand: product.brand,
-                brand_id: product.brand_id,
-                category: product.category,
-                category_id: product.category_id,
-                supplier: product.supplier,
-                supplier_id: product.supplier_id,
-                price: product.price,
-                stock: product.stock,
-                image: product.image
+            all = _sharedStore__WEBPACK_IMPORTED_MODULE_3__.reqStore.getAll() || [];
+            all.forEach(function (r) {
+              var _s$name, _product$name, _s$brand, _s$category;
+              if (!(r !== null && r !== void 0 && r._productSnapshot)) return;
+              var s = r._productSnapshot;
+              var nameMatch = ((_s$name = s.name) === null || _s$name === void 0 ? void 0 : _s$name.trim().toLowerCase()) === ((_product$name = product.name) === null || _product$name === void 0 ? void 0 : _product$name.trim().toLowerCase());
+              var brandMatch = String(s.brand_id || ((_s$brand = s.brand) === null || _s$brand === void 0 ? void 0 : _s$brand.id) || '') === String(product.brand_id || '');
+              var catMatch = String(s.category_id || ((_s$category = s.category) === null || _s$category === void 0 ? void 0 : _s$category.id) || '') === String(product.category_id || '');
+              if (nameMatch && brandMatch && catMatch) {
+                _sharedStore__WEBPACK_IMPORTED_MODULE_3__.reqStore.update(r.id, {
+                  _deletedFromMgmt: true
+                });
               }
             });
             onDeleted();
-            _context2.n = 4;
+            _context.n = 4;
             break;
           case 3:
-            _context2.p = 3;
-            _t3 = _context2.v;
-            console.error("Failed to delete and restore", _t3);
+            _context.p = 3;
+            _t = _context.v;
+            console.error('Failed to delete', _t);
             setLoading(false);
           case 4:
-            return _context2.a(2);
+            return _context.a(2);
         }
-      }, _callee2, null, [[1, 3]]);
+      }, _callee, null, [[1, 3]]);
     }));
     return function handleDelete() {
-      return _ref4.apply(this, arguments);
+      return _ref2.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
@@ -10285,7 +10238,7 @@ function DeleteModal(_ref3) {
           style: _objectSpread(_objectSpread({}, S.mTitle), {}, {
             color: '#e74c3c'
           }),
-          children: "Remove from Inventory"
+          children: "Delete Product Inventory"
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
           style: S.closeBtn,
           onClick: onClose,
@@ -10299,7 +10252,7 @@ function DeleteModal(_ref3) {
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("p", {
           style: {
             color: '#ccc',
-            marginBottom: '1rem',
+            marginBottom: '1.5rem',
             lineHeight: 1.5
           },
           children: ["Are you sure you want to remove ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
@@ -10308,17 +10261,6 @@ function DeleteModal(_ref3) {
             },
             children: product.name
           }), " from inventory?"]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("p", {
-          style: {
-            color: '#f59e0b',
-            fontSize: '0.88rem',
-            marginBottom: '1.5rem',
-            background: 'rgba(245,158,11,0.1)',
-            padding: '0.75rem',
-            borderRadius: 8,
-            border: '1px solid rgba(245,158,11,0.2)'
-          },
-          children: ["The stock (", product.stock, " units) will be returned to Product Management."]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
           style: S.mFooter,
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
@@ -10326,7 +10268,7 @@ function DeleteModal(_ref3) {
             style: {
               padding: '0.6rem 1.25rem',
               borderRadius: 8,
-              background: '#e74c3c',
+              background: '#444',
               color: '#fff',
               border: 'none',
               cursor: 'pointer',
@@ -10339,7 +10281,7 @@ function DeleteModal(_ref3) {
             className: "admin-btn-red",
             onClick: handleDelete,
             disabled: loading,
-            children: loading ? 'Removing...' : 'Yes, Remove & Restore'
+            children: loading ? 'Deleting...' : 'Yes, Delete'
           })]
         })]
       })]
@@ -10350,18 +10292,18 @@ function DeleteModal(_ref3) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 function AdminInventory() {
   (0,_utils_currency__WEBPACK_IMPORTED_MODULE_4__.useCurrency)();
-  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
-    _useState10 = _slicedToArray(_useState1, 2),
-    products = _useState10[0],
-    setProducts = _useState10[1];
-  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
-    _useState12 = _slicedToArray(_useState11, 2),
-    search = _useState12[0],
-    setSearch = _useState12[1];
-  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
-    _useState14 = _slicedToArray(_useState13, 2),
-    modal = _useState14[0],
-    setModal = _useState14[1]; // { type: 'edit' | 'delete', product }
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState4 = _slicedToArray(_useState3, 2),
+    products = _useState4[0],
+    setProducts = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState6 = _slicedToArray(_useState5, 2),
+    search = _useState6[0],
+    setSearch = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState8 = _slicedToArray(_useState7, 2),
+    modal = _useState8[0],
+    setModal = _useState8[1]; // { type: 'edit' | 'delete', product }
 
   var load = function load() {
     axios__WEBPACK_IMPORTED_MODULE_2___default().get('/api/admin/products', authHead()).then(function (r) {
@@ -10430,190 +10372,221 @@ function AdminInventory() {
             }
           })]
         })
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("table", {
-        className: "admin-table",
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("thead", {
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "#"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Image"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Product Name"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Brand"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Company"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Category"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Unit Price"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Stock"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Status"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Actions"
-            })]
-          })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tbody", {
-          children: [filtered.length === 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("tr", {
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-              colSpan: "10",
-              style: {
-                textAlign: 'center',
-                padding: '3rem',
-                color: '#666'
-              },
-              children: "No items in inventory. Add products from Product Management."
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+        style: {
+          overflowX: 'auto',
+          width: '100%'
+        },
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("table", {
+          className: "admin-table",
+          style: {
+            minWidth: 1100
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("thead", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "#"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Image"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Product Name"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Brand"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Company"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Category"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Unit Price"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Stock"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Gender"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Age Group"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Color Variant"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Status"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Actions"
+              })]
             })
-          }), filtered.map(function (p, i) {
-            var _p$brand$name2, _p$brand2, _p$supplier$name2, _p$supplier2, _p$category$name2, _p$category2;
-            var st = stockStatus(p.stock);
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                className: "admin-table__muted",
-                children: i + 1
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                children: p.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
-                  src: IMG_BASE + p.image,
-                  alt: p.name,
-                  style: S.thumb,
-                  onError: function onError(e) {
-                    return e.target.style.display = 'none';
-                  }
-                }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-                  style: S.noImg,
-                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
-                    width: "18",
-                    height: "18",
-                    viewBox: "0 0 24 24",
-                    fill: "none",
-                    stroke: "#555",
-                    strokeWidth: "1.5",
-                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("rect", {
-                      x: "3",
-                      y: "3",
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tbody", {
+            children: [filtered.length === 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("tr", {
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                colSpan: "13",
+                style: {
+                  textAlign: 'center',
+                  padding: '3rem',
+                  color: '#666'
+                },
+                children: "No items in inventory. Products will appear here automatically when added in Product Management."
+              })
+            }), filtered.map(function (p, i) {
+              var _p$brand$name2, _p$brand2, _p$supplier$name2, _p$supplier2, _p$category$name2, _p$category2;
+              var st = stockStatus(p.stock);
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: i + 1
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  children: p.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
+                    src: IMG_BASE + p.image,
+                    alt: p.name,
+                    style: S.thumb,
+                    onError: function onError(e) {
+                      return e.target.style.display = 'none';
+                    }
+                  }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: S.noImg,
+                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
                       width: "18",
                       height: "18",
-                      rx: "2"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("circle", {
-                      cx: "9",
-                      cy: "9",
-                      r: "2"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                      d: "M21 15l-5-5L5 21"
-                    })]
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "#555",
+                      strokeWidth: "1.5",
+                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("rect", {
+                        x: "3",
+                        y: "3",
+                        width: "18",
+                        height: "18",
+                        rx: "2"
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("circle", {
+                        cx: "9",
+                        cy: "9",
+                        r: "2"
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                        d: "M21 15l-5-5L5 21"
+                      })]
+                    })
                   })
-                })
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                style: {
-                  fontWeight: 600
-                },
-                children: p.name
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                className: "admin-table__muted",
-                children: (_p$brand$name2 = (_p$brand2 = p.brand) === null || _p$brand2 === void 0 ? void 0 : _p$brand2.name) !== null && _p$brand$name2 !== void 0 ? _p$brand$name2 : '—'
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                className: "admin-table__muted",
-                children: (_p$supplier$name2 = (_p$supplier2 = p.supplier) === null || _p$supplier2 === void 0 ? void 0 : _p$supplier2.name) !== null && _p$supplier$name2 !== void 0 ? _p$supplier$name2 : '—'
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                className: "admin-table__muted",
-                children: (_p$category$name2 = (_p$category2 = p.category) === null || _p$category2 === void 0 ? void 0 : _p$category2.name) !== null && _p$category$name2 !== void 0 ? _p$category$name2 : '—'
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                style: {
-                  color: '#C9A84C',
-                  fontWeight: 700
-                },
-                children: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_4__.formatCurrency)(p.price)
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                style: {
-                  fontWeight: 600,
-                  color: p.stock === 0 ? '#e74c3c' : 'inherit'
-                },
-                children: p.stock
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                  className: "admin-badge",
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
                   style: {
-                    background: st.bg,
-                    color: st.color,
-                    whiteSpace: 'nowrap'
+                    fontWeight: 600
                   },
-                  children: st.label
-                })
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  children: p.name
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: (_p$brand$name2 = (_p$brand2 = p.brand) === null || _p$brand2 === void 0 ? void 0 : _p$brand2.name) !== null && _p$brand$name2 !== void 0 ? _p$brand$name2 : '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: (_p$supplier$name2 = (_p$supplier2 = p.supplier) === null || _p$supplier2 === void 0 ? void 0 : _p$supplier2.name) !== null && _p$supplier$name2 !== void 0 ? _p$supplier$name2 : '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: (_p$category$name2 = (_p$category2 = p.category) === null || _p$category2 === void 0 ? void 0 : _p$category2.name) !== null && _p$category$name2 !== void 0 ? _p$category$name2 : '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
                   style: {
-                    display: 'flex',
-                    gap: '0.4rem'
+                    color: '#111',
+                    fontWeight: 700
                   },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-                    title: "Edit Item",
-                    className: "admin-icon-btn admin-icon-btn--success",
-                    onClick: function onClick() {
-                      return setModal({
-                        type: 'edit',
-                        product: p
-                      });
+                  children: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_4__.formatCurrency)(p.price)
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  style: {
+                    fontWeight: 600,
+                    color: p.stock === 0 ? '#e74c3c' : 'inherit'
+                  },
+                  children: p.stock
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: p.gender || 'All'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: p.variant || 'All'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 4
                     },
-                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
-                      width: "14",
-                      height: "14",
-                      viewBox: "0 0 24 24",
-                      fill: "none",
-                      stroke: "currentColor",
-                      strokeWidth: "2",
-                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("polyline", {
-                        points: "17 8 12 3 7 8"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("line", {
-                        x1: "12",
-                        y1: "3",
-                        x2: "12",
-                        y2: "15"
-                      })]
+                    children: parseInvColors(p.color_variants).length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                      style: {
+                        color: '#111',
+                        fontSize: '0.82rem'
+                      },
+                      children: "\u2014"
+                    }) : parseInvColors(p.color_variants).map(function (c, i) {
+                      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                        style: {
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 3,
+                          background: 'rgba(0,0,0,0.04)',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: 10,
+                          padding: '1px 7px',
+                          fontSize: '0.72rem',
+                          color: '#111',
+                          whiteSpace: 'nowrap'
+                        },
+                        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                          style: {
+                            width: 7,
+                            height: 7,
+                            borderRadius: '50%',
+                            background: getInvColorCSS(c),
+                            border: '1px solid rgba(0,0,0,0.18)',
+                            display: 'inline-block',
+                            flexShrink: 0
+                          }
+                        }), c]
+                      }, i);
                     })
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-                    title: "Remove",
-                    className: "admin-icon-btn admin-icon-btn--delete",
-                    onClick: function onClick() {
-                      return setModal({
-                        type: 'delete',
-                        product: p
-                      });
+                  })
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                    className: "admin-badge",
+                    style: {
+                      background: st.bg,
+                      color: st.color,
+                      whiteSpace: 'nowrap'
                     },
-                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
-                      width: "14",
-                      height: "14",
-                      viewBox: "0 0 24 24",
-                      fill: "none",
-                      stroke: "currentColor",
-                      strokeWidth: "2",
-                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("polyline", {
-                        points: "3 6 5 6 21 6"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M19 6l-1 14H6L5 6"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M10 11v6"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M14 11v6"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M9 6V4h6v2"
-                      })]
+                    children: st.label
+                  })
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      display: 'flex',
+                      gap: '0.4rem'
+                    },
+                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+                      title: "Remove",
+                      className: "admin-icon-btn admin-icon-btn--delete",
+                      onClick: function onClick() {
+                        return setModal({
+                          type: 'delete',
+                          product: p
+                        });
+                      },
+                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
+                        width: "14",
+                        height: "14",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("polyline", {
+                          points: "3 6 5 6 21 6"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                          d: "M19 6l-1 14H6L5 6"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                          d: "M10 11v6"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                          d: "M14 11v6"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                          d: "M9 6V4h6v2"
+                        })]
+                      })
                     })
-                  })]
-                })
-              })]
-            }, p.id);
+                  })
+                })]
+              }, p.id);
+            })]
           })]
-        })]
+        })
       })]
-    }), (modal === null || modal === void 0 ? void 0 : modal.type) === 'edit' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(EditModal, {
-      product: modal.product,
-      onClose: closeModal,
-      onSaved: saved
     }), (modal === null || modal === void 0 ? void 0 : modal.type) === 'delete' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(DeleteModal, {
       product: modal.product,
       onClose: closeModal,
@@ -12097,16 +12070,20 @@ function AdminOrders() {
   var allStatuses = ['All', 'Pending', 'Accepted', 'Preparing', 'Transporting', 'Delivered'];
   var customerStatusFilters = ['All', 'Completed', 'Pending', 'Processing', 'Out for Delivery'];
   var visibleCustomerOrders = customerOrders.map(function (o) {
-    var _o$user, _o$brand, _o$product, _o$product2, _o$user2;
+    var _o$product, _o$product2, _o$product3, _o$user, _o$brand, _o$product4, _o$product5, _o$user2;
     var mappedStatus = mapStatus(o.status);
+    // Pull gender/age-group/color_variants from the related product record
+    var pGender = ((_o$product = o.product) === null || _o$product === void 0 ? void 0 : _o$product.gender) || '—';
+    var pVariant = ((_o$product2 = o.product) === null || _o$product2 === void 0 ? void 0 : _o$product2.variant) || '—';
+    var pColors = ((_o$product3 = o.product) === null || _o$product3 === void 0 ? void 0 : _o$product3.color_variants) || [];
     return _objectSpread(_objectSpread({}, o), {}, {
       id: o.ref,
       keyId: o.id,
       customer: o.customer_name || ((_o$user = o.user) === null || _o$user === void 0 ? void 0 : _o$user.name) || 'Unknown',
-      // Change 2: expose brand/category/image for new columns
+      // brand / category / image
       brand: ((_o$brand = o.brand) === null || _o$brand === void 0 ? void 0 : _o$brand.name) || o.brand_name || '—',
-      category: ((_o$product = o.product) === null || _o$product === void 0 || (_o$product = _o$product.category) === null || _o$product === void 0 ? void 0 : _o$product.name) || '—',
-      rawImage: ((_o$product2 = o.product) === null || _o$product2 === void 0 ? void 0 : _o$product2.image) || null,
+      category: ((_o$product4 = o.product) === null || _o$product4 === void 0 || (_o$product4 = _o$product4.category) === null || _o$product4 === void 0 ? void 0 : _o$product4.name) || '—',
+      rawImage: ((_o$product5 = o.product) === null || _o$product5 === void 0 ? void 0 : _o$product5.image) || null,
       rawProduct: o.product_name || (o.product ? o.product.name : ''),
       model: o.product_name || (o.product ? o.product.name : ''),
       qty: o.quantity,
@@ -12118,7 +12095,11 @@ function AdminOrders() {
       date: fmtDate(o.created_at),
       status: mappedStatus,
       region: o.region || ((_o$user2 = o.user) === null || _o$user2 === void 0 ? void 0 : _o$user2.region) || '',
-      isArchived: o.admin_archived || o.isArchived
+      isArchived: o.admin_archived || o.isArchived,
+      // New product-attribute columns
+      gender: pGender,
+      ageGroup: pVariant,
+      colorVariants: Array.isArray(pColors) ? pColors : []
     });
   });
   var currentBaseData = orderType === 'customer' ? visibleCustomerOrders : mappedSupplierOrders.filter(function (o) {
@@ -12200,8 +12181,8 @@ function AdminOrders() {
     };
   }();
 
-  // Change 2: updated column spans to include Image, Brand, Category
-  var colSpan = orderType === 'supplier' ? 11 : 10;
+  // Column count: customer=13 cols, supplier=14 cols (extra Company/Orderer)
+  var colSpan = orderType === 'supplier' ? 14 : 13;
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_AdminLayout__WEBPACK_IMPORTED_MODULE_1__["default"], {
     children: [toast && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
       style: {
@@ -12403,13 +12384,14 @@ function AdminOrders() {
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
         style: {
           overflowX: 'auto',
-          width: '100%'
+          width: '100%',
+          WebkitOverflowScrolling: 'touch'
         },
         children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("table", {
           className: "admin-table",
           style: {
-            minWidth: 1200,
-            tableLayout: 'fixed'
+            minWidth: 1600,
+            tableLayout: 'auto'
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("colgroup", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
@@ -12430,7 +12412,7 @@ function AdminOrders() {
               }
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
               style: {
-                minWidth: 90
+                minWidth: 110
               }
             }), orderType === 'supplier' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
               style: {
@@ -12438,7 +12420,7 @@ function AdminOrders() {
               }
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
               style: {
-                minWidth: 150
+                minWidth: 160
               }
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
               style: {
@@ -12450,11 +12432,23 @@ function AdminOrders() {
               }
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
               style: {
-                minWidth: 110
+                minWidth: 80
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 80
               }
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
               style: {
                 minWidth: 140
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 110
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("col", {
+              style: {
+                minWidth: 150
               }
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("thead", {
@@ -12479,6 +12473,12 @@ function AdminOrders() {
                 children: "Date"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
                 children: "Amount"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Gender"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Age Group"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                children: "Color Variant"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
                 children: "Status"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
@@ -12608,6 +12608,32 @@ function AdminOrders() {
                     fontWeight: 700
                   },
                   children: o.amount
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  className: "admin-table__muted",
+                  style: {
+                    fontSize: '0.82rem'
+                  },
+                  children: orderType === 'customer' ? o.gender || '—' : '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  className: "admin-table__muted",
+                  style: {
+                    fontSize: '0.82rem'
+                  },
+                  children: orderType === 'customer' ? o.ageGroup || '—' : '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: orderType === 'customer' && Array.isArray(o.colorVariants) && o.colorVariants.length > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                    style: {
+                      fontSize: '0.82rem',
+                      color: '#111'
+                    },
+                    children: o.colorVariants.join(', ')
+                  }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                    style: {
+                      color: '#111',
+                      fontSize: '0.82rem'
+                    },
+                    children: "\u2014"
+                  })
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
                   children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
                     className: "admin-badge",
@@ -12878,6 +12904,39 @@ function stockStatus(stock) {
     label: 'Active'
   };
 }
+var ADMIN_COLOR_CSS = {
+  black: '#111',
+  white: '#e0e0e0',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  'rose gold': '#B76E79',
+  blue: '#3B82F6',
+  navy: '#1E3A5F',
+  green: '#22C55E',
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  purple: '#A855F7',
+  pink: '#EC4899',
+  brown: '#92400E',
+  gray: '#6B7280',
+  grey: '#6B7280',
+  titanium: '#878681',
+  champagne: '#F7E7CE'
+};
+var getAdminColorCSS = function getAdminColorCSS(name) {
+  var _name$toLowerCase;
+  return ADMIN_COLOR_CSS[name === null || name === void 0 || (_name$toLowerCase = name.toLowerCase()) === null || _name$toLowerCase === void 0 ? void 0 : _name$toLowerCase.trim()] || '#888';
+};
+var parseColorVariants = function parseColorVariants(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try {
+    return JSON.parse(raw);
+  } catch (_unused) {
+    return [];
+  }
+};
 var parseBrands = function parseBrands(b) {
   if (!b) return [];
   if (Array.isArray(b)) return b;
@@ -12908,7 +12967,7 @@ var S = {
     background: '#1a1a1a',
     borderRadius: 12,
     width: '100%',
-    maxWidth: 660,
+    maxWidth: 900,
     maxHeight: '90vh',
     overflowY: 'auto',
     border: '1px solid rgba(201,168,76,0.2)',
@@ -13044,15 +13103,15 @@ var S = {
     color: '#aaa'
   },
   miniThumb: {
-    width: 36,
-    height: 36,
+    width: 48,
+    height: 48,
     borderRadius: 6,
     objectFit: 'cover',
     border: '1px solid rgba(255,255,255,0.1)'
   },
   miniNoImg: {
-    width: 36,
-    height: 36,
+    width: 48,
+    height: 48,
     borderRadius: 6,
     background: '#222',
     display: 'flex',
@@ -13617,6 +13676,7 @@ function PlaceOrderModal(_ref) {
 
 // ─── Add Product Modal — Supplier-First Flow ───────────────────────────────────
 function AddProductModal(_ref2) {
+  var _selProduct$brand4, _selProduct$category4;
   var onClose = _ref2.onClose,
     onSaved = _ref2.onSaved;
   var fileRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
@@ -13660,7 +13720,7 @@ function AddProductModal(_ref2) {
   // Order form state (no payment_method here — moved to step 3)
   var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
       product_id: '',
-      quantity: 1,
+      quantity: 0,
       delivery_date: ''
     }),
     _useState24 = _slicedToArray(_useState23, 2),
@@ -13868,7 +13928,10 @@ function AddProductModal(_ref2) {
                   supplier_id: selCompany === null || selCompany === void 0 ? void 0 : selCompany.id,
                   price: Number(selProduct === null || selProduct === void 0 ? void 0 : selProduct.price),
                   stock: qty,
-                  image: selProduct === null || selProduct === void 0 ? void 0 : selProduct.image
+                  image: selProduct === null || selProduct === void 0 ? void 0 : selProduct.image,
+                  gender: (selProduct === null || selProduct === void 0 ? void 0 : selProduct.gender) || 'All',
+                  variant: (selProduct === null || selProduct === void 0 ? void 0 : selProduct.variant) || 'All',
+                  color_variants: (selProduct === null || selProduct === void 0 ? void 0 : selProduct.color_variants) || []
                 }
               };
               _sharedStore__WEBPACK_IMPORTED_MODULE_4__.reqStore.add(reqData);
@@ -14071,7 +14134,7 @@ function AddProductModal(_ref2) {
             style: S.miniTable,
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("thead", {
               children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("tr", {
-                children: ['Image', 'Product Name', 'Brand', 'Category', 'Unit Price', 'Stock'].map(function (h) {
+                children: ['Image', 'Product Name', 'Brand', 'Category', 'Unit Price', 'Stock', 'Gender', 'Age Group', 'Color Variant'].map(function (h) {
                   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
                     style: S.mTh,
                     children: h
@@ -14140,6 +14203,57 @@ function AddProductModal(_ref2) {
                   }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
                     style: S.mTd,
                     children: p.stock
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                    style: _objectSpread(_objectSpread({}, S.mTd), {}, {
+                      color: '#e5e5e5'
+                    }),
+                    children: p.gender || 'All'
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                    style: _objectSpread(_objectSpread({}, S.mTd), {}, {
+                      color: '#e5e5e5'
+                    }),
+                    children: p.variant || 'All'
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                    style: S.mTd,
+                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                      style: {
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 4
+                      },
+                      children: parseColorVariants(p.color_variants).length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                        style: {
+                          color: '#555'
+                        },
+                        children: "\u2014"
+                      }) : parseColorVariants(p.color_variants).map(function (c, i) {
+                        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                          style: {
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            background: 'rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: 12,
+                            padding: '2px 7px',
+                            fontSize: '0.72rem',
+                            color: '#ccc',
+                            whiteSpace: 'nowrap'
+                          },
+                          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                            style: {
+                              width: 8,
+                              height: 8,
+                              borderRadius: '50%',
+                              background: getAdminColorCSS(c),
+                              border: '1px solid rgba(255,255,255,0.2)',
+                              display: 'inline-block',
+                              flexShrink: 0
+                            }
+                          }), c]
+                        }, i);
+                      })
+                    })
                   })]
                 }, p.id);
               })
@@ -14194,65 +14308,162 @@ function AddProductModal(_ref2) {
             }), selProduct && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
               style: {
                 display: 'flex',
-                gap: '1rem',
-                alignItems: 'center',
-                background: '#111',
-                padding: '1rem',
-                borderRadius: 8,
-                marginBottom: '1rem',
-                border: '1px solid rgba(255,255,255,0.1)'
+                gap: '1.25rem',
+                alignItems: 'flex-start',
+                background: 'rgba(201,168,76,0.07)',
+                border: '1px solid rgba(201,168,76,0.25)',
+                padding: '1.25rem',
+                borderRadius: 10,
+                marginBottom: '1.25rem'
               },
               children: [selProduct.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
                 src: IMG_BASE + selProduct.image,
                 alt: selProduct.name,
                 style: {
-                  width: 64,
-                  height: 64,
+                  width: 110,
+                  height: 110,
                   objectFit: 'cover',
-                  borderRadius: 8,
+                  borderRadius: 10,
                   cursor: 'pointer',
-                  border: '1px solid rgba(255,255,255,0.2)'
+                  border: '2px solid rgba(201,168,76,0.35)',
+                  flexShrink: 0,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.4)'
                 },
                 onClick: function onClick() {
                   return setLightbox(IMG_BASE + selProduct.image);
                 }
               }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                 style: {
-                  width: 64,
-                  height: 64,
-                  borderRadius: 8,
+                  width: 110,
+                  height: 110,
+                  borderRadius: 10,
                   background: '#222',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  border: '2px dashed rgba(255,255,255,0.1)'
                 },
                 children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                   style: {
-                    fontSize: '0.7rem',
-                    color: '#666'
+                    fontSize: '0.75rem',
+                    color: '#555'
                   },
                   children: "No Image"
                 })
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                style: {
+                  flex: 1
+                },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                   style: {
-                    fontWeight: 600,
-                    color: '#fff'
+                    fontWeight: 800,
+                    color: '#fff',
+                    fontSize: '1.15rem',
+                    marginBottom: '0.35rem',
+                    lineHeight: 1.3
                   },
                   children: selProduct.name
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                   style: {
                     color: '#C9A84C',
-                    fontWeight: 700,
-                    fontSize: '0.95rem'
+                    fontWeight: 800,
+                    fontSize: '1.2rem',
+                    marginBottom: '0.4rem'
                   },
                   children: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_1__.formatCurrency)(selProduct.price)
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                   style: {
-                    color: '#888',
-                    fontSize: '0.8rem'
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '0.5rem',
+                    fontSize: '0.85rem'
                   },
-                  children: ["Stock available: ", selProduct.stock]
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                    style: {
+                      background: 'rgba(255,255,255,0.07)',
+                      borderRadius: 6,
+                      padding: '2px 10px',
+                      color: '#ccc'
+                    },
+                    children: ["\uD83D\uDCE6 Stock: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
+                      style: {
+                        color: '#fff'
+                      },
+                      children: selProduct.stock
+                    })]
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                    style: {
+                      background: 'rgba(255,255,255,0.07)',
+                      borderRadius: 6,
+                      padding: '2px 10px',
+                      color: '#ccc'
+                    },
+                    children: ["\uD83C\uDFF7\uFE0F ", ((_selProduct$brand4 = selProduct.brand) === null || _selProduct$brand4 === void 0 ? void 0 : _selProduct$brand4.name) || '—']
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                    style: {
+                      background: 'rgba(255,255,255,0.07)',
+                      borderRadius: 6,
+                      padding: '2px 10px',
+                      color: '#ccc'
+                    },
+                    children: ["\u2699\uFE0F ", ((_selProduct$category4 = selProduct.category) === null || _selProduct$category4 === void 0 ? void 0 : _selProduct$category4.name) || '—']
+                  }), selProduct.gender && selProduct.gender !== 'All' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                    style: {
+                      background: 'rgba(255,255,255,0.07)',
+                      borderRadius: 6,
+                      padding: '2px 10px',
+                      color: '#ccc'
+                    },
+                    children: ["\uD83D\uDC64 ", selProduct.gender]
+                  }), selProduct.variant && selProduct.variant !== 'All' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                    style: {
+                      background: 'rgba(255,255,255,0.07)',
+                      borderRadius: 6,
+                      padding: '2px 10px',
+                      color: '#ccc'
+                    },
+                    children: ["\uD83D\uDCD0 ", selProduct.variant]
+                  })]
+                }), parseColorVariants(selProduct.color_variants).length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  style: {
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 5,
+                    marginTop: '0.5rem',
+                    alignItems: 'center'
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                    style: {
+                      color: '#888',
+                      fontSize: '0.78rem'
+                    },
+                    children: "Colors:"
+                  }), parseColorVariants(selProduct.color_variants).map(function (c, i) {
+                    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                      style: {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        background: 'rgba(255,255,255,0.07)',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: 12,
+                        padding: '2px 8px',
+                        fontSize: '0.78rem',
+                        color: '#ddd'
+                      },
+                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                        style: {
+                          width: 9,
+                          height: 9,
+                          borderRadius: '50%',
+                          background: getAdminColorCSS(c),
+                          border: '1px solid rgba(255,255,255,0.25)',
+                          display: 'inline-block'
+                        }
+                      }), c]
+                    }, i);
+                  })]
                 })]
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -14262,7 +14473,7 @@ function AddProductModal(_ref2) {
                 children: "Quantity *"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
                 type: "number",
-                min: "1",
+                min: "0",
                 value: form.quantity,
                 onChange: function onChange(e) {
                   return setForm(function (f) {
@@ -14271,7 +14482,8 @@ function AddProductModal(_ref2) {
                     });
                   });
                 },
-                style: S.input
+                style: S.input,
+                placeholder: "Enter quantity to order"
               })]
             }), selProduct && form.quantity > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
               style: {
@@ -14362,7 +14574,7 @@ function AddProductModal(_ref2) {
 
 // ─── Payment Modal (Step 3 of Add Product) ────────────────────────────────────
 function PaymentModal(_ref7) {
-  var _selProduct$brand4, _selProduct$category4;
+  var _selProduct$brand5, _selProduct$category5;
   var selProduct = _ref7.selProduct,
     quantity = _ref7.quantity,
     selCompany = _ref7.selCompany,
@@ -14448,7 +14660,7 @@ function PaymentModal(_ref7) {
     },
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
       style: _objectSpread(_objectSpread({}, S.modal), {}, {
-        maxWidth: 480
+        maxWidth: 620
       }),
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
         style: _objectSpread(_objectSpread({}, S.mHeader), {}, {
@@ -14482,146 +14694,165 @@ function PaymentModal(_ref7) {
           style: {
             background: '#111',
             borderRadius: 10,
-            padding: '1.25rem',
+            padding: '1.5rem',
             marginBottom: '1.5rem',
             border: '1px solid rgba(255,255,255,0.08)'
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("p", {
             style: {
-              color: '#aaa',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              letterSpacing: '0.06em',
+              color: '#C9A84C',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              letterSpacing: '0.09em',
               textTransform: 'uppercase',
-              marginBottom: '1rem'
+              marginBottom: '1.1rem',
+              borderBottom: '1px solid rgba(201,168,76,0.15)',
+              paddingBottom: '0.6rem'
             },
-            children: "Order Summary"
+            children: "\uD83D\uDCCB Order Summary"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
             style: {
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.6rem'
+              gap: '0.75rem'
             },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                display: 'flex',
-                justifyContent: 'space-between'
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+            children: [[{
+              label: 'Product',
+              value: selProduct === null || selProduct === void 0 ? void 0 : selProduct.name,
+              valueStyle: {
+                color: '#fff',
+                fontWeight: 700
+              }
+            }, {
+              label: 'Brand',
+              value: (selProduct === null || selProduct === void 0 || (_selProduct$brand5 = selProduct.brand) === null || _selProduct$brand5 === void 0 ? void 0 : _selProduct$brand5.name) || '—',
+              valueStyle: {
+                color: '#ddd',
+                fontWeight: 600
+              }
+            }, {
+              label: 'Category',
+              value: (selProduct === null || selProduct === void 0 || (_selProduct$category5 = selProduct.category) === null || _selProduct$category5 === void 0 ? void 0 : _selProduct$category5.name) || '—',
+              valueStyle: {
+                color: '#ddd',
+                fontWeight: 600
+              }
+            }, {
+              label: 'Company',
+              value: selCompany === null || selCompany === void 0 ? void 0 : selCompany.name,
+              valueStyle: {
+                color: '#fff',
+                fontWeight: 700
+              }
+            }, {
+              label: 'Unit Price',
+              value: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_1__.formatCurrency)(selProduct === null || selProduct === void 0 ? void 0 : selProduct.price),
+              valueStyle: {
+                color: '#C9A84C',
+                fontWeight: 800,
+                fontSize: '1rem'
+              }
+            }, {
+              label: 'Quantity',
+              value: "".concat(quantity, " unit").concat(quantity !== 1 ? 's' : ''),
+              valueStyle: {
+                color: '#fff',
+                fontWeight: 700
+              }
+            }, {
+              label: 'Gender',
+              value: (selProduct === null || selProduct === void 0 ? void 0 : selProduct.gender) || 'All',
+              valueStyle: {
+                color: '#ddd',
+                fontWeight: 600
+              }
+            }, {
+              label: 'Age Group',
+              value: (selProduct === null || selProduct === void 0 ? void 0 : selProduct.variant) || 'All',
+              valueStyle: {
+                color: '#ddd',
+                fontWeight: 600
+              }
+            }].map(function (_ref9) {
+              var label = _ref9.label,
+                value = _ref9.value,
+                valueStyle = _ref9.valueStyle;
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                 style: {
-                  color: '#888',
-                  fontSize: '0.875rem'
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.1rem 0'
                 },
-                children: "Product"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#fff',
-                  fontWeight: 600,
-                  fontSize: '0.875rem'
-                },
-                children: selProduct === null || selProduct === void 0 ? void 0 : selProduct.name
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                display: 'flex',
-                justifyContent: 'space-between'
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#888',
-                  fontSize: '0.875rem'
-                },
-                children: "Brand"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#aaa',
-                  fontWeight: 600,
-                  fontSize: '0.875rem'
-                },
-                children: (selProduct === null || selProduct === void 0 || (_selProduct$brand4 = selProduct.brand) === null || _selProduct$brand4 === void 0 ? void 0 : _selProduct$brand4.name) || '—'
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                display: 'flex',
-                justifyContent: 'space-between'
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#888',
-                  fontSize: '0.875rem'
-                },
-                children: "Category"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#aaa',
-                  fontWeight: 600,
-                  fontSize: '0.875rem'
-                },
-                children: (selProduct === null || selProduct === void 0 || (_selProduct$category4 = selProduct.category) === null || _selProduct$category4 === void 0 ? void 0 : _selProduct$category4.name) || '—'
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                display: 'flex',
-                justifyContent: 'space-between'
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#888',
-                  fontSize: '0.875rem'
-                },
-                children: "Company"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#fff',
-                  fontWeight: 600,
-                  fontSize: '0.875rem'
-                },
-                children: selCompany === null || selCompany === void 0 ? void 0 : selCompany.name
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                  style: {
+                    color: '#888',
+                    fontSize: '0.9rem',
+                    minWidth: 110
+                  },
+                  children: label
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                  style: _objectSpread({
+                    fontSize: '0.9rem',
+                    textAlign: 'right'
+                  }, valueStyle),
+                  children: value
+                })]
+              }, label);
+            }), parseColorVariants(selProduct === null || selProduct === void 0 ? void 0 : selProduct.color_variants).length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
               style: {
                 display: 'flex',
                 justifyContent: 'space-between',
-                marginTop: '0.2rem'
+                alignItems: 'flex-start',
+                padding: '0.1rem 0'
               },
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                 style: {
                   color: '#888',
-                  fontSize: '0.875rem'
+                  fontSize: '0.9rem',
+                  minWidth: 110,
+                  paddingTop: 4
                 },
-                children: "Unit Price"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                children: "Color Variant"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                 style: {
-                  color: '#C9A84C',
-                  fontWeight: 700,
-                  fontSize: '0.875rem'
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 5,
+                  justifyContent: 'flex-end',
+                  maxWidth: '65%'
                 },
-                children: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_1__.formatCurrency)(selProduct === null || selProduct === void 0 ? void 0 : selProduct.price)
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                display: 'flex',
-                justifyContent: 'space-between'
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#888',
-                  fontSize: '0.875rem'
-                },
-                children: "Quantity"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                style: {
-                  color: '#fff',
-                  fontWeight: 600,
-                  fontSize: '0.875rem'
-                },
-                children: quantity
+                children: parseColorVariants(selProduct.color_variants).map(function (c, i) {
+                  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                    style: {
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      background: 'rgba(255,255,255,0.07)',
+                      border: '1px solid rgba(255,255,255,0.13)',
+                      borderRadius: 12,
+                      padding: '2px 9px',
+                      fontSize: '0.8rem',
+                      color: '#ddd'
+                    },
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                      style: {
+                        width: 9,
+                        height: 9,
+                        borderRadius: '50%',
+                        background: getAdminColorCSS(c),
+                        border: '1px solid rgba(255,255,255,0.25)',
+                        display: 'inline-block'
+                      }
+                    }), c]
+                  }, i);
+                })
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
               style: {
                 borderTop: '1px solid rgba(255,255,255,0.1)',
                 marginTop: '0.5rem',
-                paddingTop: '0.75rem',
+                paddingTop: '1rem',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
@@ -14629,15 +14860,16 @@ function PaymentModal(_ref7) {
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                 style: {
                   color: '#fff',
-                  fontWeight: 700,
-                  fontSize: '1rem'
+                  fontWeight: 800,
+                  fontSize: '1.05rem'
                 },
                 children: "Total Amount"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
                 style: {
                   color: '#C9A84C',
                   fontWeight: 900,
-                  fontSize: '1.35rem'
+                  fontSize: '1.6rem',
+                  letterSpacing: '-0.02em'
                 },
                 children: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_1__.formatCurrency)(total)
               })]
@@ -14646,8 +14878,12 @@ function PaymentModal(_ref7) {
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
           style: S.field,
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
-            style: S.label,
-            children: "Payment Method *"
+            style: _objectSpread(_objectSpread({}, S.label), {}, {
+              fontSize: '0.85rem',
+              color: '#C9A84C',
+              marginBottom: '0.6rem'
+            }),
+            children: "\uD83D\uDCB3 Payment Method *"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("select", {
             value: paymentMethod,
             onChange: function onChange(e) {
@@ -14657,22 +14893,27 @@ function PaymentModal(_ref7) {
               setBankName('');
               setBankAccount('');
             },
-            style: S.input,
+            style: _objectSpread(_objectSpread({}, S.input), {}, {
+              fontSize: '0.95rem',
+              padding: '0.85rem 1rem',
+              border: '1px solid rgba(201,168,76,0.3)',
+              background: '#0d0d0d'
+            }),
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
               value: "",
               children: "\u2014 Select Payment Method \u2014"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
               value: "Cash",
-              children: "Cash"
+              children: "\uD83D\uDCB5 Cash"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
               value: "GCash",
-              children: "GCash"
+              children: "\uD83D\uDCF1 GCash"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
               value: "Maya",
-              children: "Maya"
+              children: "\uD83D\uDCF2 Maya"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("option", {
               value: "Bank Transfer",
-              children: "Bank Transfer"
+              children: "\uD83C\uDFE6 Bank Transfer"
             })]
           })]
         }), paymentMethod === 'Cash' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -14774,20 +15015,30 @@ function PaymentModal(_ref7) {
           children: error
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
           style: _objectSpread(_objectSpread({}, S.mFooter), {}, {
-            marginTop: '1.5rem'
+            marginTop: '1.75rem',
+            gap: '1rem'
           }),
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-            style: S.cancelBtn,
+            style: _objectSpread(_objectSpread({}, S.cancelBtn), {}, {
+              background: '#444',
+              fontSize: '0.95rem',
+              padding: '0.7rem 1.6rem'
+            }),
             onClick: onClose,
             children: "Cancel"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
             style: _objectSpread(_objectSpread({}, S.saveBtn), {}, {
-              opacity: isValid() ? 1 : 0.45,
-              cursor: isValid() ? 'pointer' : 'not-allowed'
+              opacity: isValid() ? 1 : 0.4,
+              cursor: isValid() ? 'pointer' : 'not-allowed',
+              fontSize: '1rem',
+              padding: '0.85rem 2.5rem',
+              background: isValid() ? 'linear-gradient(135deg,#C9A84C,#a8873d)' : '#555',
+              boxShadow: isValid() ? '0 4px 16px rgba(201,168,76,0.35)' : 'none',
+              letterSpacing: '0.02em'
             }),
             onClick: handlePlaceOrder,
             disabled: !isValid() || loading,
-            children: loading ? 'Placing Order…' : '🚚 Place Order'
+            children: loading ? '⏳ Placing Order…' : '🚚 Place Order'
           })]
         })]
       })]
@@ -14796,10 +15047,10 @@ function PaymentModal(_ref7) {
 }
 
 // ─── Edit Stock Modal ─────────────────────────────────────────────────────────
-function EditStockModal(_ref9) {
-  var product = _ref9.product,
-    onClose = _ref9.onClose,
-    onSaved = _ref9.onSaved;
+function EditStockModal(_ref0) {
+  var product = _ref0.product,
+    onClose = _ref0.onClose,
+    onSaved = _ref0.onSaved;
   var _useState37 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(product.stock),
     _useState38 = _slicedToArray(_useState37, 2),
     stock = _useState38[0],
@@ -14813,7 +15064,7 @@ function EditStockModal(_ref9) {
     error = _useState42[0],
     setError = _useState42[1];
   var handleSave = /*#__PURE__*/function () {
-    var _ref0 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+    var _ref1 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
       var _t3;
       return _regenerator().w(function (_context4) {
         while (1) switch (_context4.p = _context4.n) {
@@ -14839,7 +15090,7 @@ function EditStockModal(_ref9) {
       }, _callee4, null, [[1, 3]]);
     }));
     return function handleSave() {
-      return _ref0.apply(this, arguments);
+      return _ref1.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
@@ -14912,21 +15163,65 @@ function EditStockModal(_ref9) {
 }
 
 // ─── Delete Modal (Product Management — admin side only, no supplier impact) ──
-function DeleteModal(_ref1) {
-  var product = _ref1.product,
-    onClose = _ref1.onClose,
-    onDeleted = _ref1.onDeleted;
-  var handleDelete = function handleDelete() {
-    // Mark the underlying reqStore entries as deleted
-    if (product.reqIds) {
-      product.reqIds.forEach(function (id) {
-        return _sharedStore__WEBPACK_IMPORTED_MODULE_4__.reqStore.update(id, {
-          _deletedFromMgmt: true
-        });
-      });
-    }
-    onDeleted();
-  };
+function DeleteModal(_ref10) {
+  var product = _ref10.product,
+    onClose = _ref10.onClose,
+    onDeleted = _ref10.onDeleted;
+  var _useState43 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState44 = _slicedToArray(_useState43, 2),
+    loading = _useState44[0],
+    setLoading = _useState44[1];
+  var handleDelete = /*#__PURE__*/function () {
+    var _ref11 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
+      var _product$brand, _product$category, _yield$axios$get, existing, brandId, catId, match, _t4;
+      return _regenerator().w(function (_context5) {
+        while (1) switch (_context5.p = _context5.n) {
+          case 0:
+            setLoading(true);
+            if (product.reqIds) {
+              product.reqIds.forEach(function (id) {
+                return _sharedStore__WEBPACK_IMPORTED_MODULE_4__.reqStore.update(id, {
+                  _deletedFromMgmt: true
+                });
+              });
+            }
+            _context5.p = 1;
+            _context5.n = 2;
+            return axios__WEBPACK_IMPORTED_MODULE_3___default().get('/api/admin/products', authHead());
+          case 2:
+            _yield$axios$get = _context5.v;
+            existing = _yield$axios$get.data;
+            brandId = String(((_product$brand = product.brand) === null || _product$brand === void 0 ? void 0 : _product$brand.id) || product.reqBrandId || '');
+            catId = String(((_product$category = product.category) === null || _product$category === void 0 ? void 0 : _product$category.id) || product.reqCategoryId || '');
+            match = existing.find(function (e) {
+              return e.name.trim().toLowerCase() === product.name.trim().toLowerCase() && String(e.brand_id) === brandId && String(e.category_id) === catId;
+            });
+            if (!match) {
+              _context5.n = 4;
+              break;
+            }
+            _context5.n = 3;
+            return axios__WEBPACK_IMPORTED_MODULE_3___default()["delete"]("/api/admin/products/".concat(match.id), authHead());
+          case 3:
+            window.dispatchEvent(new Event('jk_inventory_update'));
+          case 4:
+            _context5.n = 6;
+            break;
+          case 5:
+            _context5.p = 5;
+            _t4 = _context5.v;
+            console.error('Failed to remove from inventory:', _t4);
+          case 6:
+            onDeleted();
+          case 7:
+            return _context5.a(2);
+        }
+      }, _callee5, null, [[1, 5]]);
+    }));
+    return function handleDelete() {
+      return _ref11.apply(this, arguments);
+    };
+  }();
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
     style: S.overlay,
     onClick: function onClick(e) {
@@ -14946,6 +15241,7 @@ function DeleteModal(_ref1) {
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
           style: S.closeBtn,
           onClick: onClose,
+          disabled: loading,
           children: "\u2715"
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -14971,7 +15267,7 @@ function DeleteModal(_ref1) {
             style: {
               padding: '0.6rem 1.4rem',
               borderRadius: 8,
-              background: '#e74c3c',
+              background: '#444',
               color: '#fff',
               border: 'none',
               cursor: 'pointer',
@@ -14979,11 +15275,13 @@ function DeleteModal(_ref1) {
               fontSize: '0.9rem'
             },
             onClick: onClose,
+            disabled: loading,
             children: "Cancel"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
             className: "admin-btn-red",
             onClick: handleDelete,
-            children: "Yes, Delete"
+            disabled: loading,
+            children: loading ? 'Deleting…' : 'Yes, Delete'
           })]
         })]
       })]
@@ -14991,459 +15289,186 @@ function DeleteModal(_ref1) {
   });
 }
 
-// ─── Place In Inventory Modal ────────────────────────────────────────────────
-function PlaceInInventoryModal(_ref10) {
-  var _product$brand2, _product$category2, _product$supplier2;
-  var product = _ref10.product,
-    onClose = _ref10.onClose,
-    onSaved = _ref10.onSaved;
-  var _useState43 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(product.stock),
-    _useState44 = _slicedToArray(_useState43, 2),
-    qty = _useState44[0],
-    setQty = _useState44[1];
-  var _useState45 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
-    _useState46 = _slicedToArray(_useState45, 2),
-    loading = _useState46[0],
-    setLoading = _useState46[1];
-  var _useState47 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
-    _useState48 = _slicedToArray(_useState47, 2),
-    error = _useState48[0],
-    setError = _useState48[1];
-  var handleConfirm = /*#__PURE__*/function () {
-    var _ref11 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
-      var moveQty, _product$brand, _product$category, _product$supplier, remaining, allReqs, _iterator2, _step2, _loop, _ret, payload, res, inventoryProducts, existing, newDbStock, _t4, _t5;
-      return _regenerator().w(function (_context6) {
-        while (1) switch (_context6.p = _context6.n) {
-          case 0:
-            moveQty = Number(qty);
-            if (!(moveQty <= 0 || moveQty > product.stock)) {
-              _context6.n = 1;
-              break;
-            }
-            return _context6.a(2, setError('Invalid quantity. Cannot exceed available stock.'));
-          case 1:
-            setLoading(true);
-            _context6.p = 2;
-            // Deduct sequentially from origin requests
-            remaining = moveQty;
-            allReqs = _sharedStore__WEBPACK_IMPORTED_MODULE_4__.reqStore.getAll();
-            _iterator2 = _createForOfIteratorHelper(product.reqIds);
-            _context6.p = 3;
-            _loop = /*#__PURE__*/_regenerator().m(function _loop() {
-              var reqId, reqItem, curStock, deduct, newStock, patch;
-              return _regenerator().w(function (_context5) {
-                while (1) switch (_context5.n) {
-                  case 0:
-                    reqId = _step2.value;
-                    if (!(remaining <= 0)) {
-                      _context5.n = 1;
-                      break;
-                    }
-                    return _context5.a(2, 0);
-                  case 1:
-                    reqItem = allReqs.find(function (r) {
-                      return r.id === reqId;
-                    });
-                    if (!(!reqItem || !reqItem._productSnapshot || reqItem._placedInInventory || reqItem._deletedFromMgmt)) {
-                      _context5.n = 2;
-                      break;
-                    }
-                    return _context5.a(2, 1);
-                  case 2:
-                    curStock = reqItem._productSnapshot.stock || 0;
-                    if (!(curStock <= 0)) {
-                      _context5.n = 3;
-                      break;
-                    }
-                    return _context5.a(2, 1);
-                  case 3:
-                    deduct = Math.min(curStock, remaining);
-                    remaining -= deduct;
-                    newStock = curStock - deduct;
-                    patch = {
-                      _productSnapshot: _objectSpread(_objectSpread({}, reqItem._productSnapshot), {}, {
-                        stock: newStock
-                      })
-                    };
-                    if (newStock === 0) patch._placedInInventory = true;
-                    _sharedStore__WEBPACK_IMPORTED_MODULE_4__.reqStore.update(reqId, patch);
-                  case 4:
-                    return _context5.a(2);
-                }
-              }, _loop);
-            });
-            _iterator2.s();
-          case 4:
-            if ((_step2 = _iterator2.n()).done) {
-              _context6.n = 8;
-              break;
-            }
-            return _context6.d(_regeneratorValues(_loop()), 5);
-          case 5:
-            _ret = _context6.v;
-            if (!(_ret === 0)) {
-              _context6.n = 6;
-              break;
-            }
-            return _context6.a(3, 8);
-          case 6:
-            if (!(_ret === 1)) {
-              _context6.n = 7;
-              break;
-            }
-            return _context6.a(3, 7);
-          case 7:
-            _context6.n = 4;
-            break;
-          case 8:
-            _context6.n = 10;
-            break;
-          case 9:
-            _context6.p = 9;
-            _t4 = _context6.v;
-            _iterator2.e(_t4);
-          case 10:
-            _context6.p = 10;
-            _iterator2.f();
-            return _context6.f(10);
-          case 11:
-            // Post to backend API
-            payload = {
-              name: product.name,
-              brand_id: ((_product$brand = product.brand) === null || _product$brand === void 0 ? void 0 : _product$brand.id) || product.reqBrandId,
-              category_id: ((_product$category = product.category) === null || _product$category === void 0 ? void 0 : _product$category.id) || product.reqCategoryId,
-              supplier_id: ((_product$supplier = product.supplier) === null || _product$supplier === void 0 ? void 0 : _product$supplier.id) || product.reqSupplierId,
-              price: product.price,
-              stock: moveQty,
-              existing_image: product.image
-            }; // Fallbacks in case ID wasn't preserved perfectly
-            if (!payload.brand_id) payload.brand_id = 1;
-            if (!payload.category_id) payload.category_id = 1;
-
-            // Check if product strongly matches an existing inventory item
-            _context6.n = 12;
-            return axios__WEBPACK_IMPORTED_MODULE_3___default().get('/api/admin/products', authHead());
-          case 12:
-            res = _context6.v;
-            inventoryProducts = res.data || [];
-            existing = inventoryProducts.find(function (p) {
-              return p.name.trim().toLowerCase() === payload.name.trim().toLowerCase() && String(p.brand_id) === String(payload.brand_id) && String(p.category_id) === String(payload.category_id);
-            });
-            if (!existing) {
-              _context6.n = 14;
-              break;
-            }
-            // ADD quantity to existing product row instead of duplicating
-            newDbStock = Number(existing.stock || 0) + Number(payload.stock);
-            _context6.n = 13;
-            return axios__WEBPACK_IMPORTED_MODULE_3___default().put("/api/admin/products/".concat(existing.id), {
-              stock: newDbStock,
-              price: payload.price
-            }, authHead());
-          case 13:
-            _context6.n = 15;
-            break;
-          case 14:
-            _context6.n = 15;
-            return axios__WEBPACK_IMPORTED_MODULE_3___default().post('/api/admin/products', payload, authHead());
-          case 15:
-            onSaved();
-            _context6.n = 17;
-            break;
-          case 16:
-            _context6.p = 16;
-            _t5 = _context6.v;
-            setError(_t5.message || 'Failed to place in inventory');
-            setLoading(false);
-          case 17:
-            return _context6.a(2);
-        }
-      }, _callee5, null, [[3, 9, 10, 11], [2, 16]]);
-    }));
-    return function handleConfirm() {
-      return _ref11.apply(this, arguments);
-    };
-  }();
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-    style: S.overlay,
-    onClick: function onClick(e) {
-      return e.target === e.currentTarget && onClose();
-    },
-    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-      style: _objectSpread(_objectSpread({}, S.modal), {}, {
-        maxWidth: 480
-      }),
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-        style: S.mHeader,
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
-          style: _objectSpread(_objectSpread({}, S.mTitle), {}, {
-            color: '#27ae60'
-          }),
-          children: "Place in Inventory"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-          style: S.closeBtn,
-          onClick: onClose,
-          children: "\u2715"
-        })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-        style: {
-          padding: '1.5rem'
-        },
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          style: {
-            display: 'flex',
-            gap: '1rem',
-            alignItems: 'center',
-            background: 'rgba(39,174,96,0.07)',
-            border: '1px solid rgba(39,174,96,0.2)',
-            borderRadius: 10,
-            padding: '1rem',
-            marginBottom: '1.25rem'
-          },
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-            style: {
-              width: 70,
-              height: 70,
-              borderRadius: 8,
-              background: '#111',
-              border: '1px solid rgba(255,255,255,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-              flexShrink: 0
-            },
-            children: product.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
-              src: IMG_BASE + product.image,
-              alt: product.name,
-              style: {
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              },
-              onError: function onError(e) {
-                return e.target.style.display = 'none';
-              }
-            }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
-              width: "22",
-              height: "22",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "#555",
-              strokeWidth: "1.5",
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("rect", {
-                x: "3",
-                y: "3",
-                width: "18",
-                height: "18",
-                rx: "2"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("circle", {
-                cx: "9",
-                cy: "9",
-                r: "2"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                d: "M21 15l-5-5L5 21"
-              })]
-            })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-            style: {
-              flex: 1,
-              minWidth: 0
-            },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-              style: {
-                fontWeight: 800,
-                color: '#fff',
-                fontSize: '1rem',
-                marginBottom: 3,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              },
-              children: product.name
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                fontSize: '0.8rem',
-                color: '#aaa',
-                marginBottom: 4
-              },
-              children: [((_product$brand2 = product.brand) === null || _product$brand2 === void 0 ? void 0 : _product$brand2.name) || '—', " \u2022 ", ((_product$category2 = product.category) === null || _product$category2 === void 0 ? void 0 : _product$category2.name) || '—']
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                fontSize: '0.8rem',
-                color: '#888'
-              },
-              children: ["\uD83C\uDFE2 ", ((_product$supplier2 = product.supplier) === null || _product$supplier2 === void 0 ? void 0 : _product$supplier2.name) || '—']
-            })]
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-          style: {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gap: '0.6rem',
-            marginBottom: '1.25rem'
-          },
-          children: [{
-            label: 'Unit Price',
-            value: "\u20B1".concat(Number(product.price || 0).toLocaleString()),
-            color: '#C9A84C'
-          }, {
-            label: 'Available Stock',
-            value: "".concat(product.stock, " units"),
-            color: '#27ae60'
-          }, {
-            label: 'Status',
-            value: product.status || 'Active',
-            color: '#aaa'
-          }].map(function (f) {
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-              style: {
-                background: 'rgba(255,255,255,0.04)',
-                borderRadius: 8,
-                padding: '0.6rem 0.8rem',
-                border: '1px solid rgba(255,255,255,0.06)'
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-                style: {
-                  fontSize: '0.68rem',
-                  color: '#666',
-                  fontWeight: 600,
-                  marginBottom: 2,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em'
-                },
-                children: f.label
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-                style: {
-                  fontWeight: 800,
-                  color: f.color,
-                  fontSize: '0.88rem'
-                },
-                children: f.value
-              })]
-            }, f.label);
-          })
-        }), error && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-          style: S.errBox,
-          children: error
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          style: S.field,
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("label", {
-            style: S.label,
-            children: "Quantity to place in Inventory *"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
-            type: "number",
-            min: "1",
-            max: product.stock,
-            value: qty,
-            onChange: function onChange(e) {
-              return setQty(e.target.value);
-            },
-            style: S.input
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-            style: {
-              fontSize: '0.75rem',
-              color: '#666',
-              marginTop: 4
-            },
-            children: ["Max: ", product.stock, " units available"]
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-          style: S.mFooter,
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-            type: "button",
-            style: {
-              padding: '0.6rem 1.4rem',
-              borderRadius: 8,
-              background: '#e74c3c',
-              color: '#fff',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: '0.9rem'
-            },
-            onClick: onClose,
-            disabled: loading,
-            children: "Cancel"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-            className: "admin-btn-gold",
-            style: {
-              background: '#27ae60'
-            },
-            onClick: handleConfirm,
-            disabled: loading,
-            children: loading ? 'Processing...' : 'Confirm'
-          })]
-        })]
-      })]
-    })
-  });
+// ─── (Place In Inventory Modal removed — placement is now automatic) ─────────
+// ─── Main Page placeholder to keep section marker ────────────────────────────
+function _removed_PlaceInInventoryModal() {
+  return null;
 }
+/* eslint-disable-next-line no-unused-vars */
+var _pim = _removed_PlaceInInventoryModal;
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 function AdminProducts() {
   (0,_utils_currency__WEBPACK_IMPORTED_MODULE_1__.useCurrency)();
-  var _useState49 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+  var _useState45 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState46 = _slicedToArray(_useState45, 2),
+    products = _useState46[0],
+    setProducts = _useState46[1];
+  var _useState47 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState48 = _slicedToArray(_useState47, 2),
+    search = _useState48[0],
+    setSearch = _useState48[1];
+  var _useState49 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
     _useState50 = _slicedToArray(_useState49, 2),
-    products = _useState50[0],
-    setProducts = _useState50[1];
-  var _useState51 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
-    _useState52 = _slicedToArray(_useState51, 2),
-    search = _useState52[0],
-    setSearch = _useState52[1];
-  var _useState53 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
-    _useState54 = _slicedToArray(_useState53, 2),
-    modal = _useState54[0],
-    setModal = _useState54[1];
-
-  // Group reqStore entries that reached 'completed' status, aggregating duplicate stock
+    modal = _useState50[0],
+    setModal = _useState50[1];
   var load = function load() {
-    try {
-      var all = _sharedStore__WEBPACK_IMPORTED_MODULE_4__.reqStore.getAll() || [];
-      var delivered = all.filter(function (r) {
-        return (r === null || r === void 0 ? void 0 : r.status) === 'completed' && (r === null || r === void 0 ? void 0 : r._productSnapshot) && !(r !== null && r !== void 0 && r._placedInInventory) && !(r !== null && r !== void 0 && r._deletedFromMgmt);
-      });
-      var grouped = {};
-      delivered.forEach(function (r) {
-        var _s$brand, _s$category, _s$supplier;
-        var s = r._productSnapshot;
-        // Group by identifying details
-        var key = "".concat(s.name, "|").concat(((_s$brand = s.brand) === null || _s$brand === void 0 ? void 0 : _s$brand.name) || '', "|").concat(((_s$category = s.category) === null || _s$category === void 0 ? void 0 : _s$category.name) || '', "|").concat(((_s$supplier = s.supplier) === null || _s$supplier === void 0 ? void 0 : _s$supplier.name) || '');
-        if (!grouped[key]) {
-          grouped[key] = {
-            id: 'PM-' + r.id,
-            reqIds: [],
-            // Track all origin REQs
-            name: s.name,
-            brand: s.brand,
-            category: s.category,
-            supplier: s.supplier,
-            price: s.price,
-            stock: 0,
-            image: s.image,
-            reqBrandId: s.brand_id,
-            reqCategoryId: s.category_id,
-            reqSupplierId: s.supplier_id
-          };
-        }
-        grouped[key].stock += s.stock || 0;
-        grouped[key].reqIds.push(r.id);
-      });
-      // Keep all products including those with 0 stock (show as No Stock, not deleted)
-      setProducts(Object.values(grouped));
-    } catch (error) {
-      console.error('Failed to load products from store:', error);
-      setProducts([]);
-    }
+    axios__WEBPACK_IMPORTED_MODULE_3___default().get('/api/admin/products', authHead()).then(function (r) {
+      return setProducts(Array.isArray(r.data) ? r.data : []);
+    })["catch"](function (err) {
+      return console.error('Failed to load products:', err);
+    });
   };
+  var autoSync = /*#__PURE__*/function () {
+    var _ref12 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
+      var token, all, newlyCompleted, grouped, _yield$axios$get2, existing, anyChange, _loop, _i, _Object$values, _t5;
+      return _regenerator().w(function (_context7) {
+        while (1) switch (_context7.p = _context7.n) {
+          case 0:
+            token = getToken();
+            if (token) {
+              _context7.n = 1;
+              break;
+            }
+            return _context7.a(2);
+          case 1:
+            all = _sharedStore__WEBPACK_IMPORTED_MODULE_4__.reqStore.getAll() || []; // ── Only process NEWLY completed supplier deliveries that haven't been
+            //    placed into the products table yet. This prevents the bug where
+            //    visiting Product Management resets stock back to the supplier total,
+            //    undoing customer-order deductions made by the rider delivery flow.
+            newlyCompleted = all.filter(function (r) {
+              return (r === null || r === void 0 ? void 0 : r.status) === 'completed' && (r === null || r === void 0 ? void 0 : r._productSnapshot) && !(r !== null && r !== void 0 && r._deletedFromMgmt) && !(r !== null && r !== void 0 && r._placedInInventory);
+            });
+            if (newlyCompleted.length) {
+              _context7.n = 2;
+              break;
+            }
+            return _context7.a(2);
+          case 2:
+            // Nothing new to sync — leave DB untouched
+            grouped = {};
+            newlyCompleted.forEach(function (r) {
+              var _s$brand, _s$category, _s$supplier;
+              var s = r._productSnapshot;
+              var key = "".concat(s.name, "|").concat(((_s$brand = s.brand) === null || _s$brand === void 0 ? void 0 : _s$brand.name) || '', "|").concat(((_s$category = s.category) === null || _s$category === void 0 ? void 0 : _s$category.name) || '', "|").concat(((_s$supplier = s.supplier) === null || _s$supplier === void 0 ? void 0 : _s$supplier.name) || '');
+              if (!grouped[key]) {
+                var _s$brand2, _s$category2, _s$supplier2;
+                var rawImg = s.image && s.image.startsWith('/storage/') ? s.image.replace(/^\/storage\//, '') : s.image || null;
+                grouped[key] = {
+                  newReqIds: [],
+                  name: s.name,
+                  brand_id: s.brand_id || ((_s$brand2 = s.brand) === null || _s$brand2 === void 0 ? void 0 : _s$brand2.id),
+                  category_id: s.category_id || ((_s$category2 = s.category) === null || _s$category2 === void 0 ? void 0 : _s$category2.id),
+                  supplier_id: s.supplier_id || ((_s$supplier2 = s.supplier) === null || _s$supplier2 === void 0 ? void 0 : _s$supplier2.id),
+                  price: s.price,
+                  addStock: 0,
+                  existing_image: rawImg,
+                  gender: s.gender || 'All',
+                  variant: s.variant || 'All',
+                  color_variants: s.color_variants || []
+                };
+              }
+              // Accumulate only the NEW delivery quantity — never the historical total
+              grouped[key].addStock += s.stock || 0;
+              grouped[key].newReqIds.push(r.id);
+            });
+            _context7.p = 3;
+            _context7.n = 4;
+            return axios__WEBPACK_IMPORTED_MODULE_3___default().get('/api/admin/products', authHead());
+          case 4:
+            _yield$axios$get2 = _context7.v;
+            existing = _yield$axios$get2.data;
+            anyChange = false;
+            _loop = /*#__PURE__*/_regenerator().m(function _loop() {
+              var p, match, updatedStock;
+              return _regenerator().w(function (_context6) {
+                while (1) switch (_context6.n) {
+                  case 0:
+                    p = _Object$values[_i];
+                    if (!p.brand_id) p.brand_id = 1;
+                    if (!p.category_id) p.category_id = 1;
+                    match = existing.find(function (e) {
+                      return e.name.trim().toLowerCase() === p.name.trim().toLowerCase() && String(e.brand_id) === String(p.brand_id) && String(e.category_id) === String(p.category_id);
+                    });
+                    if (!match) {
+                      _context6.n = 2;
+                      break;
+                    }
+                    // ADD new supplier stock on top of the current DB stock
+                    // (do NOT replace — the current stock already reflects customer deductions)
+                    updatedStock = Number(match.stock) + p.addStock;
+                    _context6.n = 1;
+                    return axios__WEBPACK_IMPORTED_MODULE_3___default().put("/api/admin/products/".concat(match.id), {
+                      stock: updatedStock,
+                      price: p.price
+                    }, authHead());
+                  case 1:
+                    anyChange = true;
+                    _context6.n = 4;
+                    break;
+                  case 2:
+                    _context6.n = 3;
+                    return axios__WEBPACK_IMPORTED_MODULE_3___default().post('/api/admin/products', _objectSpread(_objectSpread({}, p), {}, {
+                      stock: p.addStock
+                    }), authHead());
+                  case 3:
+                    anyChange = true;
+                  case 4:
+                    // Mark these supplier orders as placed so they're never synced again
+                    p.newReqIds.forEach(function (id) {
+                      return _sharedStore__WEBPACK_IMPORTED_MODULE_4__.reqStore.update(id, {
+                        _placedInInventory: true
+                      });
+                    });
+                  case 5:
+                    return _context6.a(2);
+                }
+              }, _loop);
+            });
+            _i = 0, _Object$values = Object.values(grouped);
+          case 5:
+            if (!(_i < _Object$values.length)) {
+              _context7.n = 7;
+              break;
+            }
+            return _context7.d(_regeneratorValues(_loop()), 6);
+          case 6:
+            _i++;
+            _context7.n = 5;
+            break;
+          case 7:
+            if (anyChange) window.dispatchEvent(new Event('jk_inventory_update'));
+            _context7.n = 9;
+            break;
+          case 8:
+            _context7.p = 8;
+            _t5 = _context7.v;
+            console.error('Auto-sync to inventory failed:', _t5);
+          case 9:
+            return _context7.a(2);
+        }
+      }, _callee6, null, [[3, 8]]);
+    }));
+    return function autoSync() {
+      return _ref12.apply(this, arguments);
+    };
+  }();
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     load();
-    var sync = function sync() {
+    autoSync().then(function () {
       return load();
+    });
+    window.addEventListener('jk_inventory_update', load);
+    var sync = function sync() {
+      load();
+      autoSync().then(function () {
+        return load();
+      });
     };
     window.addEventListener('jk_req_update', sync);
     window.addEventListener('storage', sync);
     return function () {
+      window.removeEventListener('jk_inventory_update', load);
       window.removeEventListener('jk_req_update', sync);
       window.removeEventListener('storage', sync);
     };
@@ -15505,196 +15530,224 @@ function AdminProducts() {
             }
           })]
         })
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("table", {
-        className: "admin-table",
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("thead", {
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "#"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Image"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Product Name"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Brand"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Company"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Category"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Unit Price"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Stock"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Status"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
-              children: "Actions"
-            })]
-          })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tbody", {
-          children: [filteredProducts.length === 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("tr", {
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-              colSpan: "10",
-              style: {
-                textAlign: 'center',
-                padding: '2rem',
-                color: '#666'
-              },
-              children: "No products found."
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+        style: {
+          overflowX: 'auto',
+          width: '100%',
+          WebkitOverflowScrolling: 'touch'
+        },
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("table", {
+          className: "admin-table",
+          style: {
+            minWidth: 1700,
+            tableLayout: 'auto'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("thead", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "#"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Image"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Product Name"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Brand"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Company"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Category"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Unit Price"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Stock"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Gender"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Age Group"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Color Variant"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Status"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+                children: "Actions"
+              })]
             })
-          }), filteredProducts.map(function (p, i) {
-            var _p$brand$name3, _p$brand3, _p$supplier$name2, _p$supplier2, _p$category$name3, _p$category3;
-            var st = stockStatus(p.stock);
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                className: "admin-table__muted",
-                children: i + 1
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                children: p.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
-                  src: IMG_BASE + p.image,
-                  alt: p.name,
-                  style: S.thumb,
-                  onError: function onError(e) {
-                    return e.target.style.display = 'none';
-                  }
-                }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
-                  style: S.noImg,
-                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
-                    width: "18",
-                    height: "18",
-                    viewBox: "0 0 24 24",
-                    fill: "none",
-                    stroke: "#555",
-                    strokeWidth: "1.5",
-                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("rect", {
-                      x: "3",
-                      y: "3",
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tbody", {
+            children: [filteredProducts.length === 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("tr", {
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                colSpan: "13",
+                style: {
+                  textAlign: 'center',
+                  padding: '2rem',
+                  color: '#666'
+                },
+                children: "No products found."
+              })
+            }), filteredProducts.map(function (p, i) {
+              var _p$brand$name3, _p$brand3, _p$supplier$name2, _p$supplier2, _p$category$name3, _p$category3;
+              var st = stockStatus(p.stock);
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: i + 1
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  children: p.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
+                    src: IMG_BASE + p.image,
+                    alt: p.name,
+                    style: S.thumb,
+                    onError: function onError(e) {
+                      return e.target.style.display = 'none';
+                    }
+                  }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: S.noImg,
+                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
                       width: "18",
                       height: "18",
-                      rx: "2"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("circle", {
-                      cx: "9",
-                      cy: "9",
-                      r: "2"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                      d: "M21 15l-5-5L5 21"
-                    })]
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "#555",
+                      strokeWidth: "1.5",
+                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("rect", {
+                        x: "3",
+                        y: "3",
+                        width: "18",
+                        height: "18",
+                        rx: "2"
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("circle", {
+                        cx: "9",
+                        cy: "9",
+                        r: "2"
+                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                        d: "M21 15l-5-5L5 21"
+                      })]
+                    })
                   })
-                })
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                style: {
-                  fontWeight: 600
-                },
-                children: p.name
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                className: "admin-table__muted",
-                children: (_p$brand$name3 = (_p$brand3 = p.brand) === null || _p$brand3 === void 0 ? void 0 : _p$brand3.name) !== null && _p$brand$name3 !== void 0 ? _p$brand$name3 : '—'
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                className: "admin-table__muted",
-                children: (_p$supplier$name2 = (_p$supplier2 = p.supplier) === null || _p$supplier2 === void 0 ? void 0 : _p$supplier2.name) !== null && _p$supplier$name2 !== void 0 ? _p$supplier$name2 : '—'
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                className: "admin-table__muted",
-                children: (_p$category$name3 = (_p$category3 = p.category) === null || _p$category3 === void 0 ? void 0 : _p$category3.name) !== null && _p$category$name3 !== void 0 ? _p$category$name3 : '—'
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                style: {
-                  color: '#C9A84C',
-                  fontWeight: 700
-                },
-                children: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_1__.formatCurrency)(p.price)
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                style: {
-                  fontWeight: 600,
-                  color: p.stock === 0 ? '#e74c3c' : 'inherit'
-                },
-                children: p.stock
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
-                  className: "admin-badge",
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
                   style: {
-                    background: st.bg,
-                    color: st.color,
-                    whiteSpace: 'nowrap'
+                    fontWeight: 600
                   },
-                  children: st.label
-                })
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+                  children: p.name
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: (_p$brand$name3 = (_p$brand3 = p.brand) === null || _p$brand3 === void 0 ? void 0 : _p$brand3.name) !== null && _p$brand$name3 !== void 0 ? _p$brand$name3 : '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: (_p$supplier$name2 = (_p$supplier2 = p.supplier) === null || _p$supplier2 === void 0 ? void 0 : _p$supplier2.name) !== null && _p$supplier$name2 !== void 0 ? _p$supplier$name2 : '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: (_p$category$name3 = (_p$category3 = p.category) === null || _p$category3 === void 0 ? void 0 : _p$category3.name) !== null && _p$category$name3 !== void 0 ? _p$category$name3 : '—'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
                   style: {
-                    display: 'flex',
-                    gap: '0.4rem'
+                    color: '#111',
+                    fontWeight: 700
                   },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-                    title: "Place in Inventory",
-                    className: "admin-icon-btn admin-icon-btn--success",
-                    onClick: function onClick() {
-                      return setModal({
-                        type: 'placeInInventory',
-                        product: p
-                      });
-                    },
-                    disabled: p.stock === 0,
+                  children: (0,_utils_currency__WEBPACK_IMPORTED_MODULE_1__.formatCurrency)(p.price)
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  style: {
+                    fontWeight: 600,
+                    color: p.stock === 0 ? '#e74c3c' : 'inherit'
+                  },
+                  children: p.stock
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: p.gender || 'All'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  className: "admin-table__muted",
+                  children: p.variant || 'All'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                     style: {
-                      opacity: p.stock === 0 ? 0.35 : 1,
-                      cursor: p.stock === 0 ? 'not-allowed' : 'pointer'
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 4
                     },
-                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
-                      width: "14",
-                      height: "14",
-                      viewBox: "0 0 24 24",
-                      fill: "none",
-                      stroke: "currentColor",
-                      strokeWidth: "2",
-                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("polyline", {
-                        points: "17 8 12 3 7 8"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("line", {
-                        x1: "12",
-                        y1: "3",
-                        x2: "12",
-                        y2: "15"
-                      })]
+                    children: parseColorVariants(p.color_variants).length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                      style: {
+                        color: '#111',
+                        fontSize: '0.82rem'
+                      },
+                      children: "\u2014"
+                    }) : parseColorVariants(p.color_variants).map(function (c, i) {
+                      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+                        style: {
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 3,
+                          background: 'rgba(0,0,0,0.04)',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: 10,
+                          padding: '1px 7px',
+                          fontSize: '0.72rem',
+                          color: '#111',
+                          whiteSpace: 'nowrap'
+                        },
+                        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                          style: {
+                            width: 7,
+                            height: 7,
+                            borderRadius: '50%',
+                            background: getAdminColorCSS(c),
+                            border: '1px solid rgba(0,0,0,0.18)',
+                            display: 'inline-block',
+                            flexShrink: 0
+                          }
+                        }), c]
+                      }, i);
                     })
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
-                    title: "Delete",
-                    className: "admin-icon-btn admin-icon-btn--delete",
-                    onClick: function onClick() {
-                      return setModal({
-                        type: 'delete',
-                        product: p
-                      });
+                  })
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+                    className: "admin-badge",
+                    style: {
+                      background: st.bg,
+                      color: st.color,
+                      whiteSpace: 'nowrap'
                     },
-                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
-                      width: "14",
-                      height: "14",
-                      viewBox: "0 0 24 24",
-                      fill: "none",
-                      stroke: "currentColor",
-                      strokeWidth: "2",
-                      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("polyline", {
-                        points: "3 6 5 6 21 6"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M19 6l-1 14H6L5 6"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M10 11v6"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M14 11v6"
-                      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
-                        d: "M9 6V4h6v2"
-                      })]
+                    children: st.label
+                  })
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+                    style: {
+                      display: 'flex',
+                      gap: '0.4rem'
+                    },
+                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+                      title: "Delete",
+                      className: "admin-icon-btn admin-icon-btn--delete",
+                      onClick: function onClick() {
+                        return setModal({
+                          type: 'delete',
+                          product: p
+                        });
+                      },
+                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("svg", {
+                        width: "14",
+                        height: "14",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("polyline", {
+                          points: "3 6 5 6 21 6"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                          d: "M19 6l-1 14H6L5 6"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                          d: "M10 11v6"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                          d: "M14 11v6"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("path", {
+                          d: "M9 6V4h6v2"
+                        })]
+                      })
                     })
-                  })]
-                })
-              })]
-            }, p.id);
+                  })
+                })]
+              }, p.id);
+            })]
           })]
-        })]
+        })
       })]
     }), modal === 'add' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(AddProductModal, {
-      onClose: closeModal,
-      onSaved: saved
-    }), (modal === null || modal === void 0 ? void 0 : modal.type) === 'placeInInventory' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(PlaceInInventoryModal, {
-      product: modal.product,
       onClose: closeModal,
       onSaved: saved
     }), (modal === null || modal === void 0 ? void 0 : modal.type) === 'delete' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(DeleteModal, {
@@ -19390,6 +19443,30 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
+var BROWSE_COLOR_CSS = {
+  black: '#111',
+  white: '#e0e0e0',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  'rose gold': '#B76E79',
+  blue: '#3B82F6',
+  navy: '#1E3A5F',
+  green: '#22C55E',
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  purple: '#A855F7',
+  pink: '#EC4899',
+  brown: '#92400E',
+  gray: '#6B7280',
+  grey: '#6B7280',
+  titanium: '#878681',
+  champagne: '#F7E7CE'
+};
+var getBrowseColorCSS = function getBrowseColorCSS(name) {
+  var _name$toLowerCase;
+  return BROWSE_COLOR_CSS[name === null || name === void 0 || (_name$toLowerCase = name.toLowerCase()) === null || _name$toLowerCase === void 0 ? void 0 : _name$toLowerCase.trim()] || '#888';
+};
 function Browse() {
   var navigate = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_3__.useNavigate)();
   var location = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_3__.useLocation)();
@@ -19455,14 +19532,40 @@ function Browse() {
     _useState14 = _slicedToArray(_useState13, 2),
     priceSort = _useState14[0],
     setPriceSort = _useState14[1];
-  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Conditions'),
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Categories'),
     _useState16 = _slicedToArray(_useState15, 2),
-    conditionFilter = _useState16[0],
-    setConditionFilter = _useState16[1];
-  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Categories'),
+    categoryFilter = _useState16[0],
+    setCategoryFilter = _useState16[1];
+  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Genders'),
     _useState18 = _slicedToArray(_useState17, 2),
-    categoryFilter = _useState18[0],
-    setCategoryFilter = _useState18[1];
+    genderFilter = _useState18[0],
+    setGenderFilter = _useState18[1];
+  var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Age Groups'),
+    _useState20 = _slicedToArray(_useState19, 2),
+    variantFilter = _useState20[0],
+    setVariantFilter = _useState20[1];
+  var _useState21 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState22 = _slicedToArray(_useState21, 2),
+    colorSearch = _useState22[0],
+    setColorSearch = _useState22[1];
+  var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState24 = _slicedToArray(_useState23, 2),
+    colorFilter = _useState24[0],
+    setColorFilter = _useState24[1];
+  var _useState25 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState26 = _slicedToArray(_useState25, 2),
+    colorSearchOpen = _useState26[0],
+    setColorSearchOpen = _useState26[1];
+  var colorRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    var onOut = function onOut(e) {
+      if (colorRef.current && !colorRef.current.contains(e.target)) setColorSearchOpen(false);
+    };
+    document.addEventListener('mousedown', onOut);
+    return function () {
+      return document.removeEventListener('mousedown', onOut);
+    };
+  }, []);
 
   // Dynamic Filter Options based strictly on the live Admin Inventory
   var availableBrands = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
@@ -19479,13 +19582,35 @@ function Browse() {
     }).filter(Boolean);
     return ['All Categories'].concat(_toConsumableArray(new Set(cats))).sort();
   }, [allProducts]);
-  var availableConditions = ['All Conditions', 'New', 'Pre-owned', 'Limited'];
-
-  // Utility mapping Admin booleans to Customer Condition strings visually
-  var getCondition = function getCondition(p) {
-    if (p.is_new) return 'New';
-    if (p.is_featured || p.status === 'Low Stock' || p.stock > 0 && p.stock <= 5) return 'Limited';
-    return 'Pre-owned';
+  var availableColors = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
+    var set = new Set();
+    allProducts.forEach(function (p) {
+      var cv = Array.isArray(p.color_variants) ? p.color_variants : typeof p.color_variants === 'string' ? function () {
+        try {
+          return JSON.parse(p.color_variants || '[]');
+        } catch (_unused) {
+          return [];
+        }
+      }() : [];
+      cv.forEach(function (c) {
+        if (c) String(c).split(',').map(function (s) {
+          return s.trim();
+        }).filter(Boolean).forEach(function (s) {
+          return set.add(s);
+        });
+      });
+    });
+    return _toConsumableArray(set).sort();
+  }, [allProducts]);
+  var colorSuggestions = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
+    if (!colorSearch.trim()) return availableColors;
+    return availableColors.filter(function (c) {
+      return c.toLowerCase().includes(colorSearch.toLowerCase());
+    });
+  }, [availableColors, colorSearch]);
+  var isAutoNew = function isAutoNew(p) {
+    if (!p.created_at) return false;
+    return Date.now() - new Date(p.created_at).getTime() < 7 * 24 * 60 * 60 * 1000;
   };
 
   // Featured Sidebar (Real live products instead of mock data)
@@ -19503,10 +19628,28 @@ function Browse() {
       var safeName = p.name || '';
       var matchSearch = safeName.toLowerCase().includes(searchQuery.toLowerCase());
       var matchBrand = brandFilter === 'All Brands' || ((_p$brand2 = p.brand) === null || _p$brand2 === void 0 ? void 0 : _p$brand2.name) === brandFilter;
-      var itemCond = getCondition(p);
-      var matchCondition = conditionFilter === 'All Conditions' || itemCond === conditionFilter;
       var matchCategory = categoryFilter === 'All Categories' || ((_p$category2 = p.category) === null || _p$category2 === void 0 ? void 0 : _p$category2.name) === categoryFilter;
-      return matchSearch && matchBrand && matchCondition && matchCategory;
+      var matchGender = genderFilter === 'All Genders' || !p.gender || p.gender === 'All' || p.gender === genderFilter;
+      var matchVariant = variantFilter === 'All Age Groups' || !p.variant || p.variant === 'All' || p.variant === variantFilter;
+      var pColors = Array.isArray(p.color_variants) ? p.color_variants : typeof p.color_variants === 'string' ? function () {
+        try {
+          return JSON.parse(p.color_variants || '[]');
+        } catch (_unused2) {
+          return [];
+        }
+      }() : [];
+      var flatColors = [];
+      pColors.forEach(function (c) {
+        return String(c).split(',').map(function (s) {
+          return s.trim();
+        }).filter(Boolean).forEach(function (s) {
+          return flatColors.push(s);
+        });
+      });
+      var matchColor = !colorFilter || flatColors.some(function (c) {
+        return c.toLowerCase() === colorFilter.toLowerCase();
+      });
+      return matchSearch && matchBrand && matchCategory && matchGender && matchVariant && matchColor;
     });
     if (priceSort === 'Low to High') {
       filtered.sort(function (a, b) {
@@ -19518,7 +19661,7 @@ function Browse() {
       });
     }
     return filtered;
-  }, [allProducts, searchQuery, brandFilter, conditionFilter, categoryFilter, priceSort]);
+  }, [allProducts, searchQuery, brandFilter, categoryFilter, priceSort, genderFilter, variantFilter, colorFilter]);
   var handleWishlistToggle = /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(item) {
       var isAdded;
@@ -19783,35 +19926,14 @@ function Browse() {
             minWidth: '150px'
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
-            children: "All Prices"
+            value: "All Prices",
+            children: "Prices"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
             children: "Low to High"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
             children: "High to Low"
           })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("select", {
-          value: conditionFilter,
-          onChange: function onChange(e) {
-            return setConditionFilter(e.target.value);
-          },
-          style: {
-            padding: '0.8rem 1rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            background: '#fff',
-            outline: 'none',
-            cursor: 'pointer',
-            color: '#333',
-            fontWeight: 500,
-            minWidth: '150px'
-          },
-          children: availableConditions.map(function (c) {
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
-              value: c,
-              children: c
-            }, c);
-          })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("select", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("select", {
           value: categoryFilter,
           onChange: function onChange(e) {
             return setCategoryFilter(e.target.value);
@@ -19827,12 +19949,218 @@ function Browse() {
             fontWeight: 500,
             minWidth: '150px'
           },
-          children: availableCategories.map(function (c) {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
+            value: "All Categories",
+            children: "Categories"
+          }), availableCategories.filter(function (c) {
+            return c !== 'All Categories';
+          }).map(function (c) {
             return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
               value: c,
               children: c
             }, c);
-          })
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("select", {
+          value: genderFilter,
+          onChange: function onChange(e) {
+            return setGenderFilter(e.target.value);
+          },
+          style: {
+            padding: '0.8rem 1rem',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            background: '#fff',
+            outline: 'none',
+            cursor: 'pointer',
+            color: '#333',
+            fontWeight: 500,
+            minWidth: '140px'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
+            value: "All Genders",
+            children: "Gender"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
+            value: "Male",
+            children: "Male"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
+            value: "Female",
+            children: "Female"
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("select", {
+          value: variantFilter,
+          onChange: function onChange(e) {
+            return setVariantFilter(e.target.value);
+          },
+          style: {
+            padding: '0.8rem 1rem',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            background: '#fff',
+            outline: 'none',
+            cursor: 'pointer',
+            color: '#333',
+            fontWeight: 500,
+            minWidth: '140px'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
+            value: "All Age Groups",
+            children: "Age Group"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
+            value: "Adult",
+            children: "Adult"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("option", {
+            value: "Kids",
+            children: "Kids"
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
+          ref: colorRef,
+          style: {
+            position: 'relative'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+            onClick: function onClick() {
+              return setColorSearchOpen(function (o) {
+                return !o;
+              });
+            },
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.8rem 1rem',
+              border: colorFilter ? '1px solid #C9A84C' : '1px solid #ddd',
+              borderRadius: '4px',
+              background: '#fff',
+              cursor: 'pointer',
+              color: colorFilter ? '#C9A84C' : '#555',
+              fontWeight: colorFilter ? 700 : 500,
+              minWidth: '130px',
+              fontSize: '0.93rem',
+              userSelect: 'none'
+            },
+            children: colorFilter ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.Fragment, {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                style: {
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: getBrowseColorCSS(colorFilter),
+                  border: '1px solid rgba(0,0,0,0.15)',
+                  flexShrink: 0,
+                  display: 'inline-block'
+                }
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                style: {
+                  flex: 1
+                },
+                children: colorFilter
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                style: {
+                  color: '#aaa',
+                  fontSize: '0.8rem',
+                  lineHeight: 1
+                },
+                onClick: function onClick(e) {
+                  e.stopPropagation();
+                  setColorFilter('');
+                  setColorSearch('');
+                },
+                children: "\u2715"
+              })]
+            }) : 'Color Variant ▾'
+          }), colorSearchOpen && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
+            style: {
+              position: 'absolute',
+              top: 'calc(100% + 4px)',
+              left: 0,
+              zIndex: 200,
+              background: '#fff',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+              minWidth: '210px',
+              padding: '0.5rem'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("input", {
+              autoFocus: true,
+              type: "text",
+              value: colorSearch,
+              onChange: function onChange(e) {
+                return setColorSearch(e.target.value);
+              },
+              placeholder: "Search color...",
+              style: {
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                outline: 'none',
+                fontSize: '0.88rem',
+                boxSizing: 'border-box',
+                marginBottom: '0.4rem'
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+              style: {
+                maxHeight: '180px',
+                overflowY: 'auto'
+              },
+              children: !colorSearch.trim() ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+                style: {
+                  color: '#bbb',
+                  fontSize: '0.82rem',
+                  padding: '0.4rem 0.5rem',
+                  fontStyle: 'italic'
+                },
+                children: "Type a color name to search..."
+              }) : colorSuggestions.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+                style: {
+                  color: '#aaa',
+                  fontSize: '0.83rem',
+                  padding: '0.4rem 0.5rem'
+                },
+                children: "No colors found"
+              }) : colorSuggestions.map(function (c) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
+                  onClick: function onClick() {
+                    setColorFilter(c);
+                    setColorSearch('');
+                    setColorSearchOpen(false);
+                  },
+                  style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.4rem 0.6rem',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                    background: colorFilter === c ? '#fef9ed' : 'transparent'
+                  },
+                  onMouseEnter: function onMouseEnter(e) {
+                    if (colorFilter !== c) e.currentTarget.style.background = '#f3f4f6';
+                  },
+                  onMouseLeave: function onMouseLeave(e) {
+                    e.currentTarget.style.background = colorFilter === c ? '#fef9ed' : 'transparent';
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                    style: {
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      background: getBrowseColorCSS(c),
+                      border: '1px solid rgba(0,0,0,0.18)',
+                      flexShrink: 0
+                    }
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                    style: {
+                      fontSize: '0.88rem',
+                      color: '#333'
+                    },
+                    children: c
+                  })]
+                }, c);
+              })
+            })]
+          })]
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
         className: "mobile-stack",
@@ -20241,23 +20569,37 @@ function Cart() {
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
       className: "container mobile-p-2",
       style: {
-        padding: '4rem 2rem',
+        padding: '4rem 5rem',
         maxWidth: '1400px',
-        margin: '0 auto'
+        margin: '0 auto',
+        fontFamily: 'Inter, sans-serif'
       },
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-        className: "page-header",
         style: {
-          marginBottom: '2rem'
+          marginBottom: '2rem',
+          borderBottom: '2px solid #C9A84C',
+          paddingBottom: '1rem'
         },
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h1", {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("h1", {
           style: {
             fontFamily: '"Playfair Display", Georgia, serif',
             fontSize: '2.5rem',
-            color: '#111'
+            color: '#111',
+            fontWeight: 800,
+            margin: 0
           },
-          children: "Shopping Cart"
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+            style: {
+              color: '#C9A84C'
+            },
+            children: "My"
+          }), " Cart"]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("p", {
+          style: {
+            color: '#666',
+            fontSize: '0.9rem',
+            margin: '0.4rem 0 0'
+          },
           children: [items.length, " item", items.length !== 1 ? 's' : '', " in your cart"]
         })]
       }), items.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -20342,8 +20684,8 @@ function Cart() {
               onClick: clearSelected,
               style: {
                 padding: '0.4rem 1rem',
-                background: selectedItems.length > 0 ? 'red' : '#ccc',
-                color: selectedItems.length > 0 ? '#fff' : '#666',
+                background: selectedItems.length > 0 ? '#111' : '#e5e7eb',
+                color: selectedItems.length > 0 ? '#C9A84C' : '#9ca3af',
                 border: 'none',
                 borderRadius: '4px',
                 fontWeight: 700,
@@ -20390,14 +20732,17 @@ function Cart() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     overflow: 'hidden',
-                    borderRadius: '4px'
+                    borderRadius: '4px',
+                    background: '#f8f9fa',
+                    border: '1px solid #eee'
                   },
                   children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
                     src: (_item$product = item.product) !== null && _item$product !== void 0 && _item$product.image && item.product.image.startsWith('http') ? item.product.image : "/storage/".concat((_item$product2 = item.product) === null || _item$product2 === void 0 ? void 0 : _item$product2.image),
                     style: {
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover'
+                      objectFit: 'contain',
+                      padding: '2px'
                     },
                     alt: (_item$product3 = item.product) === null || _item$product3 === void 0 ? void 0 : _item$product3.name
                   })
@@ -20406,21 +20751,24 @@ function Cart() {
                   style: {
                     flex: 1
                   },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h3", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
                     style: {
-                      margin: '0 0 0.5rem 0',
-                      fontSize: '1.1rem',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      color: '#C9A84C',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      marginBottom: '0.2rem'
+                    },
+                    children: (_item$product4 = item.product) === null || _item$product4 === void 0 || (_item$product4 = _item$product4.brand) === null || _item$product4 === void 0 ? void 0 : _item$product4.name
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h3", {
+                    style: {
+                      margin: '0 0 0.4rem 0',
+                      fontSize: '0.95rem',
                       fontWeight: 800,
                       color: '#111'
                     },
-                    children: (_item$product4 = item.product) === null || _item$product4 === void 0 ? void 0 : _item$product4.name
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("p", {
-                    style: {
-                      margin: 0,
-                      color: '#666',
-                      fontSize: '0.85rem'
-                    },
-                    children: (_item$product5 = item.product) === null || _item$product5 === void 0 || (_item$product5 = _item$product5.brand) === null || _item$product5 === void 0 ? void 0 : _item$product5.name
+                    children: (_item$product5 = item.product) === null || _item$product5 === void 0 ? void 0 : _item$product5.name
                   })]
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
                   style: {
@@ -20505,24 +20853,38 @@ function Cart() {
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
               style: {
-                padding: '0.6rem 1rem',
-                background: 'red',
-                color: '#fff',
-                border: 'none',
+                padding: '0.6rem 1.2rem',
+                background: '#111',
+                color: '#C9A84C',
+                border: '1px solid #111',
                 borderRadius: '4px',
-                fontWeight: 800,
-                cursor: 'pointer'
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                transition: 'all 0.2s'
+              },
+              onMouseEnter: function onMouseEnter(e) {
+                e.currentTarget.style.background = '#C9A84C';
+                e.currentTarget.style.color = '#000';
+                e.currentTarget.style.borderColor = '#C9A84C';
+              },
+              onMouseLeave: function onMouseLeave(e) {
+                e.currentTarget.style.background = '#111';
+                e.currentTarget.style.color = '#C9A84C';
+                e.currentTarget.style.borderColor = '#111';
               },
               onClick: clearCart,
-              children: "Clear Cart"
+              children: "\uD83D\uDDD1 Clear Cart"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
               style: {
-                padding: '0.6rem 1rem',
+                padding: '0.6rem 1.2rem',
                 background: 'transparent',
-                border: '1px solid #ccc',
+                border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontWeight: 500,
-                cursor: 'pointer'
+                fontWeight: 600,
+                cursor: 'pointer',
+                color: '#555',
+                fontSize: '0.85rem'
               },
               onClick: function onClick() {
                 return navigate('/user/browse');
@@ -20533,6 +20895,13 @@ function Cart() {
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
           className: "cart-summary",
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
+            style: {
+              fontFamily: '"Playfair Display", Georgia, serif',
+              borderBottom: '2px solid #C9A84C',
+              paddingBottom: '0.5rem',
+              display: 'inline-block',
+              marginBottom: '1.5rem'
+            },
             children: "Order Summary"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
             className: "cart-summary__row",
@@ -20648,20 +21017,39 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
+// ─── LocationPicker ──────────────────────────────────────────────────────────
+// Receives `address` and `city` as explicit props — always reads live
+// Delivery Details values. Runs geocoding INTERNALLY on button click.
+// Parent receives final lat/lng via onLocationFound(lat, lng).
+// NO GPS. NO browser geolocation. NO stale-closure risk.
+
 var LocationPicker = function LocationPicker(_ref) {
   var lat = _ref.lat,
     lng = _ref.lng,
     address = _ref.address,
     city = _ref.city,
-    region = _ref.region,
-    country = _ref.country,
-    onChange = _ref.onChange;
+    onDrag = _ref.onDrag,
+    onLocationFound = _ref.onLocationFound;
   var mapRef = react__WEBPACK_IMPORTED_MODULE_0___default().useRef(null);
   var markerRef = react__WEBPACK_IMPORTED_MODULE_0___default().useRef(null);
-  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0___default().useState(false),
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0___default().useState('idle'),
     _React$useState2 = _slicedToArray(_React$useState, 2),
-    geoError = _React$useState2[0],
-    setGeoError = _React$useState2[1];
+    findState = _React$useState2[0],
+    setFindState = _React$useState2[1];
+  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(''),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    foundName = _React$useState4[0],
+    setFoundName = _React$useState4[1];
+  var _React$useState5 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(''),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    lastQuery = _React$useState6[0],
+    setLastQuery = _React$useState6[1];
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(''),
+    _React$useState8 = _slicedToArray(_React$useState7, 2),
+    notFoundAddr = _React$useState8[0],
+    setNotFoundAddr = _React$useState8[1];
+
+  // ── Bootstrap Leaflet once ──
   react__WEBPACK_IMPORTED_MODULE_0___default().useEffect(function () {
     var isMounted = true;
     if (!document.getElementById('leaflet-css')) {
@@ -20682,9 +21070,11 @@ var LocationPicker = function LocationPicker(_ref) {
       if (window.L && document.getElementById('checkout-map')) {
         clearInterval(checkL);
         if (!isMounted || mapRef.current) return;
-        var map = window.L.map('checkout-map').setView([12.8797, 121.7740], 6);
+        var initLat = lat || 12.8797;
+        var initLng = lng || 121.7740;
+        var map = window.L.map('checkout-map').setView([initLat, initLng], lat ? 15 : 6);
         var satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-          attribution: 'Tiles courtesy of Esri and the GIS community',
+          attribution: 'Tiles © Esri',
           maxZoom: 19
         });
         var streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -20717,19 +21107,15 @@ var LocationPicker = function LocationPicker(_ref) {
           return btn;
         };
         toggleCtrl.addTo(map);
-        var marker = window.L.marker([12.8797, 121.7740], {
+        var marker = window.L.marker([initLat, initLng], {
           draggable: true
         }).addTo(map);
-        marker.on('dragend', function (e) {
+        marker.on('dragend', function () {
           var pos = marker.getLatLng();
-          onChange(pos.lat, pos.lng);
+          onDrag(pos.lat, pos.lng);
         });
         mapRef.current = map;
         markerRef.current = marker;
-        if (lat && lng) {
-          map.setView([lat, lng], 16);
-          marker.setLatLng([lat, lng]);
-        }
         setTimeout(function () {
           map.invalidateSize();
         }, 200);
@@ -20739,132 +21125,69 @@ var LocationPicker = function LocationPicker(_ref) {
       isMounted = false;
       clearInterval(checkL);
     };
-  }, []);
+  }, []); // run once
 
-  // Auto-geocode whenever Address, City, or Region changes
+  // ── Move pin whenever lat/lng change (driven by parent) ──
   react__WEBPACK_IMPORTED_MODULE_0___default().useEffect(function () {
-    var parts = [address, city, region, country || 'Philippines'].filter(Boolean);
-    if (parts.length < 2) return;
-    var fullQuery = parts.join(', ');
-    var timer = setTimeout(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-      var res, data, newLat, newLon, zoom, _t;
+    if (!mapRef.current || !markerRef.current) return;
+    if (!lat || !lng) return;
+    mapRef.current.setView([lat, lng], 16);
+    markerRef.current.setLatLng([lat, lng]);
+    setTimeout(function () {
+      mapRef.current.invalidateSize();
+    }, 100);
+  }, [lat, lng]);
+  var handleFindClick = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+      var currentAddress, currentCity, result;
       return _regenerator().w(function (_context) {
-        while (1) switch (_context.p = _context.n) {
+        while (1) switch (_context.n) {
           case 0:
-            if (!(!mapRef.current || !markerRef.current)) {
+            currentAddress = (address || '').trim();
+            currentCity = (city || '').trim();
+            if (!(!currentAddress && !currentCity)) {
               _context.n = 1;
               break;
             }
+            setFindState('notfound');
+            setNotFoundAddr('');
+            setTimeout(function () {
+              return setFindState('idle');
+            }, 4000);
             return _context.a(2);
           case 1:
-            _context.p = 1;
+            setFindState('loading');
+            setFoundName('');
+            setLastQuery('');
+            setNotFoundAddr('');
             _context.n = 2;
-            return fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ph&q=".concat(encodeURIComponent(fullQuery)));
+            return findLocationByText(currentAddress, currentCity);
           case 2:
-            res = _context.v;
-            _context.n = 3;
-            return res.json();
-          case 3:
-            data = _context.v;
-            if (data && data.length > 0) {
-              newLat = parseFloat(data[0].lat);
-              newLon = parseFloat(data[0].lon);
-              zoom = address && address.trim().length > 3 ? 16 : 13;
-              mapRef.current.setView([newLat, newLon], zoom);
-              markerRef.current.setLatLng([newLat, newLon]);
-              mapRef.current.invalidateSize();
-              onChange(newLat, newLon);
-              setGeoError(false);
+            result = _context.v;
+            if (!result) {
+              setFindState('notfound');
+              setNotFoundAddr(currentAddress && currentCity ? "".concat(currentAddress, ", ").concat(currentCity) : currentAddress || currentCity);
+              setTimeout(function () {
+                return setFindState('idle');
+              }, 8000);
             } else {
-              setGeoError(true);
+              setLastQuery(result.query || '');
+              onLocationFound && onLocationFound(result.lat, result.lng);
+              setFoundName(result.name || '');
+              setFindState('found');
+              setTimeout(function () {
+                return setFindState('idle');
+              }, 8000);
             }
-            _context.n = 5;
-            break;
-          case 4:
-            _context.p = 4;
-            _t = _context.v;
-          case 5:
+          case 3:
             return _context.a(2);
         }
-      }, _callee, null, [[1, 4]]);
-    })), 800);
-    return function () {
-      return clearTimeout(timer);
+      }, _callee);
+    }));
+    return function handleFindClick() {
+      return _ref2.apply(this, arguments);
     };
-  }, [address, city, region]);
-  var handleCurrentLocation = function handleCurrentLocation() {
-    var queries = [];
-    if (address && city) queries.push("".concat(address, ", ").concat(city, ", ").concat(country || 'Philippines'));
-    if (city) queries.push("".concat(city, ", ").concat(country || 'Philippines'));
-    var _tryGeocode = /*#__PURE__*/function () {
-      var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(index) {
-        var res, data, newLat, newLon, _t2;
-        return _regenerator().w(function (_context2) {
-          while (1) switch (_context2.p = _context2.n) {
-            case 0:
-              if (!(index >= queries.length)) {
-                _context2.n = 1;
-                break;
-              }
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                  var _position$coords = position.coords,
-                    latitude = _position$coords.latitude,
-                    longitude = _position$coords.longitude;
-                  onChange(latitude, longitude);
-                  if (mapRef.current && markerRef.current) {
-                    mapRef.current.setView([latitude, longitude], 16);
-                    markerRef.current.setLatLng([latitude, longitude]);
-                    setTimeout(function () {
-                      mapRef.current.invalidateSize();
-                    }, 200);
-                  }
-                }, function (error) {
-                  alert("Unable to find your typed address and GPS access was denied. Please drag the pin manually.");
-                });
-              }
-              return _context2.a(2);
-            case 1:
-              _context2.p = 1;
-              _context2.n = 2;
-              return fetch("https://nominatim.openstreetmap.org/search?format=json&q=".concat(encodeURIComponent(queries[index])));
-            case 2:
-              res = _context2.v;
-              _context2.n = 3;
-              return res.json();
-            case 3:
-              data = _context2.v;
-              if (data && data.length > 0) {
-                newLat = parseFloat(data[0].lat);
-                newLon = parseFloat(data[0].lon);
-                if (mapRef.current && markerRef.current) {
-                  mapRef.current.setView([newLat, newLon], index === 0 ? 16 : 13);
-                  markerRef.current.setLatLng([newLat, newLon]);
-                  setTimeout(function () {
-                    mapRef.current.invalidateSize();
-                  }, 200);
-                  onChange(newLat, newLon);
-                }
-              } else {
-                _tryGeocode(index + 1);
-              }
-              _context2.n = 5;
-              break;
-            case 4:
-              _context2.p = 4;
-              _t2 = _context2.v;
-              _tryGeocode(index + 1);
-            case 5:
-              return _context2.a(2);
-          }
-        }, _callee2, null, [[1, 4]]);
-      }));
-      return function tryGeocode(_x) {
-        return _ref3.apply(this, arguments);
-      };
-    }();
-    _tryGeocode(0);
-  };
+  }();
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
     style: {
       marginBottom: '1.5rem',
@@ -20877,25 +21200,88 @@ var LocationPicker = function LocationPicker(_ref) {
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h3", {
       style: {
         fontSize: '1rem',
-        marginBottom: '0.8rem',
+        marginBottom: '0.3rem',
         fontWeight: 700
       },
-      children: "\uD83D\uDCCD Pin Your Delivery Location"
+      children: "\uD83D\uDCCD Delivery Location Map"
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("p", {
+      style: {
+        fontSize: '0.78rem',
+        color: '#888',
+        marginBottom: '0.9rem',
+        lineHeight: 1.4
+      },
+      children: ["Press ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
+        children: "Find Location"
+      }), " to pin your delivery address on the map.", address && city && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+        style: {
+          color: '#555'
+        },
+        children: [" Searching for: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("em", {
+          children: [address, ", ", city]
+        })]
+      })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
       type: "button",
-      onClick: handleCurrentLocation,
+      onClick: handleFindClick,
+      disabled: findState === 'loading',
       style: {
-        marginBottom: '1rem',
-        padding: '0.6rem 1.2rem',
-        background: '#f8f9fa',
-        color: '#333',
-        border: '1px solid #ddd',
+        marginBottom: '0.75rem',
+        padding: '0.6rem 1.3rem',
+        background: findState === 'found' ? '#f0fdf4' : '#f8f9fa',
+        color: findState === 'found' ? '#166534' : '#333',
+        border: findState === 'found' ? '1px solid #86efac' : '1px solid #ddd',
         borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '0.85rem',
-        fontWeight: 600
+        cursor: findState === 'loading' ? 'not-allowed' : 'pointer',
+        fontSize: '0.88rem',
+        fontWeight: 700,
+        width: '100%',
+        textAlign: 'center',
+        transition: 'all 0.2s'
       },
-      children: "Use My Current Location"
+      children: findState === 'loading' ? '⏳ Searching...' : findState === 'found' ? '✅ Location Found!' : '🔍 Find Location'
+    }), findState === 'found' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+      style: {
+        marginBottom: '0.6rem',
+        padding: '0.6rem 0.9rem',
+        background: '#f0fdf4',
+        border: '1px solid #86efac',
+        borderRadius: '6px',
+        fontSize: '0.8rem',
+        color: '#166534',
+        fontWeight: 600,
+        lineHeight: 1.5
+      },
+      children: ["\u2705 ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
+        children: "Location Found!"
+      }), foundName && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+        style: {
+          marginTop: '0.2rem',
+          fontSize: '0.75rem',
+          fontWeight: 400,
+          opacity: 0.9
+        },
+        children: foundName.split(',').slice(0, 4).join(',')
+      })]
+    }), findState === 'notfound' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+      style: {
+        marginBottom: '0.6rem',
+        padding: '0.6rem 0.9rem',
+        background: '#fef2f2',
+        border: '1px solid #fca5a5',
+        borderRadius: '6px',
+        fontSize: '0.8rem',
+        color: '#b91c1c',
+        fontWeight: 600,
+        lineHeight: 1.5
+      },
+      children: ["\u274C ", notFoundAddr ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.Fragment, {
+        children: ["Could not find ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
+          children: notFoundAddr
+        }), ". Please check your address spelling."]
+      }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.Fragment, {
+        children: "Address not found. Please check and try again."
+      })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
       id: "checkout-map",
       style: {
@@ -20905,38 +21291,236 @@ var LocationPicker = function LocationPicker(_ref) {
         zIndex: 1,
         border: '1px solid #ddd'
       }
-    }), geoError && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
       style: {
-        marginTop: '0.5rem',
-        padding: '0.45rem 0.8rem',
-        background: '#fff8e1',
-        border: '1px solid #f9a825',
-        borderRadius: '4px',
-        fontSize: '0.8rem',
-        color: '#7a5c00',
-        fontWeight: 600
+        marginTop: '0.7rem',
+        fontSize: '0.78rem',
+        color: '#555',
+        fontWeight: 500
       },
-      children: "\u26A0\uFE0F Location not found. Please drag the pin to your delivery location manually."
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+      children: lat && lng ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("span", {
+        children: ["\uD83D\uDCCC ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
+          children: Number(lat).toFixed(6)
+        }), ", ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
+          children: Number(lng).toFixed(6)
+        })]
+      }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+        style: {
+          color: '#aaa'
+        },
+        children: "Press \"Find Location\" to pin your delivery address."
+      })
+    }), lastQuery && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
       style: {
-        marginTop: '0.8rem',
-        fontSize: '0.85rem',
-        color: '#888'
+        marginTop: '0.3rem',
+        fontSize: '0.72rem',
+        color: '#888',
+        fontStyle: 'italic'
       },
-      children: ["Latitude: ", lat || '___', " | Longitude: ", lng || '___']
+      children: ["\uD83D\uDD0E Searched: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
+        style: {
+          fontStyle: 'normal',
+          color: '#555'
+        },
+        children: lastQuery
+      })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
       type: "hidden",
       name: "latitude",
-      id: "latitude",
       value: lat || ''
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("input", {
       type: "hidden",
       name: "longitude",
-      id: "longitude",
       value: lng || ''
     })]
   });
 };
+
+// ─── Find Location geocoder ─────────────────────────────────────────────────────
+// 3 cascading Nominatim queries. Takes the FIRST result within Philippines
+// bounding box. No address-text filtering — avoids false "not found" errors.
+// Philippines bounding box: lat 4.5–21.5, lng 116.0–127.0
+var PH_BOUNDS = {
+  minLat: 4.5,
+  maxLat: 21.5,
+  minLng: 116.0,
+  maxLng: 127.0
+};
+var findLocationByText = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(streetAddress, city) {
+    var street, town, inPhilippines, query, r, _r, _r2;
+    return _regenerator().w(function (_context3) {
+      while (1) switch (_context3.n) {
+        case 0:
+          street = (streetAddress || '').trim();
+          town = (city || '').trim();
+          if (!(!street && !town)) {
+            _context3.n = 1;
+            break;
+          }
+          return _context3.a(2, null);
+        case 1:
+          inPhilippines = function inPhilippines(r) {
+            var lat = parseFloat(r.lat),
+              lng = parseFloat(r.lon);
+            return lat >= PH_BOUNDS.minLat && lat <= PH_BOUNDS.maxLat && lng >= PH_BOUNDS.minLng && lng <= PH_BOUNDS.maxLng;
+          };
+          query = /*#__PURE__*/function () {
+            var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(url, label) {
+              var res, data, best, _t;
+              return _regenerator().w(function (_context2) {
+                while (1) switch (_context2.p = _context2.n) {
+                  case 0:
+                    _context2.p = 0;
+                    _context2.n = 1;
+                    return fetch(url, {
+                      headers: {
+                        'Accept-Language': 'en'
+                      }
+                    });
+                  case 1:
+                    res = _context2.v;
+                    _context2.n = 2;
+                    return res.json();
+                  case 2:
+                    data = _context2.v;
+                    if (!(!data || data.length === 0)) {
+                      _context2.n = 3;
+                      break;
+                    }
+                    return _context2.a(2, null);
+                  case 3:
+                    best = data.find(function (r) {
+                      return inPhilippines(r);
+                    });
+                    if (best) {
+                      _context2.n = 4;
+                      break;
+                    }
+                    return _context2.a(2, null);
+                  case 4:
+                    return _context2.a(2, {
+                      lat: parseFloat(best.lat),
+                      lng: parseFloat(best.lon),
+                      name: best.display_name,
+                      query: label
+                    });
+                  case 5:
+                    _context2.p = 5;
+                    _t = _context2.v;
+                    return _context2.a(2, null);
+                }
+              }, _callee2, null, [[0, 5]]);
+            }));
+            return function query(_x3, _x4) {
+              return _ref4.apply(this, arguments);
+            };
+          }(); // Fix 1a: [ADDRESS] + [CITY] + Philippines — most specific
+          if (!(street && town)) {
+            _context3.n = 3;
+            break;
+          }
+          _context3.n = 2;
+          return query("https://nominatim.openstreetmap.org/search?format=json&q=".concat(encodeURIComponent("".concat(street, " ").concat(town, " Philippines")), "&countrycodes=ph&limit=5"), "".concat(street, " ").concat(town, " Philippines"));
+        case 2:
+          r = _context3.v;
+          if (!r) {
+            _context3.n = 3;
+            break;
+          }
+          return _context3.a(2, r);
+        case 3:
+          if (!street) {
+            _context3.n = 5;
+            break;
+          }
+          _context3.n = 4;
+          return query("https://nominatim.openstreetmap.org/search?format=json&q=".concat(encodeURIComponent("".concat(street, " Philippines")), "&countrycodes=ph&limit=5"), "".concat(street, " Philippines"));
+        case 4:
+          _r = _context3.v;
+          if (!_r) {
+            _context3.n = 5;
+            break;
+          }
+          return _context3.a(2, _r);
+        case 5:
+          if (!town) {
+            _context3.n = 7;
+            break;
+          }
+          _context3.n = 6;
+          return query("https://nominatim.openstreetmap.org/search?format=json&q=".concat(encodeURIComponent("".concat(town, " Philippines")), "&countrycodes=ph&limit=1"), "".concat(town, " Philippines"));
+        case 6:
+          _r2 = _context3.v;
+          if (!_r2) {
+            _context3.n = 7;
+            break;
+          }
+          return _context3.a(2, _r2);
+        case 7:
+          return _context3.a(2, null);
+      }
+    }, _callee3);
+  }));
+  return function findLocationByText(_x, _x2) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+// Used ONLY when saving an address to the DB (no Butuan-City-specific validation)
+var geocodeByText = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(streetAddress, city) {
+    var street, town, res, data, lat, lng, _t2;
+    return _regenerator().w(function (_context4) {
+      while (1) switch (_context4.p = _context4.n) {
+        case 0:
+          street = (streetAddress || '').trim();
+          town = (city || '').trim();
+          if (!(!street && !town)) {
+            _context4.n = 1;
+            break;
+          }
+          return _context4.a(2, null);
+        case 1:
+          _context4.p = 1;
+          _context4.n = 2;
+          return fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ph&q=".concat(encodeURIComponent([street, town, 'Philippines'].filter(Boolean).join(', '))), {
+            headers: {
+              'Accept-Language': 'en'
+            }
+          });
+        case 2:
+          res = _context4.v;
+          _context4.n = 3;
+          return res.json();
+        case 3:
+          data = _context4.v;
+          if (!(data && data.length > 0)) {
+            _context4.n = 4;
+            break;
+          }
+          lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+          if (!(lat >= 4.5 && lat <= 21.5 && lng >= 116 && lng <= 127)) {
+            _context4.n = 4;
+            break;
+          }
+          return _context4.a(2, {
+            lat: lat,
+            lng: lng
+          });
+        case 4:
+          return _context4.a(2, null);
+        case 5:
+          _context4.p = 5;
+          _t2 = _context4.v;
+          return _context4.a(2, null);
+      }
+    }, _callee4, null, [[1, 5]]);
+  }));
+  return function geocodeByText(_x5, _x6) {
+    return _ref5.apply(this, arguments);
+  };
+}();
 function Checkout() {
   var _location$state, _location$state2;
   var _useAuth = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_3__.useAuth)(),
@@ -21023,7 +21607,7 @@ function Checkout() {
     form = _useState20[0],
     setForm = _useState20[1];
 
-  // Fetch saved addresses on login
+  // ── Rule 1: On load, only set Delivery Details text — map pin does NOT auto-move ──
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     if (!user) return;
     axios__WEBPACK_IMPORTED_MODULE_2___default().get('/api/delivery-addresses').then(function (res) {
@@ -21039,7 +21623,10 @@ function Checkout() {
             address: def.address,
             city: def.city,
             region: normalizeRegion(def.region),
-            phone: def.phone || f.phone
+            phone: def.phone || f.phone,
+            latitude: null,
+            // pin does NOT auto-move
+            longitude: null
           });
         });
       }
@@ -21099,7 +21686,7 @@ function Checkout() {
     return 'Luzon'; // Metro Manila and any legacy value → Luzon
   };
 
-  // Apply a saved address card into the checkout form
+  // ── Rule 1: Switching addresses ONLY updates Delivery Details text — pin does NOT move ──
   var applyAddress = function applyAddress(addr) {
     setSelectedAddrId(addr.id);
     setForm(function (f) {
@@ -21109,6 +21696,8 @@ function Checkout() {
         city: addr.city,
         region: normalizeRegion(addr.region),
         phone: addr.phone || f.phone
+        // Intentionally do NOT change lat/lng — pin stays where it is
+        // until the customer explicitly presses "Find Location"
       });
     });
   };
@@ -21136,82 +21725,99 @@ function Checkout() {
     setEditingAddr(addr);
     setAddrMode('edit');
   };
+
+  // ── Rule 3 (save): Geocode on save, also store coords in DB ──
   var handleSaveAddress = /*#__PURE__*/function () {
-    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
-      var res, _res, _t3;
-      return _regenerator().w(function (_context3) {
-        while (1) switch (_context3.p = _context3.n) {
+    var _ref6 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
+      var coords, payload, res, _res, _t3;
+      return _regenerator().w(function (_context5) {
+        while (1) switch (_context5.p = _context5.n) {
           case 0:
             if (!(!addrForm.full_name.trim() || !addrForm.address.trim() || !addrForm.city.trim())) {
-              _context3.n = 1;
+              _context5.n = 1;
               break;
             }
             alert('Full Name, Address, and City are required.');
-            return _context3.a(2);
+            return _context5.a(2);
           case 1:
             setAddrSaving(true);
-            _context3.p = 2;
+            _context5.p = 2;
+            _context5.n = 3;
+            return geocodeByText(addrForm.address, addrForm.city);
+          case 3:
+            coords = _context5.v;
+            payload = _objectSpread(_objectSpread({}, addrForm), {}, {
+              latitude: coords ? coords.lat : null,
+              longitude: coords ? coords.lng : null
+            });
             if (!(addrMode === 'add')) {
-              _context3.n = 4;
+              _context5.n = 6;
               break;
             }
-            _context3.n = 3;
-            return axios__WEBPACK_IMPORTED_MODULE_2___default().post('/api/delivery-addresses', addrForm);
-          case 3:
-            res = _context3.v;
+            _context5.n = 4;
+            return axios__WEBPACK_IMPORTED_MODULE_2___default().post('/api/delivery-addresses', payload);
+          case 4:
+            res = _context5.v;
             setSavedAddresses(function (prev) {
               return [].concat(_toConsumableArray(prev), [res.data]);
             });
-            applyAddress(res.data);
-            _context3.n = 6;
-            break;
-          case 4:
-            _context3.n = 5;
-            return axios__WEBPACK_IMPORTED_MODULE_2___default().put("/api/delivery-addresses/".concat(editingAddr.id), addrForm);
+            _context5.n = 5;
+            return applyAddress(res.data);
           case 5:
-            _res = _context3.v;
+            _context5.n = 8;
+            break;
+          case 6:
+            _context5.n = 7;
+            return axios__WEBPACK_IMPORTED_MODULE_2___default().put("/api/delivery-addresses/".concat(editingAddr.id), payload);
+          case 7:
+            _res = _context5.v;
             setSavedAddresses(function (prev) {
               return prev.map(function (a) {
                 return a.id === editingAddr.id ? _res.data : a;
               });
             });
-            if (selectedAddrId === editingAddr.id) applyAddress(_res.data);
-          case 6:
+            if (!(selectedAddrId === editingAddr.id)) {
+              _context5.n = 8;
+              break;
+            }
+            _context5.n = 8;
+            return applyAddress(_res.data);
+          case 8:
             setAddrMode(null);
             setEditingAddr(null);
-            _context3.n = 8;
+            _context5.n = 10;
             break;
-          case 7:
-            _context3.p = 7;
-            _t3 = _context3.v;
-            alert('Failed to save address. Please try again.');
-          case 8:
-            _context3.p = 8;
-            setAddrSaving(false);
-            return _context3.f(8);
           case 9:
-            return _context3.a(2);
+            _context5.p = 9;
+            _t3 = _context5.v;
+            alert('Failed to save address. Please try again.');
+          case 10:
+            _context5.p = 10;
+            setAddrSaving(false);
+            return _context5.f(10);
+          case 11:
+            return _context5.a(2);
         }
-      }, _callee3, null, [[2, 7, 8, 9]]);
+      }, _callee5, null, [[2, 9, 10, 11]]);
     }));
     return function handleSaveAddress() {
-      return _ref4.apply(this, arguments);
+      return _ref6.apply(this, arguments);
     };
   }();
   var handleDeleteAddress = /*#__PURE__*/function () {
-    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(id) {
+    var _ref7 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(id) {
       var _t4;
-      return _regenerator().w(function (_context4) {
-        while (1) switch (_context4.p = _context4.n) {
+      return _regenerator().w(function (_context6) {
+        while (1) switch (_context6.p = _context6.n) {
           case 0:
             if (window.confirm('Remove this saved address?')) {
-              _context4.n = 1;
+              _context6.n = 1;
               break;
             }
-            return _context4.a(2);
+            return _context6.a(2);
           case 1:
-            _context4.p = 1;
-            _context4.n = 2;
+            _context6.p = 1;
+            _context6.n = 2;
             return axios__WEBPACK_IMPORTED_MODULE_2___default()["delete"]("/api/delivery-addresses/".concat(id));
           case 2:
             setSavedAddresses(function (prev) {
@@ -21222,19 +21828,19 @@ function Checkout() {
             if (selectedAddrId === id) {
               setSelectedAddrId(null);
             }
-            _context4.n = 4;
+            _context6.n = 4;
             break;
           case 3:
-            _context4.p = 3;
-            _t4 = _context4.v;
+            _context6.p = 3;
+            _t4 = _context6.v;
             alert('Failed to delete address.');
           case 4:
-            return _context4.a(2);
+            return _context6.a(2);
         }
-      }, _callee4, null, [[1, 3]]);
+      }, _callee6, null, [[1, 3]]);
     }));
-    return function handleDeleteAddress(_x2) {
-      return _ref5.apply(this, arguments);
+    return function handleDeleteAddress(_x7) {
+      return _ref7.apply(this, arguments);
     };
   }();
   var subtotal = cartItems.reduce(function (acc, i) {
@@ -21244,36 +21850,36 @@ function Checkout() {
   var shipping = 0; // Free shipping
   var total = subtotal + shipping;
   var handleSubmit = /*#__PURE__*/function () {
-    var _ref6 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(e) {
+    var _ref8 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(e) {
       var res, _yield$import, notificationStore, _err$response, _t5, _t6;
-      return _regenerator().w(function (_context5) {
-        while (1) switch (_context5.p = _context5.n) {
+      return _regenerator().w(function (_context7) {
+        while (1) switch (_context7.p = _context7.n) {
           case 0:
             e.preventDefault();
             setError('');
             setIsSubmitting(true);
             if (!(!form.address || !form.city || !form.name)) {
-              _context5.n = 1;
+              _context7.n = 1;
               break;
             }
             setError('Please select or add a delivery address before placing your order.');
             setIsSubmitting(false);
-            return _context5.a(2);
+            return _context7.a(2);
           case 1:
             if (!(form.paymentMethod === 'Bank Transfer')) {
-              _context5.n = 2;
+              _context7.n = 2;
               break;
             }
             if (!(!form.selectedBank || !form.bankAccountName.trim() || !form.bankAccountNumber.trim())) {
-              _context5.n = 2;
+              _context7.n = 2;
               break;
             }
             setError('Please select a bank and fill in your account details.');
             setIsSubmitting(false);
-            return _context5.a(2);
+            return _context7.a(2);
           case 2:
-            _context5.p = 2;
-            _context5.n = 3;
+            _context7.p = 2;
+            _context7.n = 3;
             return axios__WEBPACK_IMPORTED_MODULE_2___default().post('/api/orders', {
               address: form.address,
               city: form.city,
@@ -21296,12 +21902,12 @@ function Checkout() {
               longitude: form.longitude
             });
           case 3:
-            res = _context5.v;
-            _context5.p = 4;
-            _context5.n = 5;
+            res = _context7.v;
+            _context7.p = 4;
+            _context7.n = 5;
             return Promise.resolve(/*! import() */).then(__webpack_require__.bind(__webpack_require__, /*! ../sharedStore */ "./resources/js/components/sharedStore.js"));
           case 5:
-            _yield$import = _context5.v;
+            _yield$import = _context7.v;
             notificationStore = _yield$import.notificationStore;
             if (res.data && res.data.orders && Array.isArray(res.data.orders)) {
               res.data.orders.forEach(function (o) {
@@ -21311,21 +21917,21 @@ function Checkout() {
                 }).format(o.total_amount), " \u2014 Payment: ").concat(mPayment));
               });
             }
-            _context5.n = 7;
+            _context7.n = 7;
             break;
           case 6:
-            _context5.p = 6;
-            _t5 = _context5.v;
+            _context7.p = 6;
+            _t5 = _context7.v;
             console.error("Failed to append notification", _t5);
           case 7:
-            _context5.n = 8;
+            _context7.n = 8;
             return refreshCart();
           case 8:
             if (!form.saveInfo) {
-              _context5.n = 9;
+              _context7.n = 9;
               break;
             }
-            _context5.n = 9;
+            _context7.n = 9;
             return fetchUser();
           case 9:
             // Update context user if saved
@@ -21334,20 +21940,20 @@ function Checkout() {
                 checkoutSuccess: true
               }
             });
-            _context5.n = 11;
+            _context7.n = 11;
             break;
           case 10:
-            _context5.p = 10;
-            _t6 = _context5.v;
+            _context7.p = 10;
+            _t6 = _context7.v;
             setError((_t6 === null || _t6 === void 0 || (_err$response = _t6.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'Failed to place order. Please try again.');
             setIsSubmitting(false);
           case 11:
-            return _context5.a(2);
+            return _context7.a(2);
         }
-      }, _callee5, null, [[4, 6], [2, 10]]);
+      }, _callee7, null, [[4, 6], [2, 10]]);
     }));
-    return function handleSubmit(_x3) {
-      return _ref6.apply(this, arguments);
+    return function handleSubmit(_x8) {
+      return _ref8.apply(this, arguments);
     };
   }();
   if (loading) return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
@@ -21369,19 +21975,33 @@ function Checkout() {
       className: "mobile-p-2",
       style: {
         flex: 1,
-        padding: '4rem 2rem',
+        padding: '4rem 5rem',
         maxWidth: '1400px',
         margin: '0 auto',
-        width: '100%'
+        width: '100%',
+        fontFamily: 'Inter, sans-serif'
       },
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h1", {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
         style: {
-          fontFamily: '"Playfair Display", serif',
-          fontSize: '2.5rem',
-          fontWeight: 800,
-          marginBottom: '2rem'
+          marginBottom: '2rem',
+          borderBottom: '2px solid #C9A84C',
+          paddingBottom: '1rem'
         },
-        children: "Checkout"
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("h1", {
+          style: {
+            fontFamily: '"Playfair Display", serif',
+            fontSize: '2.5rem',
+            fontWeight: 800,
+            margin: 0,
+            color: '#111'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("span", {
+            style: {
+              color: '#C9A84C'
+            },
+            children: "Secure"
+          }), " Checkout"]
+        })
       }), error && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
         style: {
           background: '#fee2e2',
@@ -21411,10 +22031,13 @@ function Checkout() {
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
               style: {
-                fontSize: '1.2rem',
+                fontSize: '1.1rem',
                 marginBottom: '1rem',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '0.5rem'
+                borderBottom: '2px solid #C9A84C',
+                paddingBottom: '0.5rem',
+                display: 'inline-block',
+                fontFamily: '"Playfair Display", serif',
+                fontWeight: 700
               },
               children: "Contact Information"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -21458,10 +22081,13 @@ function Checkout() {
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
               style: {
-                fontSize: '1.2rem',
+                fontSize: '1.1rem',
                 marginBottom: '1rem',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '0.5rem'
+                borderBottom: '2px solid #C9A84C',
+                paddingBottom: '0.5rem',
+                display: 'inline-block',
+                fontFamily: '"Playfair Display", serif',
+                fontWeight: 700
               },
               children: "Delivery Information"
             }), savedAddresses.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -22004,9 +22630,11 @@ function Checkout() {
               lng: form.longitude,
               address: form.address,
               city: form.city,
-              region: form.region,
-              country: "Philippines",
-              onChange: function onChange(lat, lng) {
+              onDrag: function onDrag(lat, lng) {
+                setVal('latitude', lat);
+                setVal('longitude', lng);
+              },
+              onLocationFound: function onLocationFound(lat, lng) {
                 setVal('latitude', lat);
                 setVal('longitude', lng);
               }
@@ -22033,10 +22661,13 @@ function Checkout() {
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
               style: {
-                fontSize: '1.2rem',
+                fontSize: '1.1rem',
                 marginBottom: '1rem',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '0.5rem'
+                borderBottom: '2px solid #C9A84C',
+                paddingBottom: '0.5rem',
+                display: 'inline-block',
+                fontFamily: '"Playfair Display", serif',
+                fontWeight: 700
               },
               children: "Shipping Method"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -22061,10 +22692,13 @@ function Checkout() {
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
               style: {
-                fontSize: '1.2rem',
+                fontSize: '1.1rem',
                 marginBottom: '1rem',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '0.5rem'
+                borderBottom: '2px solid #C9A84C',
+                paddingBottom: '0.5rem',
+                display: 'inline-block',
+                fontFamily: '"Playfair Display", serif',
+                fontWeight: 700
               },
               children: "Payment"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
@@ -22258,10 +22892,13 @@ function Checkout() {
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
               style: {
-                fontSize: '1.2rem',
+                fontSize: '1.1rem',
                 marginBottom: '1rem',
-                borderBottom: '1px solid #ddd',
-                paddingBottom: '0.5rem'
+                borderBottom: '2px solid #C9A84C',
+                paddingBottom: '0.5rem',
+                display: 'inline-block',
+                fontFamily: '"Playfair Display", serif',
+                fontWeight: 700
               },
               children: "Order Note (Optional)"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("textarea", {
@@ -22291,23 +22928,29 @@ function Checkout() {
               style: {
                 flex: 1,
                 padding: '1rem',
-                background: '#000',
-                color: '#C9A84C',
+                background: '#16a34a',
+                color: '#fff',
                 fontWeight: 800,
                 textTransform: 'uppercase',
-                fontSize: '1.1rem',
-                border: '1px solid #000',
+                fontSize: '1rem',
+                border: '1px solid #16a34a',
                 borderRadius: '4px',
                 cursor: isSubmitting ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s'
               },
               onMouseEnter: function onMouseEnter(e) {
-                if (!isSubmitting) e.target.style.background = '#111';
+                if (!isSubmitting) {
+                  e.target.style.background = '#15803d';
+                  e.target.style.borderColor = '#15803d';
+                }
               },
               onMouseLeave: function onMouseLeave(e) {
-                if (!isSubmitting) e.target.style.background = '#000';
+                if (!isSubmitting) {
+                  e.target.style.background = '#16a34a';
+                  e.target.style.borderColor = '#16a34a';
+                }
               },
-              children: isSubmitting ? 'Processing...' : 'BUY NOW'
+              children: isSubmitting ? 'Processing...' : 'PLACE ORDER'
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
               type: "button",
               onClick: function onClick() {
@@ -22317,23 +22960,29 @@ function Checkout() {
               style: {
                 flex: 1,
                 padding: '1rem',
-                background: 'red',
+                background: '#dc2626',
                 color: '#fff',
-                fontWeight: 800,
+                fontWeight: 700,
                 textTransform: 'uppercase',
-                fontSize: '1.1rem',
-                border: '1px solid red',
+                fontSize: '1rem',
+                border: '1px solid #dc2626',
                 borderRadius: '4px',
                 cursor: isSubmitting ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s'
               },
               onMouseEnter: function onMouseEnter(e) {
-                if (!isSubmitting) e.target.style.background = '#d32f2f';
+                if (!isSubmitting) {
+                  e.currentTarget.style.background = '#b91c1c';
+                  e.currentTarget.style.borderColor = '#b91c1c';
+                }
               },
               onMouseLeave: function onMouseLeave(e) {
-                if (!isSubmitting) e.target.style.background = 'red';
+                if (!isSubmitting) {
+                  e.currentTarget.style.background = '#dc2626';
+                  e.currentTarget.style.borderColor = '#dc2626';
+                }
               },
-              children: "Cancel"
+              children: "CANCEL ORDER"
             })]
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
@@ -22348,10 +22997,13 @@ function Checkout() {
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("h2", {
             style: {
+              fontFamily: '"Playfair Display", serif',
               fontSize: '1.3rem',
               marginBottom: '1.5rem',
-              borderBottom: '1px solid #ddd',
-              paddingBottom: '0.5rem'
+              borderBottom: '2px solid #C9A84C',
+              paddingBottom: '0.5rem',
+              display: 'inline-block',
+              fontWeight: 700
             },
             children: "Order Summary"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
@@ -28326,11 +28978,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
 function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
-function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -28486,7 +29138,9 @@ function AddProductModal(_ref3) {
       stock: '',
       brand_id: '',
       category_id: '',
-      image: null
+      image: null,
+      gender: 'All',
+      variant: 'All'
     }),
     _useState8 = _slicedToArray(_useState7, 2),
     form = _useState8[0],
@@ -28511,6 +29165,57 @@ function AddProductModal(_ref3) {
     _useState16 = _slicedToArray(_useState15, 2),
     categories = _useState16[0],
     setCategories = _useState16[1];
+  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState18 = _slicedToArray(_useState17, 2),
+    colorInput = _useState18[0],
+    setColorInput = _useState18[1];
+  var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState20 = _slicedToArray(_useState19, 2),
+    colorTags = _useState20[0],
+    setColorTags = _useState20[1];
+  var COLOR_CSS = {
+    black: '#111',
+    white: '#fff',
+    silver: '#C0C0C0',
+    gold: '#FFD700',
+    'rose gold': '#B76E79',
+    blue: '#3B82F6',
+    navy: '#1E3A5F',
+    green: '#22C55E',
+    red: '#EF4444',
+    orange: '#F97316',
+    yellow: '#EAB308',
+    purple: '#A855F7',
+    pink: '#EC4899',
+    brown: '#92400E',
+    gray: '#6B7280',
+    grey: '#6B7280',
+    titanium: '#878681',
+    champagne: '#F7E7CE'
+  };
+  var getColorCSS = function getColorCSS(name) {
+    var _name$toLowerCase;
+    return COLOR_CSS[name === null || name === void 0 || (_name$toLowerCase = name.toLowerCase()) === null || _name$toLowerCase === void 0 ? void 0 : _name$toLowerCase.trim()] || '#888';
+  };
+  var addColor = function addColor() {
+    var val = colorInput.trim();
+    if (!val) return;
+    if (!colorTags.map(function (c) {
+      return c.toLowerCase();
+    }).includes(val.toLowerCase())) {
+      setColorTags(function (prev) {
+        return [].concat(_toConsumableArray(prev), [val]);
+      });
+    }
+    setColorInput('');
+  };
+  var removeColor = function removeColor(idx) {
+    return setColorTags(function (prev) {
+      return prev.filter(function (_, i) {
+        return i !== idx;
+      });
+    });
+  };
   var FIXED_CATEGORIES = ['Automatic', 'Chronograph', 'Diver', 'Dress'];
   var parseBrands = function parseBrands(b) {
     if (!b) return [];
@@ -28710,18 +29415,24 @@ function AddProductModal(_ref3) {
             }
             return _context4.a(2, setError('Product Name, Brand, Category, Price and Stock are required.'));
           case 1:
+            if (!(colorTags.length === 0)) {
+              _context4.n = 2;
+              break;
+            }
+            return _context4.a(2, setError('At least one Color Variant is required.'));
+          case 2:
             setLoading(true);
-            _context4.p = 2;
+            _context4.p = 3;
             existing = (products || []).find(function (p) {
               return p.name.trim().toLowerCase() === form.name.trim().toLowerCase() && String(p.brand_id) === String(form.brand_id) && String(p.category_id) === String(form.category_id);
             });
             if (!existing) {
-              _context4.n = 6;
+              _context4.n = 7;
               break;
             }
             newDbStock = Number(existing._dbStock || 0) + Number(form.stock);
             if (!form.image) {
-              _context4.n = 4;
+              _context4.n = 5;
               break;
             }
             fd2 = new FormData();
@@ -28732,17 +29443,17 @@ function AddProductModal(_ref3) {
             fd2.append('category_id', existing.category_id);
             fd2.append('image', form.image);
             fd2.append('_method', 'PUT');
-            _context4.n = 3;
+            _context4.n = 4;
             return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/api/supplier-products/' + existing.id, fd2, {
               headers: {
                 Authorization: "Bearer " + (0,_supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.getSuppToken)(),
                 'Content-Type': 'multipart/form-data'
               }
             });
-          case 3:
-            _context4.n = 5;
-            break;
           case 4:
+            _context4.n = 6;
+            break;
+          case 5:
             payload = {
               name: existing.name,
               brand_id: existing.brand_id,
@@ -28751,12 +29462,12 @@ function AddProductModal(_ref3) {
               stock: newDbStock,
               existing_image: existing.image
             };
-            _context4.n = 5;
+            _context4.n = 6;
             return axios__WEBPACK_IMPORTED_MODULE_1___default().put('/api/supplier-products/' + existing.id, payload, (0,_supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.suppHead)());
-          case 5:
+          case 6:
             onSaved();
             return _context4.a(2);
-          case 6:
+          case 7:
             fd = new FormData();
             fd.append('name', form.name);
             fd.append('price', form.price);
@@ -28764,30 +29475,33 @@ function AddProductModal(_ref3) {
             fd.append('brand_id', form.brand_id);
             fd.append('category_id', form.category_id);
             fd.append('supplier_id', user.id);
+            fd.append('gender', form.gender || 'All');
+            fd.append('variant', form.variant || 'All');
+            fd.append('color_variants', JSON.stringify(colorTags));
             if (form.image) fd.append('image', form.image);
-            _context4.n = 7;
+            _context4.n = 8;
             return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/api/supplier-products', fd, {
               headers: {
                 Authorization: "Bearer " + (0,_supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.getSuppToken)(),
                 'Content-Type': 'multipart/form-data'
               }
             });
-          case 7:
-            onSaved();
-            _context4.n = 9;
-            break;
           case 8:
-            _context4.p = 8;
-            _t5 = _context4.v;
-            setError(((_err$response2 = _t5.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || 'Failed to create product.');
+            onSaved();
+            _context4.n = 10;
+            break;
           case 9:
             _context4.p = 9;
-            setLoading(false);
-            return _context4.f(9);
+            _t5 = _context4.v;
+            setError(((_err$response2 = _t5.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || 'Failed to create product.');
           case 10:
+            _context4.p = 10;
+            setLoading(false);
+            return _context4.f(10);
+          case 11:
             return _context4.a(2);
         }
-      }, _callee3, null, [[2, 8, 9, 10]]);
+      }, _callee3, null, [[3, 9, 10, 11]]);
     }));
     return function handleSave(_x3) {
       return _ref7.apply(this, arguments);
@@ -28992,6 +29706,142 @@ function AddProductModal(_ref3) {
               style: _supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.INV_MODAL.inp,
               placeholder: "0"
             })]
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
+              style: _supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.INV_MODAL.lbl,
+              children: "Gender"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("select", {
+              name: "gender",
+              value: form.gender,
+              onChange: handleChange,
+              style: _supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.INV_MODAL.inp,
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+                value: "All",
+                children: "All"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+                value: "Male",
+                children: "Male"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+                value: "Female",
+                children: "Female"
+              })]
+            })]
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
+              style: _supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.INV_MODAL.lbl,
+              children: "Age Group"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("select", {
+              name: "variant",
+              value: form.variant,
+              onChange: handleChange,
+              style: _supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.INV_MODAL.inp,
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+                value: "All",
+                children: "All"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+                value: "Adult",
+                children: "Adult"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+                value: "Kids",
+                children: "Kids"
+              })]
+            })]
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+            style: {
+              gridColumn: 'span 2'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
+              style: _supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.INV_MODAL.lbl,
+              children: "Color Variant *"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+              style: {
+                display: 'flex',
+                gap: '0.5rem',
+                marginBottom: '0.5rem'
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
+                type: "text",
+                value: colorInput,
+                onChange: function onChange(e) {
+                  return setColorInput(e.target.value);
+                },
+                onKeyDown: function onKeyDown(e) {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addColor();
+                  }
+                },
+                placeholder: "Type a color and press Enter or Add...",
+                style: _objectSpread(_objectSpread({}, _supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.INV_MODAL.inp), {}, {
+                  flex: 1
+                })
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+                type: "button",
+                onClick: addColor,
+                style: _objectSpread(_objectSpread({}, _supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.INV_MODAL.saveBtn), {}, {
+                  padding: '0.65rem 1rem',
+                  whiteSpace: 'nowrap'
+                }),
+                children: "+ Add"
+              })]
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+              style: {
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.4rem',
+                minHeight: '2rem'
+              },
+              children: [colorTags.length === 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                style: {
+                  color: '#9ca3af',
+                  fontSize: '0.8rem',
+                  lineHeight: '1.8rem'
+                },
+                children: "No colors added yet \u2014 at least one required"
+              }), colorTags.map(function (c, i) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("span", {
+                  style: {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    background: '#f3f4f6',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 20,
+                    padding: '0.25rem 0.6rem 0.25rem 0.45rem',
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
+                    color: '#374151'
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                    style: {
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      background: getColorCSS(c),
+                      border: '1px solid rgba(0,0,0,0.18)',
+                      display: 'inline-block',
+                      flexShrink: 0
+                    }
+                  }), c, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+                    type: "button",
+                    onClick: function onClick() {
+                      return removeColor(i);
+                    },
+                    style: {
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      color: '#6b7280',
+                      fontSize: '0.8rem',
+                      lineHeight: 1,
+                      marginLeft: 2
+                    },
+                    children: "\u2715"
+                  })]
+                }, i);
+              })]
+            })]
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           style: {
@@ -29017,22 +29867,22 @@ function AddProductModal(_ref3) {
 }
 function InventorySuppliedPage(_ref8) {
   var user = _ref8.user;
-  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
-    _useState18 = _slicedToArray(_useState17, 2),
-    products = _useState18[0],
-    setProducts = _useState18[1];
-  var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
-    _useState20 = _slicedToArray(_useState19, 2),
-    loading = _useState20[0],
-    setLoading = _useState20[1];
-  var _useState21 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+  var _useState21 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
     _useState22 = _slicedToArray(_useState21, 2),
-    editing = _useState22[0],
-    setEditing = _useState22[1];
-  var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    products = _useState22[0],
+    setProducts = _useState22[1];
+  var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
     _useState24 = _slicedToArray(_useState23, 2),
-    adding = _useState24[0],
-    setAdding = _useState24[1];
+    loading = _useState24[0],
+    setLoading = _useState24[1];
+  var _useState25 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState26 = _slicedToArray(_useState25, 2),
+    editing = _useState26[0],
+    setEditing = _useState26[1];
+  var _useState27 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState28 = _slicedToArray(_useState27, 2),
+    adding = _useState28[0],
+    setAdding = _useState28[1];
   var load = function load() {
     setLoading(true);
     axios__WEBPACK_IMPORTED_MODULE_1___default().get('/api/supplier-products', (0,_supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.suppHead)()).then(function (r) {
@@ -33122,6 +33972,43 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
+var COLOR_CSS = {
+  black: '#111',
+  white: '#e5e5e5',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  'rose gold': '#B76E79',
+  blue: '#3B82F6',
+  navy: '#1E3A5F',
+  green: '#22C55E',
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  purple: '#A855F7',
+  pink: '#EC4899',
+  brown: '#92400E',
+  gray: '#6B7280',
+  grey: '#6B7280',
+  titanium: '#878681',
+  champagne: '#F7E7CE'
+};
+var getColorCSS = function getColorCSS(name) {
+  var _name$toLowerCase;
+  return COLOR_CSS[name === null || name === void 0 || (_name$toLowerCase = name.toLowerCase()) === null || _name$toLowerCase === void 0 ? void 0 : _name$toLowerCase.trim()] || '#888';
+};
+function parseColors(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try {
+    return JSON.parse(raw);
+  } catch (_unused) {
+    return [];
+  }
+}
+var isAutoNew = function isAutoNew(p) {
+  if (!(p !== null && p !== void 0 && p.created_at)) return false;
+  return Date.now() - new Date(p.created_at).getTime() < 7 * 24 * 60 * 60 * 1000;
+};
 function UserBrowse() {
   var _useAuth = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_4__.useAuth)(),
     user = _useAuth.user,
@@ -33175,14 +34062,40 @@ function UserBrowse() {
     _useState12 = _slicedToArray(_useState11, 2),
     priceSort = _useState12[0],
     setPriceSort = _useState12[1];
-  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Conditions'),
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Categories'),
     _useState14 = _slicedToArray(_useState13, 2),
-    conditionFilter = _useState14[0],
-    setConditionFilter = _useState14[1];
-  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Categories'),
+    categoryFilter = _useState14[0],
+    setCategoryFilter = _useState14[1];
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Genders'),
     _useState16 = _slicedToArray(_useState15, 2),
-    categoryFilter = _useState16[0],
-    setCategoryFilter = _useState16[1];
+    genderFilter = _useState16[0],
+    setGenderFilter = _useState16[1];
+  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Age Groups'),
+    _useState18 = _slicedToArray(_useState17, 2),
+    variantFilter = _useState18[0],
+    setVariantFilter = _useState18[1];
+  var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState20 = _slicedToArray(_useState19, 2),
+    colorSearch = _useState20[0],
+    setColorSearch = _useState20[1];
+  var _useState21 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState22 = _slicedToArray(_useState21, 2),
+    colorFilter = _useState22[0],
+    setColorFilter = _useState22[1];
+  var _useState23 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState24 = _slicedToArray(_useState23, 2),
+    colorSearchOpen = _useState24[0],
+    setColorSearchOpen = _useState24[1];
+  var colorRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    var onOut = function onOut(e) {
+      if (colorRef.current && !colorRef.current.contains(e.target)) setColorSearchOpen(false);
+    };
+    document.addEventListener('mousedown', onOut);
+    return function () {
+      return document.removeEventListener('mousedown', onOut);
+    };
+  }, []);
 
   // Dynamic Filter Options based strictly on the live Admin Inventory
   var availableBrands = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
@@ -33199,14 +34112,26 @@ function UserBrowse() {
     }).filter(Boolean);
     return ['All Categories'].concat(_toConsumableArray(new Set(cats))).sort();
   }, [allProducts]);
-  var availableConditions = ['All Conditions', 'New', 'Pre-owned', 'Limited'];
-
-  // Utility mapping Admin booleans to Customer Condition strings visually
-  var getCondition = function getCondition(p) {
-    if (p.is_new) return 'New';
-    if (p.is_featured || p.status === 'Low Stock' || p.stock > 0 && p.stock <= 5) return 'Limited';
-    return 'Pre-owned';
-  };
+  var availableColors = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
+    var set = new Set();
+    allProducts.forEach(function (p) {
+      var cv = parseColors(p.color_variants);
+      cv.forEach(function (c) {
+        if (c) String(c).split(',').map(function (s) {
+          return s.trim();
+        }).filter(Boolean).forEach(function (s) {
+          return set.add(s);
+        });
+      });
+    });
+    return _toConsumableArray(set).sort();
+  }, [allProducts]);
+  var colorSuggestions = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
+    if (!colorSearch.trim()) return availableColors;
+    return availableColors.filter(function (c) {
+      return c.toLowerCase().includes(colorSearch.toLowerCase());
+    });
+  }, [availableColors, colorSearch]);
 
   // Featured Sidebar (Real live products instead of mock data)
   var featuredWatches = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
@@ -33226,10 +34151,22 @@ function UserBrowse() {
       var q = searchQuery.toLowerCase();
       var matchSearch = safeName.toLowerCase().includes(q) || safeBrand.toLowerCase().includes(q) || safeCategory.toLowerCase().includes(q);
       var matchBrand = brandFilter === 'All Brands' || ((_p$brand3 = p.brand) === null || _p$brand3 === void 0 ? void 0 : _p$brand3.name) === brandFilter;
-      var itemCond = getCondition(p);
-      var matchCondition = conditionFilter === 'All Conditions' || itemCond === conditionFilter;
       var matchCategory = categoryFilter === 'All Categories' || ((_p$category3 = p.category) === null || _p$category3 === void 0 ? void 0 : _p$category3.name) === categoryFilter;
-      return matchSearch && matchBrand && matchCondition && matchCategory;
+      var matchGender = genderFilter === 'All Genders' || !p.gender || p.gender === 'All' || p.gender === genderFilter;
+      var matchVariant = variantFilter === 'All Age Groups' || !p.variant || p.variant === 'All' || p.variant === variantFilter;
+      var pColors = parseColors(p.color_variants);
+      var flatColors = [];
+      pColors.forEach(function (c) {
+        return String(c).split(',').map(function (s) {
+          return s.trim();
+        }).filter(Boolean).forEach(function (s) {
+          return flatColors.push(s);
+        });
+      });
+      var matchColor = !colorFilter || flatColors.some(function (c) {
+        return c.toLowerCase() === colorFilter.toLowerCase();
+      });
+      return matchSearch && matchBrand && matchCategory && matchGender && matchVariant && matchColor;
     });
     if (priceSort === 'Low to High') {
       filtered.sort(function (a, b) {
@@ -33241,7 +34178,7 @@ function UserBrowse() {
       });
     }
     return filtered;
-  }, [allProducts, searchQuery, brandFilter, conditionFilter, categoryFilter, priceSort]);
+  }, [allProducts, searchQuery, brandFilter, categoryFilter, priceSort, genderFilter, variantFilter, colorFilter]);
   var handleWishlistToggle = /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(item) {
       var isAdded;
@@ -33267,20 +34204,6 @@ function UserBrowse() {
       return _ref.apply(this, arguments);
     };
   }();
-  var getConditionBadgeStyle = function getConditionBadgeStyle(cond) {
-    if (cond === 'New') return {
-      bg: '#dcfce7',
-      color: '#166534'
-    };
-    if (cond === 'Limited') return {
-      bg: '#fef08a',
-      color: '#854d0e'
-    };
-    return {
-      bg: '#f3f4f6',
-      color: '#4b5563'
-    }; // Pre-owned or other
-  };
   if (loading) {
     return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_UserLayout__WEBPACK_IMPORTED_MODULE_3__["default"], {
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
@@ -33355,6 +34278,45 @@ function UserBrowse() {
             children: [displayedProducts.length, " items found"]
           })]
         })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+        style: {
+          display: 'flex',
+          gap: '0.75rem',
+          flexWrap: 'wrap',
+          marginBottom: '1.5rem'
+        },
+        children: availableBrands.map(function (b) {
+          return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("button", {
+            onClick: function onClick() {
+              return setBrandFilter(b);
+            },
+            style: {
+              padding: '0.5rem 1.2rem',
+              background: brandFilter === b ? '#C9A84C' : '#fff',
+              color: brandFilter === b ? '#000' : '#555',
+              border: brandFilter === b ? '1px solid #C9A84C' : '1px solid #ddd',
+              borderRadius: '30px',
+              fontWeight: 600,
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: brandFilter === b ? '0 4px 12px rgba(201,168,76,0.3)' : 'none'
+            },
+            onMouseEnter: function onMouseEnter(e) {
+              if (brandFilter !== b) {
+                e.target.style.background = '#f9f6ee';
+                e.target.style.borderColor = '#C9A84C';
+              }
+            },
+            onMouseLeave: function onMouseLeave(e) {
+              if (brandFilter !== b) {
+                e.target.style.background = '#fff';
+                e.target.style.borderColor = '#ddd';
+              }
+            },
+            children: b
+          }, b);
+        })
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
         className: "user-filter-bar",
         style: {
@@ -33371,7 +34333,8 @@ function UserBrowse() {
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
           style: {
             position: 'relative',
-            flex: 1
+            flex: 1,
+            minWidth: '220px'
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("input", {
             type: "text",
@@ -33415,28 +34378,6 @@ function UserBrowse() {
               y2: "16.65"
             })]
           })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("select", {
-          value: brandFilter,
-          onChange: function onChange(e) {
-            return setBrandFilter(e.target.value);
-          },
-          style: {
-            padding: '0.8rem 1rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            background: '#fff',
-            outline: 'none',
-            cursor: 'pointer',
-            color: '#333',
-            fontWeight: 500,
-            minWidth: '150px'
-          },
-          children: availableBrands.map(function (b) {
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
-              value: b,
-              children: b
-            }, b);
-          })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("select", {
           value: priceSort,
           onChange: function onChange(e) {
@@ -33451,38 +34392,19 @@ function UserBrowse() {
             cursor: 'pointer',
             color: '#333',
             fontWeight: 500,
-            minWidth: '150px'
+            minWidth: '130px'
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
-            children: "All Prices"
+            value: "All Prices",
+            children: "Prices"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "Low to High",
             children: "Low to High"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "High to Low",
             children: "High to Low"
           })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("select", {
-          value: conditionFilter,
-          onChange: function onChange(e) {
-            return setConditionFilter(e.target.value);
-          },
-          style: {
-            padding: '0.8rem 1rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            background: '#fff',
-            outline: 'none',
-            cursor: 'pointer',
-            color: '#333',
-            fontWeight: 500,
-            minWidth: '150px'
-          },
-          children: availableConditions.map(function (c) {
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
-              value: c,
-              children: c
-            }, c);
-          })
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("select", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("select", {
           value: categoryFilter,
           onChange: function onChange(e) {
             return setCategoryFilter(e.target.value);
@@ -33496,14 +34418,220 @@ function UserBrowse() {
             cursor: 'pointer',
             color: '#333',
             fontWeight: 500,
-            minWidth: '150px'
+            minWidth: '130px'
           },
-          children: availableCategories.map(function (c) {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "All Categories",
+            children: "Categories"
+          }), availableCategories.filter(function (c) {
+            return c !== 'All Categories';
+          }).map(function (c) {
             return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
               value: c,
               children: c
             }, c);
-          })
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("select", {
+          value: genderFilter,
+          onChange: function onChange(e) {
+            return setGenderFilter(e.target.value);
+          },
+          style: {
+            padding: '0.8rem 1rem',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            background: '#fff',
+            outline: 'none',
+            cursor: 'pointer',
+            color: '#333',
+            fontWeight: 500,
+            minWidth: '120px'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "All Genders",
+            children: "Gender"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "Male",
+            children: "Male"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "Female",
+            children: "Female"
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("select", {
+          value: variantFilter,
+          onChange: function onChange(e) {
+            return setVariantFilter(e.target.value);
+          },
+          style: {
+            padding: '0.8rem 1rem',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            background: '#fff',
+            outline: 'none',
+            cursor: 'pointer',
+            color: '#333',
+            fontWeight: 500,
+            minWidth: '130px'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "All Age Groups",
+            children: "Age Group"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "Adult",
+            children: "Adult"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("option", {
+            value: "Kids",
+            children: "Kids"
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+          ref: colorRef,
+          style: {
+            position: 'relative'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+            onClick: function onClick() {
+              return setColorSearchOpen(function (o) {
+                return !o;
+              });
+            },
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.8rem 1rem',
+              border: colorFilter ? '1px solid #C9A84C' : '1px solid #ddd',
+              borderRadius: '4px',
+              background: '#fff',
+              cursor: 'pointer',
+              color: colorFilter ? '#C9A84C' : '#555',
+              fontWeight: colorFilter ? 700 : 500,
+              minWidth: '130px',
+              fontSize: '0.93rem',
+              userSelect: 'none'
+            },
+            children: colorFilter ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.Fragment, {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                style: {
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: getColorCSS(colorFilter),
+                  border: '1px solid rgba(0,0,0,0.15)',
+                  flexShrink: 0,
+                  display: 'inline-block'
+                }
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                style: {
+                  flex: 1
+                },
+                children: colorFilter
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                style: {
+                  color: '#aaa',
+                  fontSize: '0.8rem',
+                  lineHeight: 1
+                },
+                onClick: function onClick(e) {
+                  e.stopPropagation();
+                  setColorFilter('');
+                  setColorSearch('');
+                },
+                children: "\u2715"
+              })]
+            }) : 'Color Variant ▾'
+          }), colorSearchOpen && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+            style: {
+              position: 'absolute',
+              top: 'calc(100% + 4px)',
+              left: 0,
+              zIndex: 200,
+              background: '#fff',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+              minWidth: '210px',
+              padding: '0.5rem'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("input", {
+              autoFocus: true,
+              type: "text",
+              value: colorSearch,
+              onChange: function onChange(e) {
+                return setColorSearch(e.target.value);
+              },
+              placeholder: "Search color...",
+              style: {
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                outline: 'none',
+                fontSize: '0.88rem',
+                boxSizing: 'border-box',
+                marginBottom: '0.4rem'
+              }
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+              style: {
+                maxHeight: '180px',
+                overflowY: 'auto'
+              },
+              children: !colorSearch.trim() ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                style: {
+                  color: '#bbb',
+                  fontSize: '0.82rem',
+                  padding: '0.4rem 0.5rem',
+                  fontStyle: 'italic'
+                },
+                children: "Type a color name to search..."
+              }) : colorSuggestions.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                style: {
+                  color: '#aaa',
+                  fontSize: '0.83rem',
+                  padding: '0.4rem 0.5rem'
+                },
+                children: "No colors found"
+              }) : colorSuggestions.map(function (c) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+                  onClick: function onClick() {
+                    setColorFilter(c);
+                    setColorSearch('');
+                    setColorSearchOpen(false);
+                  },
+                  style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.4rem 0.6rem',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                    background: colorFilter === c ? '#fef9ed' : 'transparent'
+                  },
+                  onMouseEnter: function onMouseEnter(e) {
+                    if (colorFilter !== c) e.currentTarget.style.background = '#f3f4f6';
+                  },
+                  onMouseLeave: function onMouseLeave(e) {
+                    e.currentTarget.style.background = colorFilter === c ? '#fef9ed' : 'transparent';
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                    style: {
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      background: getColorCSS(c),
+                      border: '1px solid rgba(0,0,0,0.18)',
+                      flexShrink: 0
+                    }
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                    style: {
+                      fontSize: '0.88rem',
+                      color: '#333'
+                    },
+                    children: c
+                  })]
+                }, c);
+              })
+            })]
+          })]
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
         className: "mobile-stack",
@@ -33543,85 +34671,87 @@ function UserBrowse() {
               gap: '1.5rem'
             },
             children: displayedProducts.map(function (item) {
-              var conditionString = getCondition(item);
-              var badgeStyle = getConditionBadgeStyle(conditionString);
-              // Override visual style strictly if Out of Stock logically
-              if (item.stock === 0 || item.status === 'Out of Stock') {
-                badgeStyle = {
-                  bg: '#fee2e2',
-                  color: '#b91c1c'
-                };
-              }
+              var _item$brand, _item$category;
+              var isNew = isAutoNew(item);
+              var colors = parseColors(item.color_variants);
+              var isWishlisted = wishlistIds.some(function (id) {
+                return Number(id) === Number(item.id);
+              });
               return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                 style: {
                   background: '#fff',
                   borderRadius: '8px',
-                  padding: '1.2rem',
                   border: '1px solid #eaeaea',
-                  transition: 'transform 0.2s',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  opacity: item.stock === 0 ? 0.75 : 1,
+                  overflow: 'hidden',
                   cursor: 'pointer'
                 },
                 onMouseEnter: function onMouseEnter(e) {
-                  return e.currentTarget.style.transform = 'translateY(-5px)';
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.08)';
                 },
                 onMouseLeave: function onMouseLeave(e) {
-                  return e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = 'none';
                 },
                 onClick: function onClick() {
                   return setSelectedProduct(item);
                 },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                   style: {
-                    margin: '-1.2rem -1.2rem 1.5rem -1.2rem',
                     background: '#f8f9fa',
-                    borderBottom: '1px solid #eee',
-                    height: '220px',
+                    height: '200px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     overflow: 'hidden',
-                    borderRadius: '8px 8px 0 0',
                     position: 'relative'
                   },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("button", {
+                  children: [isNew && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                    style: {
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      background: '#22c55e',
+                      color: '#fff',
+                      fontSize: '0.65rem',
+                      fontWeight: 800,
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '4px',
+                      letterSpacing: '0.5px',
+                      zIndex: 5
+                    },
+                    children: "NEW"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("button", {
                     onClick: function onClick(e) {
                       e.stopPropagation();
                       handleWishlistToggle(item);
                     },
                     style: {
                       position: 'absolute',
-                      top: '15px',
-                      right: '15px',
+                      top: '10px',
+                      right: '10px',
                       background: 'rgba(255,255,255,0.9)',
                       border: '1px solid #eee',
                       borderRadius: '50%',
-                      width: '32px',
-                      height: '32px',
+                      width: '30px',
+                      height: '30px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       cursor: 'pointer',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                      zIndex: 10
+                      zIndex: 5
                     },
                     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("svg", {
-                      width: "16",
-                      height: "16",
+                      width: "14",
+                      height: "14",
                       viewBox: "0 0 24 24",
-                      fill: wishlistIds.some(function (id) {
-                        return Number(id) === Number(item.id);
-                      }) ? '#ef4444' : 'none',
-                      stroke: wishlistIds.some(function (id) {
-                        return Number(id) === Number(item.id);
-                      }) ? '#ef4444' : '#666',
+                      fill: isWishlisted ? '#ef4444' : 'none',
+                      stroke: isWishlisted ? '#ef4444' : '#666',
                       strokeWidth: "2",
-                      strokeLinecap: "round",
-                      strokeLinejoin: "round",
                       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("path", {
                         d: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
                       })
@@ -33632,76 +34762,157 @@ function UserBrowse() {
                     style: {
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover'
+                      objectFit: 'contain',
+                      padding: '0.5rem'
                     }
                   })]
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                   style: {
-                    flex: 1
+                    padding: '1rem',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column'
                   },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("h3", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                     style: {
-                      fontSize: '1rem',
-                      marginBottom: '0.6rem',
-                      fontFamily: 'Inter, sans-serif',
-                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      color: '#C9A84C',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      marginBottom: '0.25rem'
+                    },
+                    children: (_item$brand = item.brand) === null || _item$brand === void 0 ? void 0 : _item$brand.name
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                    style: {
+                      fontSize: '0.95rem',
+                      fontWeight: 700,
                       color: '#111',
-                      lineHeight: 1.2
+                      lineHeight: 1.3,
+                      marginBottom: '0.5rem'
                     },
                     children: item.name
                   }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                     style: {
                       display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '4px',
+                      marginBottom: '0.5rem'
+                    },
+                    children: [((_item$category = item.category) === null || _item$category === void 0 ? void 0 : _item$category.name) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                      style: {
+                        fontSize: '0.68rem',
+                        background: '#f3f4f6',
+                        color: '#555',
+                        borderRadius: 4,
+                        padding: '1px 6px'
+                      },
+                      children: item.category.name
+                    }), item.gender && item.gender !== 'All' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                      style: {
+                        fontSize: '0.68rem',
+                        background: '#f3f4f6',
+                        color: '#555',
+                        borderRadius: 4,
+                        padding: '1px 6px'
+                      },
+                      children: item.gender
+                    }), item.variant && item.variant !== 'All' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                      style: {
+                        fontSize: '0.68rem',
+                        background: '#f3f4f6',
+                        color: '#555',
+                        borderRadius: 4,
+                        padding: '1px 6px'
+                      },
+                      children: item.variant
+                    })]
+                  }), colors.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                    style: {
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '4px',
+                      marginBottom: '0.5rem'
+                    },
+                    children: colors.slice(0, 8).map(function (c, i) {
+                      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+                        title: c,
+                        style: {
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          background: getColorCSS(c),
+                          border: '1.5px solid rgba(0,0,0,0.18)',
+                          display: 'inline-block',
+                          flexShrink: 0
+                        }
+                      }, i);
+                    })
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+                    style: {
+                      display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      marginBottom: '1.2rem'
+                      marginTop: 'auto',
+                      paddingTop: '0.5rem'
                     },
                     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                       style: {
                         fontWeight: 800,
-                        fontSize: '1.1rem',
+                        fontSize: '1rem',
                         color: '#111'
                       },
-                      children: ["$", Number(item.price).toLocaleString()]
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
-                      style: {
-                        background: badgeStyle.bg,
-                        color: badgeStyle.color,
-                        fontSize: '0.65rem',
-                        fontWeight: 700,
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                        border: '1px solid rgba(0,0,0,0.05)',
-                        letterSpacing: '0.5px'
+                      children: ["\u20B1", Number(item.price).toLocaleString()]
+                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("button", {
+                      onClick: function onClick(e) {
+                        e.stopPropagation();
+                        if (item.stock > 0) addToCart(item.id);
                       },
-                      children: item.stock === 0 ? 'OUT OF STOCK' : conditionString
+                      disabled: item.stock === 0,
+                      style: {
+                        width: '34px',
+                        height: '34px',
+                        background: item.stock > 0 ? '#111' : '#e5e7eb',
+                        color: item.stock > 0 ? '#C9A84C' : '#9ca3af',
+                        border: 'none',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: item.stock > 0 ? 'pointer' : 'not-allowed',
+                        transition: 'background 0.2s',
+                        flexShrink: 0
+                      },
+                      onMouseEnter: function onMouseEnter(e) {
+                        if (item.stock > 0) e.currentTarget.style.background = '#C9A84C';
+                        if (item.stock > 0) e.currentTarget.style.color = '#000';
+                      },
+                      onMouseLeave: function onMouseLeave(e) {
+                        if (item.stock > 0) e.currentTarget.style.background = '#111';
+                        if (item.stock > 0) e.currentTarget.style.color = '#C9A84C';
+                      },
+                      title: "Add to Cart",
+                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("svg", {
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        width: "16",
+                        height: "16",
+                        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("circle", {
+                          cx: "9",
+                          cy: "21",
+                          r: "1"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("circle", {
+                          cx: "20",
+                          cy: "21",
+                          r: "1"
+                        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("path", {
+                          d: "M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"
+                        })]
+                      })
                     })]
                   })]
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("button", {
-                  onClick: function onClick(e) {
-                    e.stopPropagation();
-                    if (item.stock > 0) addToCart(item.id);
-                  },
-                  disabled: item.stock === 0,
-                  style: {
-                    width: '100%',
-                    padding: '0.6rem',
-                    background: item.stock > 0 ? '#C9A84C' : '#e5e7eb',
-                    color: item.stock > 0 ? '#000' : '#9ca3af',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontWeight: 700,
-                    cursor: item.stock > 0 ? 'pointer' : 'not-allowed',
-                    fontSize: '0.85rem',
-                    transition: 'background 0.2s'
-                  },
-                  onMouseEnter: function onMouseEnter(e) {
-                    if (item.stock > 0) e.target.style.background = '#d4b761';
-                  },
-                  onMouseLeave: function onMouseLeave(e) {
-                    if (item.stock > 0) e.target.style.background = '#C9A84C';
-                  },
-                  children: "Add to Cart"
                 })]
               }, item.id);
             })
@@ -33760,16 +34971,17 @@ function UserBrowse() {
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
           className: "mobile-w-full",
           style: {
-            width: '300px',
+            width: '280px',
             background: '#fcfcfc',
             border: '1px solid #eaeaea',
             borderRadius: '8px',
-            padding: '2rem'
+            padding: '1.5rem',
+            flexShrink: 0
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("h2", {
             style: {
               fontFamily: '"Playfair Display", Georgia, serif',
-              fontSize: '1.3rem',
+              fontSize: '1.2rem',
               color: '#111',
               marginBottom: '1.5rem',
               fontWeight: 700,
@@ -33791,28 +35003,35 @@ function UserBrowse() {
               },
               children: "No featured items"
             }) : null, featuredWatches.map(function (watch) {
+              var _watch$brand;
               return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                 style: {
                   display: 'flex',
                   gap: '1rem',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  cursor: 'pointer'
+                },
+                onClick: function onClick() {
+                  return setSelectedProduct(watch);
                 },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                   style: {
-                    width: '60px',
-                    height: '60px',
+                    background: '#111',
+                    borderRadius: '4px',
+                    width: '56px',
+                    height: '56px',
                     overflow: 'hidden',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderRadius: '4px'
+                    flexShrink: 0
                   },
                   children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("img", {
                     src: getImageUrl(watch.image),
                     alt: watch.name,
                     style: {
-                      maxWidth: '100%',
-                      maxHeight: '100%',
+                      maxWidth: '90%',
+                      maxHeight: '90%',
                       objectFit: 'contain'
                     }
                   })
@@ -33822,7 +35041,15 @@ function UserBrowse() {
                   },
                   children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                     style: {
-                      fontSize: '0.85rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      color: '#C9A84C',
+                      marginBottom: '0.1rem'
+                    },
+                    children: (_watch$brand = watch.brand) === null || _watch$brand === void 0 ? void 0 : _watch$brand.name
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+                    style: {
+                      fontSize: '0.82rem',
                       fontWeight: 700,
                       color: '#333',
                       marginBottom: '0.2rem',
@@ -33831,11 +35058,11 @@ function UserBrowse() {
                     children: watch.name
                   }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                     style: {
-                      fontSize: '0.9rem',
+                      fontSize: '0.88rem',
                       color: '#111',
                       fontWeight: 800
                     },
-                    children: ["$", Number(watch.price).toLocaleString()]
+                    children: ["\u20B1", Number(watch.price).toLocaleString()]
                   })]
                 })]
               }, watch.id);
@@ -34247,21 +35474,28 @@ function UserDashboard() {
                   style: {
                     width: '100%',
                     height: '100%',
-                    objectFit: 'cover'
+                    objectFit: 'contain',
+                    padding: '0.5rem'
                   }
                 })]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("h3", {
                 style: {
-                  fontSize: '1.1rem',
-                  marginBottom: '0.3rem',
-                  fontFamily: '"Playfair Display", Georgia, serif'
+                  fontSize: '1rem',
+                  marginBottom: '0.25rem',
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 700,
+                  color: '#111',
+                  lineHeight: 1.2
                 },
                 children: item.name
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
                 style: {
-                  fontSize: '0.85rem',
-                  color: '#666',
-                  marginBottom: '1rem'
+                  fontSize: '0.7rem',
+                  color: '#C9A84C',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
+                  marginBottom: '0.8rem'
                 },
                 children: ((_item$brand = item.brand) === null || _item$brand === void 0 ? void 0 : _item$brand.name) || ((_item$category = item.category) === null || _item$category === void 0 ? void 0 : _item$category.name) || 'Luxury Timepiece'
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
@@ -34273,9 +35507,10 @@ function UserDashboard() {
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                   style: {
                     fontWeight: 800,
-                    fontSize: '1.1rem'
+                    fontSize: '1rem',
+                    color: '#111'
                   },
-                  children: ["$", Number(item.price).toLocaleString()]
+                  children: ["\u20B1", Number(item.price).toLocaleString()]
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("button", {
                   style: {
                     padding: '0.5rem 1rem',
@@ -34563,7 +35798,7 @@ function UserDashboard() {
                     fontSize: '0.9rem',
                     color: '#111'
                   },
-                  children: ["$", Number(item.price).toLocaleString()]
+                  children: ["\u20B1", Number(item.price).toLocaleString()]
                 })]
               }, item.id);
             })
@@ -36708,15 +37943,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Context_AuthContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../Context/AuthContext */ "./resources/js/Context/AuthContext.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
-function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -36727,11 +37966,621 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
+// ─── AddressesTab ─────────────────────────────────────────────────────────────
+// Reads from the same /api/delivery-addresses endpoint as Checkout.
+// Any address added, edited, deleted, or set-as-default here is instantly
+// reflected in the Checkout Saved Addresses list (Rule 5).
+
+function AddressesTab() {
+  var _useAuth = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_2__.useAuth)(),
+    user = _useAuth.user;
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0___default().useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    addresses = _React$useState2[0],
+    setAddresses = _React$useState2[1];
+  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  var _React$useState5 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(null),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    mode = _React$useState6[0],
+    setMode = _React$useState6[1]; // null | 'add' | 'edit'
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(null),
+    _React$useState8 = _slicedToArray(_React$useState7, 2),
+    editTarget = _React$useState8[0],
+    setEditTarget = _React$useState8[1];
+  var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(false),
+    _React$useState0 = _slicedToArray(_React$useState9, 2),
+    saving = _React$useState0[0],
+    setSaving = _React$useState0[1];
+  var _React$useState1 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(''),
+    _React$useState10 = _slicedToArray(_React$useState1, 2),
+    msg = _React$useState10[0],
+    setMsg = _React$useState10[1];
+  var EMPTY_FORM = {
+    full_name: '',
+    address: '',
+    city: '',
+    region: 'Luzon',
+    phone: '',
+    is_default: false
+  };
+  var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_0___default().useState(EMPTY_FORM),
+    _React$useState12 = _slicedToArray(_React$useState11, 2),
+    form = _React$useState12[0],
+    setForm = _React$useState12[1];
+  var setF = function setF(k, v) {
+    return setForm(function (f) {
+      return _objectSpread(_objectSpread({}, f), {}, _defineProperty({}, k, v));
+    });
+  };
+
+  // Load all saved addresses
+  react__WEBPACK_IMPORTED_MODULE_0___default().useEffect(function () {
+    if (!user) return;
+    Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23)).then(function (_ref) {
+      var axios = _ref["default"];
+      axios.get('/api/delivery-addresses').then(function (res) {
+        return setAddresses(res.data);
+      })["catch"](function () {})["finally"](function () {
+        return setLoading(false);
+      });
+    });
+  }, [user]);
+  var openAdd = function openAdd() {
+    setForm(_objectSpread(_objectSpread({}, EMPTY_FORM), {}, {
+      full_name: (user === null || user === void 0 ? void 0 : user.name) || '',
+      phone: (user === null || user === void 0 ? void 0 : user.phone) || ''
+    }));
+    setEditTarget(null);
+    setMode('add');
+    setMsg('');
+  };
+  var openEdit = function openEdit(addr) {
+    setForm({
+      full_name: addr.full_name,
+      address: addr.address,
+      city: addr.city,
+      region: addr.region || 'Luzon',
+      phone: addr.phone || '',
+      is_default: addr.is_default
+    });
+    setEditTarget(addr);
+    setMode('edit');
+    setMsg('');
+  };
+  var handleSave = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(e) {
+      var _yield$import, axios, res, _res, fresh, _t;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.p = _context.n) {
+          case 0:
+            e.preventDefault();
+            if (!(!form.full_name.trim() || !form.address.trim() || !form.city.trim())) {
+              _context.n = 1;
+              break;
+            }
+            setMsg('Full Name, Address, and City are required.');
+            return _context.a(2);
+          case 1:
+            setSaving(true);
+            setMsg('');
+            _context.p = 2;
+            _context.n = 3;
+            return Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23));
+          case 3:
+            _yield$import = _context.v;
+            axios = _yield$import["default"];
+            if (!(mode === 'add')) {
+              _context.n = 5;
+              break;
+            }
+            _context.n = 4;
+            return axios.post('/api/delivery-addresses', form);
+          case 4:
+            res = _context.v;
+            setAddresses(function (prev) {
+              return [].concat(_toConsumableArray(prev), [res.data]);
+            });
+            setMsg('Address added successfully.');
+            _context.n = 7;
+            break;
+          case 5:
+            _context.n = 6;
+            return axios.put("/api/delivery-addresses/".concat(editTarget.id), form);
+          case 6:
+            _res = _context.v;
+            setAddresses(function (prev) {
+              return prev.map(function (a) {
+                return a.id === editTarget.id ? _res.data : a;
+              });
+            });
+            setMsg('Address updated successfully.');
+          case 7:
+            _context.n = 8;
+            return axios.get('/api/delivery-addresses');
+          case 8:
+            fresh = _context.v;
+            setAddresses(fresh.data);
+            setMode(null);
+            setEditTarget(null);
+            _context.n = 10;
+            break;
+          case 9:
+            _context.p = 9;
+            _t = _context.v;
+            setMsg('Failed to save. Please try again.');
+          case 10:
+            _context.p = 10;
+            setSaving(false);
+            return _context.f(10);
+          case 11:
+            return _context.a(2);
+        }
+      }, _callee, null, [[2, 9, 10, 11]]);
+    }));
+    return function handleSave(_x) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+  var handleDelete = /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(id) {
+      var _yield$import2, axios, _t2;
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.p = _context2.n) {
+          case 0:
+            if (window.confirm('Remove this address?')) {
+              _context2.n = 1;
+              break;
+            }
+            return _context2.a(2);
+          case 1:
+            _context2.p = 1;
+            _context2.n = 2;
+            return Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23));
+          case 2:
+            _yield$import2 = _context2.v;
+            axios = _yield$import2["default"];
+            _context2.n = 3;
+            return axios["delete"]("/api/delivery-addresses/".concat(id));
+          case 3:
+            setAddresses(function (prev) {
+              return prev.filter(function (a) {
+                return a.id !== id;
+              });
+            });
+            _context2.n = 5;
+            break;
+          case 4:
+            _context2.p = 4;
+            _t2 = _context2.v;
+            alert('Failed to delete address.');
+          case 5:
+            return _context2.a(2);
+        }
+      }, _callee2, null, [[1, 4]]);
+    }));
+    return function handleDelete(_x2) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+  var handleSetDefault = /*#__PURE__*/function () {
+    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(addr) {
+      var _yield$import3, axios, fresh, _t3;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
+          case 0:
+            if (!addr.is_default) {
+              _context3.n = 1;
+              break;
+            }
+            return _context3.a(2);
+          case 1:
+            _context3.p = 1;
+            _context3.n = 2;
+            return Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23));
+          case 2:
+            _yield$import3 = _context3.v;
+            axios = _yield$import3["default"];
+            _context3.n = 3;
+            return axios.put("/api/delivery-addresses/".concat(addr.id), _objectSpread(_objectSpread({}, addr), {}, {
+              is_default: true
+            }));
+          case 3:
+            _context3.n = 4;
+            return axios.get('/api/delivery-addresses');
+          case 4:
+            fresh = _context3.v;
+            setAddresses(fresh.data);
+            _context3.n = 6;
+            break;
+          case 5:
+            _context3.p = 5;
+            _t3 = _context3.v;
+            alert('Failed to set default.');
+          case 6:
+            return _context3.a(2);
+        }
+      }, _callee3, null, [[1, 5]]);
+    }));
+    return function handleSetDefault(_x3) {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+  var inputStyle = {
+    width: '100%',
+    padding: '0.75rem',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    fontSize: '0.9rem',
+    fontFamily: 'inherit',
+    boxSizing: 'border-box'
+  };
+  var labelStyle = {
+    display: 'block',
+    fontSize: '0.8rem',
+    fontWeight: 600,
+    marginBottom: '0.3rem',
+    color: '#555'
+  };
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '1.2rem'
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h3", {
+        style: {
+          fontSize: '1.2rem',
+          color: '#111',
+          fontWeight: 700,
+          margin: 0
+        },
+        children: "Saved Addresses"
+      }), mode === null && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+        onClick: openAdd,
+        style: {
+          background: '#C9A84C',
+          color: '#000',
+          border: 'none',
+          borderRadius: '4px',
+          padding: '0.5rem 1.2rem',
+          fontWeight: 700,
+          cursor: 'pointer',
+          fontSize: '0.9rem'
+        },
+        children: "+ Add Address"
+      })]
+    }), msg && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+      style: {
+        padding: '0.7rem 1rem',
+        marginBottom: '1rem',
+        borderRadius: '4px',
+        fontSize: '0.85rem',
+        background: msg.startsWith('Failed') ? '#fef2f2' : '#f0fdf4',
+        color: msg.startsWith('Failed') ? '#b91c1c' : '#166534',
+        border: msg.startsWith('Failed') ? '1px solid #fca5a5' : '1px solid #86efac'
+      },
+      children: msg
+    }), loading ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("p", {
+      style: {
+        color: '#aaa'
+      },
+      children: "Loading addresses..."
+    }) : addresses.length === 0 && mode === null ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid #eaeaea',
+        borderRadius: '8px',
+        padding: '2rem',
+        textAlign: 'center',
+        color: '#888'
+      },
+      children: ["No saved addresses yet. Click ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("strong", {
+        children: "+ Add Address"
+      }), " to add one."]
+    }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.8rem',
+        marginBottom: mode ? '1.5rem' : 0
+      },
+      children: addresses.map(function (addr) {
+        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          style: {
+            background: '#fff',
+            border: addr.is_default ? '2px solid #C9A84C' : '1px solid #eaeaea',
+            borderRadius: '8px',
+            padding: '1.2rem 1.5rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+            style: {
+              flex: 1
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                marginBottom: '0.4rem'
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                style: {
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  color: '#111'
+                },
+                children: addr.full_name
+              }), addr.is_default && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                style: {
+                  background: '#C9A84C',
+                  color: '#000',
+                  fontSize: '0.65rem',
+                  fontWeight: 800,
+                  padding: '0.15rem 0.5rem',
+                  borderRadius: '3px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                },
+                children: "Default"
+              })]
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+              style: {
+                fontSize: '0.85rem',
+                color: '#555',
+                lineHeight: 1.6
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+                children: addr.address
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+                children: [addr.city, addr.city && addr.region ? ', ' : '', addr.region]
+              }), addr.phone && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+                children: ["\uD83D\uDCDE ", addr.phone]
+              })]
+            })]
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+            style: {
+              display: 'flex',
+              gap: '0.5rem',
+              flexShrink: 0,
+              flexWrap: 'wrap'
+            },
+            children: [!addr.is_default && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+              onClick: function onClick() {
+                return handleSetDefault(addr);
+              },
+              style: {
+                background: '#f8f9fa',
+                color: '#555',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                padding: '0.35rem 0.8rem',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              },
+              children: "Set Default"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+              onClick: function onClick() {
+                return openEdit(addr);
+              },
+              style: {
+                background: '#f8f9fa',
+                color: '#333',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                padding: '0.35rem 0.8rem',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              },
+              children: "Edit"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+              onClick: function onClick() {
+                return handleDelete(addr.id);
+              },
+              style: {
+                background: '#fef2f2',
+                color: '#b91c1c',
+                border: '1px solid #fca5a5',
+                borderRadius: '4px',
+                padding: '0.35rem 0.8rem',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              },
+              children: "Remove"
+            })]
+          })]
+        }, addr.id);
+      })
+    }), mode !== null && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid #eaeaea',
+        borderRadius: '8px',
+        padding: '1.5rem',
+        marginTop: '0.5rem'
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h4", {
+        style: {
+          margin: '0 0 1.2rem',
+          fontSize: '1rem',
+          fontWeight: 700
+        },
+        children: mode === 'add' ? 'Add New Address' : 'Edit Address'
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("form", {
+        onSubmit: handleSave,
+        style: {
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1rem',
+          maxWidth: '600px'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          style: {
+            gridColumn: '1 / -1'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
+            style: labelStyle,
+            children: "Full Name *"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
+            type: "text",
+            value: form.full_name,
+            onChange: function onChange(e) {
+              return setF('full_name', e.target.value);
+            },
+            required: true,
+            style: inputStyle
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
+            style: labelStyle,
+            children: "Phone"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
+            type: "text",
+            value: form.phone,
+            onChange: function onChange(e) {
+              return setF('phone', e.target.value);
+            },
+            style: inputStyle,
+            placeholder: "e.g. 09501231212"
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
+            style: labelStyle,
+            children: "Region *"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("select", {
+            value: form.region,
+            onChange: function onChange(e) {
+              return setF('region', e.target.value);
+            },
+            required: true,
+            style: inputStyle,
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+              value: "Luzon",
+              children: "Luzon"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+              value: "Visayas",
+              children: "Visayas"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
+              value: "Mindanao",
+              children: "Mindanao"
+            })]
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          style: {
+            gridColumn: '1 / -1'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
+            style: labelStyle,
+            children: "City *"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
+            type: "text",
+            value: form.city,
+            onChange: function onChange(e) {
+              return setF('city', e.target.value);
+            },
+            required: true,
+            style: inputStyle,
+            placeholder: "e.g. Butuan City"
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          style: {
+            gridColumn: '1 / -1'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
+            style: labelStyle,
+            children: "Street Address *"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("textarea", {
+            value: form.address,
+            onChange: function onChange(e) {
+              return setF('address', e.target.value);
+            },
+            required: true,
+            rows: 2,
+            style: _objectSpread(_objectSpread({}, inputStyle), {}, {
+              resize: 'vertical'
+            }),
+            placeholder: "e.g. Golden Ribbon, Ambago"
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+          style: {
+            gridColumn: '1 / -1'
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("label", {
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.88rem',
+              cursor: 'pointer'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
+              type: "checkbox",
+              checked: form.is_default,
+              onChange: function onChange(e) {
+                return setF('is_default', e.target.checked);
+              }
+            }), "Set as default address"]
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          style: {
+            gridColumn: '1 / -1',
+            display: 'flex',
+            gap: '0.8rem',
+            marginTop: '0.5rem'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+            type: "submit",
+            disabled: saving,
+            style: {
+              padding: '0.6rem 1.5rem',
+              background: '#C9A84C',
+              color: '#000',
+              border: 'none',
+              borderRadius: '4px',
+              fontWeight: 700,
+              cursor: saving ? 'not-allowed' : 'pointer'
+            },
+            children: saving ? 'Saving...' : 'Save Address'
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+            type: "button",
+            onClick: function onClick() {
+              setMode(null);
+              setEditTarget(null);
+              setMsg('');
+            },
+            style: {
+              padding: '0.6rem 1.5rem',
+              background: 'transparent',
+              color: '#666',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              fontWeight: 600,
+              cursor: 'pointer'
+            },
+            children: "Cancel"
+          })]
+        })]
+      })]
+    })]
+  });
+}
 function UserProfile() {
   var _user$name;
-  var _useAuth = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_2__.useAuth)(),
-    user = _useAuth.user,
-    fetchUser = _useAuth.fetchUser;
+  var _useAuth2 = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_2__.useAuth)(),
+    user = _useAuth2.user,
+    fetchUser = _useAuth2.fetchUser;
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('overview'),
     _useState2 = _slicedToArray(_useState, 2),
     activeTab = _useState2[0],
@@ -36824,12 +38673,13 @@ function UserProfile() {
     setTotalSpent = _useState32[1];
   react__WEBPACK_IMPORTED_MODULE_0___default().useEffect(function () {
     Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23)).then(function (axios) {
+      axios["default"].get('/api/orders/stats').then(function (res) {
+        setTotalOrders(res.data.total_orders || 0);
+        setTotalSpent(res.data.total_spent || 0);
+      })["catch"](console.error);
+      // Fetch recent orders for the table (visible orders only)
       axios["default"].get('/api/orders').then(function (res) {
         setRecentOrders(res.data.slice(0, 5));
-        setTotalOrders(res.data.length);
-        setTotalSpent(res.data.reduce(function (sum, o) {
-          return sum + Number(o.total_amount);
-        }, 0));
       })["catch"](console.error);
     });
   }, []);
@@ -36854,13 +38704,13 @@ function UserProfile() {
     });
   };
   var handleProfileSubmit = /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(e) {
-      var formData, axios, _t;
-      return _regenerator().w(function (_context) {
-        while (1) switch (_context.p = _context.n) {
+    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4(e) {
+      var formData, axios, _t4;
+      return _regenerator().w(function (_context4) {
+        while (1) switch (_context4.p = _context4.n) {
           case 0:
             e.preventDefault();
-            _context.p = 1;
+            _context4.p = 1;
             formData = new FormData();
             formData.append('name', profileForm.name);
             formData.append('phone', profileForm.phone);
@@ -36869,85 +38719,85 @@ function UserProfile() {
               formData.append('avatar', profileForm.avatar);
             }
             formData.append('_method', 'PUT'); // Fake PUT for multi-part
-            _context.n = 2;
+            _context4.n = 2;
             return Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23));
           case 2:
-            axios = _context.v["default"];
-            _context.n = 3;
+            axios = _context4.v["default"];
+            _context4.n = 3;
             return axios.post('/api/user/profile', formData, {
               headers: {
                 'Content-Type': 'multipart/form-data'
               }
             });
           case 3:
-            _context.n = 4;
+            _context4.n = 4;
             return fetchUser();
           case 4:
             // Instantly syncs across layout and tables
             setIsEditingProfile(false);
             setPreviewAvatar(null);
-            _context.n = 6;
+            _context4.n = 6;
             break;
           case 5:
-            _context.p = 5;
-            _t = _context.v;
+            _context4.p = 5;
+            _t4 = _context4.v;
             alert('Failed to update profile.');
           case 6:
-            return _context.a(2);
+            return _context4.a(2);
         }
-      }, _callee, null, [[1, 5]]);
+      }, _callee4, null, [[1, 5]]);
     }));
-    return function handleProfileSubmit(_x) {
-      return _ref.apply(this, arguments);
+    return function handleProfileSubmit(_x4) {
+      return _ref5.apply(this, arguments);
     };
   }();
   var handlePrefSubmit = /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(e) {
-      var axios, _t2;
-      return _regenerator().w(function (_context2) {
-        while (1) switch (_context2.p = _context2.n) {
+    var _ref6 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(e) {
+      var axios, _t5;
+      return _regenerator().w(function (_context5) {
+        while (1) switch (_context5.p = _context5.n) {
           case 0:
             e.preventDefault();
             setPrefMsg('');
-            _context2.p = 1;
-            _context2.n = 2;
+            _context5.p = 1;
+            _context5.n = 2;
             return Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23));
           case 2:
-            axios = _context2.v["default"];
-            _context2.n = 3;
+            axios = _context5.v["default"];
+            _context5.n = 3;
             return axios.put('/api/user/profile', prefForm);
           case 3:
             setPrefMsg('Preferences updated successfully.');
             setPrefEdit(false);
             // Optionally refresh user context here
-            _context2.n = 5;
+            _context5.n = 5;
             break;
           case 4:
-            _context2.p = 4;
-            _t2 = _context2.v;
+            _context5.p = 4;
+            _t5 = _context5.v;
             setPrefMsg('Failed to update preferences. Please try again.');
           case 5:
-            return _context2.a(2);
+            return _context5.a(2);
         }
-      }, _callee2, null, [[1, 4]]);
+      }, _callee5, null, [[1, 4]]);
     }));
-    return function handlePrefSubmit(_x2) {
-      return _ref2.apply(this, arguments);
+    return function handlePrefSubmit(_x5) {
+      return _ref6.apply(this, arguments);
     };
   }();
   var handleAddrSubmit = /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(e) {
-      var axios, _t3;
-      return _regenerator().w(function (_context3) {
-        while (1) switch (_context3.p = _context3.n) {
+    var _ref7 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(e) {
+      var axios, _t6;
+      return _regenerator().w(function (_context6) {
+        while (1) switch (_context6.p = _context6.n) {
           case 0:
             e.preventDefault();
-            _context3.p = 1;
-            _context3.n = 2;
+            _context6.p = 1;
+            _context6.n = 2;
             return Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_require__, /*! axios */ "./node_modules/axios/index.js", 23));
           case 2:
-            axios = _context3.v["default"];
-            _context3.n = 3;
+            axios = _context6.v["default"];
+            _context6.n = 3;
             return axios.put('/api/user/profile', {
               address: addrVal,
               region: regionVal,
@@ -36960,22 +38810,22 @@ function UserProfile() {
                 address: addrVal
               });
             });
-            _context3.n = 4;
+            _context6.n = 4;
             return fetchUser();
           case 4:
-            _context3.n = 6;
+            _context6.n = 6;
             break;
           case 5:
-            _context3.p = 5;
-            _t3 = _context3.v;
+            _context6.p = 5;
+            _t6 = _context6.v;
             alert('Failed to update address.');
           case 6:
-            return _context3.a(2);
+            return _context6.a(2);
         }
-      }, _callee3, null, [[1, 5]]);
+      }, _callee6, null, [[1, 5]]);
     }));
-    return function handleAddrSubmit(_x3) {
-      return _ref3.apply(this, arguments);
+    return function handleAddrSubmit(_x6) {
+      return _ref7.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_UserLayout__WEBPACK_IMPORTED_MODULE_1__["default"], {
@@ -37466,202 +39316,7 @@ function UserProfile() {
               })]
             })
           })]
-        }), activeTab === 'addresses' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h3", {
-            style: {
-              fontSize: '1.2rem',
-              color: '#111',
-              fontWeight: 700,
-              marginBottom: '1rem'
-            },
-            children: "Addresses"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-            className: "mobile-stack",
-            style: {
-              background: '#fff',
-              borderRadius: '8px',
-              border: '1px solid #eaeaea',
-              padding: '2rem',
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between'
-            },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h4", {
-                style: {
-                  margin: '0 0 0.8rem',
-                  fontSize: '0.95rem',
-                  fontWeight: 700
-                },
-                children: "Shipping Address"
-              }), !addrEdit ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-                style: {
-                  color: '#666',
-                  fontSize: '0.9rem',
-                  lineHeight: 1.6
-                },
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("p", {
-                  style: {
-                    margin: '0 0 0.4rem 0'
-                  },
-                  children: (user === null || user === void 0 ? void 0 : user.address) || 'No street address provided.'
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("p", {
-                  style: {
-                    margin: 0
-                  },
-                  children: [user !== null && user !== void 0 && user.city ? user.city + ', ' : '', " ", (user === null || user === void 0 ? void 0 : user.region) || '']
-                })]
-              }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("form", {
-                onSubmit: handleAddrSubmit,
-                style: {
-                  marginTop: '0.5rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.8rem'
-                },
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
-                    style: {
-                      display: 'block',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      marginBottom: '0.3rem',
-                      color: '#555'
-                    },
-                    children: "Region *"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("select", {
-                    value: regionVal,
-                    onChange: function onChange(e) {
-                      return setRegionVal(e.target.value);
-                    },
-                    style: {
-                      width: '300px',
-                      padding: '0.8rem',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      fontSize: '0.9rem'
-                    },
-                    required: true,
-                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
-                      value: "",
-                      children: "Select Region"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
-                      value: "Luzon",
-                      children: "Luzon"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
-                      value: "Visayas",
-                      children: "Visayas"
-                    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("option", {
-                      value: "Mindanao",
-                      children: "Mindanao"
-                    })]
-                  })]
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
-                    style: {
-                      display: 'block',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      marginBottom: '0.3rem',
-                      color: '#555'
-                    },
-                    children: "City / Province *"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
-                    type: "text",
-                    value: cityVal,
-                    onChange: function onChange(e) {
-                      return setCityVal(e.target.value);
-                    },
-                    style: {
-                      width: '300px',
-                      padding: '0.8rem',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      fontSize: '0.9rem'
-                    },
-                    required: true
-                  })]
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("label", {
-                    style: {
-                      display: 'block',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      marginBottom: '0.3rem',
-                      color: '#555'
-                    },
-                    children: "Street Address *"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("textarea", {
-                    value: addrVal,
-                    onChange: function onChange(e) {
-                      return setAddrVal(e.target.value);
-                    },
-                    style: {
-                      width: '300px',
-                      height: '80px',
-                      padding: '0.8rem',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      fontSize: '0.9rem',
-                      fontFamily: 'inherit',
-                      resize: 'vertical'
-                    },
-                    required: true
-                  })]
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-                  style: {
-                    marginTop: '0.8rem',
-                    display: 'flex',
-                    gap: '0.5rem'
-                  },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
-                    type: "submit",
-                    style: {
-                      padding: '0.4rem 1rem',
-                      background: '#C9A84C',
-                      color: '#000',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    },
-                    children: "Save"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
-                    type: "button",
-                    onClick: function onClick() {
-                      return setAddrEdit(false);
-                    },
-                    style: {
-                      padding: '0.4rem 1rem',
-                      background: '#eee',
-                      color: '#333',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    },
-                    children: "Cancel"
-                  })]
-                })]
-              })]
-            }), !addrEdit && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
-              onClick: function onClick() {
-                return setAddrEdit(true);
-              },
-              style: {
-                background: '#C9A84C',
-                color: '#000',
-                border: 'none',
-                borderRadius: '4px',
-                padding: '0.4rem 1.2rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                height: 'fit-content'
-              },
-              children: "Edit"
-            })]
-          })]
-        }), activeTab === 'password' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+        }), activeTab === 'addresses' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(AddressesTab, {}), activeTab === 'password' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           style: {
             maxWidth: '500px'
           },
@@ -38045,6 +39700,48 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
+var COLOR_CSS = {
+  black: '#111',
+  white: '#e5e5e5',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  'rose gold': '#B76E79',
+  blue: '#3B82F6',
+  navy: '#1E3A5F',
+  green: '#22C55E',
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  purple: '#A855F7',
+  pink: '#EC4899',
+  brown: '#92400E',
+  gray: '#6B7280',
+  grey: '#6B7280',
+  titanium: '#878681',
+  champagne: '#F7E7CE'
+};
+var getColorCSS = function getColorCSS(name) {
+  var _name$toLowerCase;
+  return COLOR_CSS[name === null || name === void 0 || (_name$toLowerCase = name.toLowerCase()) === null || _name$toLowerCase === void 0 ? void 0 : _name$toLowerCase.trim()] || '#888';
+};
+function parseColors(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try {
+    return JSON.parse(raw);
+  } catch (_unused) {
+    return [];
+  }
+}
+var isAutoNew = function isAutoNew(p) {
+  if (!(p !== null && p !== void 0 && p.created_at)) return false;
+  return Date.now() - new Date(p.created_at).getTime() < 7 * 24 * 60 * 60 * 1000;
+};
+var fmt = function fmt(price) {
+  return new Intl.NumberFormat('en-PH', {
+    minimumFractionDigits: 0
+  }).format(price);
+};
 function UserWishlist() {
   var _useAuth = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_3__.useAuth)(),
     user = _useAuth.user,
@@ -38119,9 +39816,7 @@ function UserWishlist() {
             return _context2.a(2);
           case 1:
             itemsToMove = _toConsumableArray(selectedItems);
-            setSelectedItems([]); // Clear UI selection right away
-
-            // Execute transfers safely
+            setSelectedItems([]);
             _context2.n = 2;
             return Promise.all(itemsToMove.map(/*#__PURE__*/function () {
               var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(id) {
@@ -38169,7 +39864,7 @@ function UserWishlist() {
           flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'flex-end',
-          borderBottom: '1px dashed #C9A84C',
+          borderBottom: '2px solid #C9A84C',
           paddingBottom: '1rem',
           marginBottom: '2.5rem'
         },
@@ -38204,14 +39899,15 @@ function UserWishlist() {
                 color: '#111',
                 fontWeight: 700
               },
-              children: ["$", totalEstimatedValue.toLocaleString()]
+              children: ["\u20B1", fmt(totalEstimatedValue)]
             })]
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
           style: {
             display: 'flex',
             gap: '1.2rem',
-            alignItems: 'center'
+            alignItems: 'center',
+            flexWrap: 'wrap'
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
             style: {
@@ -38232,14 +39928,15 @@ function UserWishlist() {
                 return setSortOption(e.target.value);
               },
               style: {
-                padding: '0.5rem',
+                padding: '0.5rem 0.8rem',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
                 background: '#fff',
                 outline: 'none',
                 cursor: 'pointer',
                 color: '#333',
-                fontWeight: 500
+                fontWeight: 500,
+                fontSize: '0.88rem'
               },
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("option", {
                 children: "Newest First"
@@ -38279,75 +39976,95 @@ function UserWishlist() {
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
             onClick: handleBulkAddToCart,
             style: {
-              padding: '0.6rem 1.5rem',
-              background: selectedItems.length > 0 ? '#C9A84C' : '#ccc',
-              color: selectedItems.length > 0 ? '#000' : '#666',
+              padding: '0.6rem 1.4rem',
+              background: selectedItems.length > 0 ? '#C9A84C' : '#e5e7eb',
+              color: selectedItems.length > 0 ? '#000' : '#9ca3af',
               border: 'none',
               borderRadius: '4px',
               fontWeight: 700,
               cursor: selectedItems.length > 0 ? 'pointer' : 'not-allowed',
               transition: 'all 0.2s',
-              fontSize: '0.9rem'
+              fontSize: '0.88rem'
             },
-            children: "Move Selected to Cart"
+            children: "Move to Cart"
           })]
         })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-        className: "mobile-stack",
+      }), loading ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+        style: {
+          padding: '4rem',
+          textAlign: 'center',
+          color: '#666'
+        },
+        children: "Loading wishlist..."
+      }) : wishlistItems.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        style: {
+          padding: '6rem 4rem',
+          textAlign: 'center',
+          background: '#fcfcfc',
+          border: '1px dashed #ddd',
+          borderRadius: '8px',
+          color: '#666'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("h3", {
+          style: {
+            fontSize: '1.4rem',
+            marginBottom: '0.5rem',
+            color: '#111',
+            fontFamily: '"Playfair Display", Georgia, serif'
+          },
+          children: "Your wishlist is empty"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
+          children: "You haven't added any products to your wishlist yet."
+        })]
+      }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
         style: {
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
           gap: '1.5rem',
           marginBottom: '3rem'
         },
-        children: [wishlistItems.length === 0 && !loading && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-          style: {
-            padding: '6rem 4rem',
-            textAlign: 'center',
-            background: '#fcfcfc',
-            border: '1px dashed #ddd',
-            borderRadius: '8px',
-            color: '#666',
-            gridColumn: '1 / -1'
-          },
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("h3", {
-            style: {
-              fontSize: '1.4rem',
-              marginBottom: '0.5rem',
-              color: '#111',
-              fontFamily: '"Playfair Display", Georgia, serif'
-            },
-            children: "Your wishlist is empty"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
-            children: "You haven't added any products to your wishlist yet."
-          })]
-        }), loading && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-          style: {
-            padding: '4rem',
-            textAlign: 'center',
-            color: '#666',
-            gridColumn: '1 / -1'
-          },
-          children: "Loading wishlist..."
-        }), !loading && wishlistItems.map(function (item) {
+        children: wishlistItems.map(function (item) {
           var _item$brand, _item$category;
+          var isNew = isAutoNew(item);
+          var colors = parseColors(item.color_variants);
+          var isSelected = selectedItems.includes(item.id);
           return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
             style: {
               background: '#fff',
               borderRadius: '8px',
-              padding: '1.5rem',
-              border: '1px solid #eaeaea',
+              border: isSelected ? '1.5px solid #C9A84C' : '1px solid #eaeaea',
               transition: 'all 0.2s',
               position: 'relative',
-              opacity: item.stock === 0 ? 0.75 : 1
+              overflow: 'hidden',
+              opacity: item.stock === 0 ? 0.8 : 1,
+              display: 'flex',
+              flexDirection: 'column'
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
               style: {
                 position: 'absolute',
-                top: '15px',
-                right: '15px',
-                display: 'flex',
-                gap: '0.5rem',
+                top: '10px',
+                left: '10px',
+                zIndex: 10
+              },
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
+                type: "checkbox",
+                checked: isSelected,
+                onChange: function onChange() {
+                  return toggleSelect(item.id);
+                },
+                style: {
+                  width: 16,
+                  height: 16,
+                  cursor: 'pointer',
+                  accentColor: '#C9A84C'
+                }
+              })
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+              style: {
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
                 zIndex: 10
               },
               children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
@@ -38355,8 +40072,8 @@ function UserWishlist() {
                   return toggleWishlist(item.id);
                 },
                 style: {
-                  background: '#f5f5f5',
-                  border: 'none',
+                  background: 'rgba(255,255,255,0.95)',
+                  border: '1px solid #eee',
                   borderRadius: '50%',
                   width: 28,
                   height: 28,
@@ -38364,12 +40081,12 @@ function UserWishlist() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: 'red'
+                  color: '#ef4444'
                 },
                 title: "Remove from Wishlist",
                 children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("svg", {
-                  width: "14",
-                  height: "14",
+                  width: "12",
+                  height: "12",
                   viewBox: "0 0 24 24",
                   fill: "none",
                   stroke: "currentColor",
@@ -38389,124 +40106,183 @@ function UserWishlist() {
                   })]
                 })
               })
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-              style: {
-                position: 'absolute',
-                top: '15px',
-                left: '15px',
-                zIndex: 10
-              },
-              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
-                type: "checkbox",
-                checked: selectedItems.includes(item.id),
-                onChange: function onChange() {
-                  return toggleSelect(item.id);
-                },
-                style: {
-                  width: 18,
-                  height: 18,
-                  cursor: 'pointer',
-                  accentColor: '#C9A84C'
-                }
-              })
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
               style: {
+                background: '#f8f9fa',
+                height: '180px',
                 display: 'flex',
-                gap: '1.5rem',
-                alignItems: 'center'
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                borderBottom: '1px solid #eee',
+                position: 'relative'
+              },
+              children: [isNew && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                style: {
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  background: '#22c55e',
+                  color: '#fff',
+                  fontSize: '0.6rem',
+                  fontWeight: 800,
+                  padding: '0.15rem 0.45rem',
+                  borderRadius: '4px',
+                  letterSpacing: '0.5px'
+                },
+                children: "NEW"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("img", {
+                src: getImageUrl(item.image),
+                alt: item.name,
+                style: {
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  padding: '0.5rem'
+                }
+              })]
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+              style: {
+                padding: '1rem',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column'
               },
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
                 style: {
-                  width: '120px',
-                  height: '120px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                  borderRadius: '4px'
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  color: '#C9A84C',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  marginBottom: '0.2rem'
                 },
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("img", {
-                  src: getImageUrl(item.image),
-                  alt: item.name,
+                children: ((_item$brand = item.brand) === null || _item$brand === void 0 ? void 0 : _item$brand.name) || 'Luxury Timepiece'
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                style: {
+                  fontSize: '0.92rem',
+                  fontWeight: 700,
+                  color: '#111',
+                  lineHeight: 1.3,
+                  marginBottom: '0.4rem'
+                },
+                children: item.name
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                style: {
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '4px',
+                  marginBottom: '0.4rem'
+                },
+                children: [((_item$category = item.category) === null || _item$category === void 0 ? void 0 : _item$category.name) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
                   style: {
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }
+                    fontSize: '0.65rem',
+                    background: '#f3f4f6',
+                    color: '#555',
+                    borderRadius: 4,
+                    padding: '1px 5px'
+                  },
+                  children: item.category.name
+                }), item.gender && item.gender !== 'All' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                  style: {
+                    fontSize: '0.65rem',
+                    background: '#f3f4f6',
+                    color: '#555',
+                    borderRadius: 4,
+                    padding: '1px 5px'
+                  },
+                  children: item.gender
+                }), item.variant && item.variant !== 'All' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                  style: {
+                    fontSize: '0.65rem',
+                    background: '#f3f4f6',
+                    color: '#555',
+                    borderRadius: 4,
+                    padding: '1px 5px'
+                  },
+                  children: item.variant
+                })]
+              }), colors.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                style: {
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '3px',
+                  marginBottom: '0.4rem'
+                },
+                children: colors.slice(0, 6).map(function (c, i) {
+                  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+                    title: c,
+                    style: {
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      background: getColorCSS(c),
+                      border: '1px solid rgba(0,0,0,0.18)',
+                      display: 'inline-block'
+                    }
+                  }, i);
                 })
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
                 style: {
-                  flex: 1
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  marginBottom: '0.75rem',
+                  marginTop: 'auto'
                 },
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("h3", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
                   style: {
-                    fontSize: '1.05rem',
-                    marginBottom: '0.6rem',
-                    fontFamily: 'Inter, sans-serif',
                     fontWeight: 800,
-                    color: '#111',
-                    lineHeight: 1.2
+                    fontSize: '1.05rem',
+                    color: '#111'
                   },
-                  children: item.name
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                  children: ["\u20B1", fmt(item.price)]
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
                   style: {
-                    color: '#888',
-                    fontSize: '0.75rem',
-                    marginBottom: '0.5rem',
-                    fontWeight: 600
-                  },
-                  children: ((_item$brand = item.brand) === null || _item$brand === void 0 ? void 0 : _item$brand.name) || ((_item$category = item.category) === null || _item$category === void 0 ? void 0 : _item$category.name) || 'Luxury Timepiece'
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-                  style: {
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.6rem',
-                    marginBottom: '0.8rem'
-                  },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-                    style: {
-                      fontWeight: 800,
-                      fontSize: '1.2rem',
-                      color: '#111'
-                    },
-                    children: ["$", Number(item.price).toLocaleString()]
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
-                    style: {
-                      background: item.stock > 0 ? '#dcfce7' : '#fee2e2',
-                      color: item.stock > 0 ? '#166534' : '#b91c1c',
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      border: '1px solid rgba(0,0,0,0.05)'
-                    },
-                    children: item.stock > 0 ? 'IN STOCK' : 'OUT OF STOCK'
-                  })]
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-                  onClick: function onClick() {
-                    if (item.stock > 0) {
-                      addToCart(item.id);
-                    }
-                  },
-                  disabled: item.stock === 0,
-                  style: {
-                    width: '100%',
-                    padding: '0.6rem',
-                    background: item.stock > 0 ? '#C9A84C' : '#e5e7eb',
-                    color: item.stock > 0 ? '#000' : '#9ca3af',
-                    border: 'none',
-                    borderRadius: '4px',
+                    background: item.stock > 0 ? '#dcfce7' : '#fee2e2',
+                    color: item.stock > 0 ? '#166534' : '#b91c1c',
+                    fontSize: '0.62rem',
                     fontWeight: 700,
-                    cursor: item.stock > 0 ? 'pointer' : 'not-allowed',
-                    fontSize: '0.85rem'
+                    padding: '0.15rem 0.45rem',
+                    borderRadius: '4px'
                   },
-                  children: item.stock > 0 ? 'Add to Cart' : 'Out of Stock'
+                  children: item.stock > 0 ? 'IN STOCK' : 'OUT OF STOCK'
                 })]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+                onClick: function onClick() {
+                  if (item.stock > 0) addToCart(item.id);
+                },
+                disabled: item.stock === 0,
+                style: {
+                  width: '100%',
+                  padding: '0.55rem',
+                  background: item.stock > 0 ? '#111' : '#e5e7eb',
+                  color: item.stock > 0 ? '#C9A84C' : '#9ca3af',
+                  border: 'none',
+                  borderRadius: '4px',
+                  fontWeight: 700,
+                  cursor: item.stock > 0 ? 'pointer' : 'not-allowed',
+                  fontSize: '0.82rem',
+                  transition: 'all 0.2s'
+                },
+                onMouseEnter: function onMouseEnter(e) {
+                  if (item.stock > 0) {
+                    e.currentTarget.style.background = '#C9A84C';
+                    e.currentTarget.style.color = '#000';
+                  }
+                },
+                onMouseLeave: function onMouseLeave(e) {
+                  if (item.stock > 0) {
+                    e.currentTarget.style.background = '#111';
+                    e.currentTarget.style.color = '#C9A84C';
+                  }
+                },
+                children: item.stock > 0 ? 'Add to Cart' : 'Out of Stock'
               })]
             })]
           }, item.id);
-        })]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        })
+      }), wishlistItems.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
         style: {
           display: 'flex',
           justifyContent: 'center',
@@ -38555,16 +40331,6 @@ function UserWishlist() {
             color: '#666'
           },
           children: '>'
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-          style: {
-            padding: '0.5rem 0.8rem',
-            background: '#fff',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            color: '#666'
-          },
-          children: '»'
         })]
       })]
     })
@@ -38603,23 +40369,105 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
+var COLOR_CSS = {
+  black: '#111',
+  white: '#e5e5e5',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  'rose gold': '#B76E79',
+  blue: '#3B82F6',
+  navy: '#1E3A5F',
+  green: '#22C55E',
+  red: '#EF4444',
+  orange: '#F97316',
+  yellow: '#EAB308',
+  purple: '#A855F7',
+  pink: '#EC4899',
+  brown: '#92400E',
+  gray: '#6B7280',
+  grey: '#6B7280',
+  titanium: '#878681',
+  champagne: '#F7E7CE'
+};
+var getColorCSS = function getColorCSS(n) {
+  var _n$toLowerCase;
+  return COLOR_CSS[n === null || n === void 0 || (_n$toLowerCase = n.toLowerCase()) === null || _n$toLowerCase === void 0 ? void 0 : _n$toLowerCase.trim()] || '#888';
+};
+function parseColors(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try {
+    return JSON.parse(raw);
+  } catch (_unused) {
+    return [];
+  }
+}
+var getImageUrl = function getImageUrl(img) {
+  return img ? img.startsWith('http') ? img : "/storage/".concat(img) : 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=400&auto=format&fit=crop';
+};
+
+// ─── component ────────────────────────────────────────────────────────────────
 function ProductModal(_ref) {
-  var _selectedProduct$bran, _selectedProduct$cate;
+  var _p$brand, _p$brand2, _p$category, _p$category2, _p$brand3, _p$category3;
   var selectedProduct = _ref.selectedProduct,
     closeModal = _ref.closeModal,
     setToastMsg = _ref.setToastMsg;
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
     _useState2 = _slicedToArray(_useState, 2),
-    modalQty = _useState2[0],
-    setModalQty = _useState2[1];
+    qty = _useState2[0],
+    setQty = _useState2[1];
   var _useAuth = (0,_Context_AuthContext__WEBPACK_IMPORTED_MODULE_2__.useAuth)(),
-    addToCart = _useAuth.addToCart,
-    user = _useAuth.user;
+    addToCart = _useAuth.addToCart;
   var navigate = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_1__.useNavigate)();
   if (!selectedProduct) return null;
-  var getImageUrl = function getImageUrl(img) {
-    return img ? img.startsWith('http') ? img : "/storage/".concat(img) : 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=400&auto=format&fit=crop';
+  var p = selectedProduct;
+  var colors = parseColors(p.color_variants);
+  var stockLabel = p.stock === 0 ? 'Out of Stock' : p.stock <= 5 ? "Low Stock (".concat(p.stock, " items left)") : "In Stock (".concat(p.stock, " items left)");
+  var stockBg = p.stock === 0 ? '#fee2e2' : p.stock <= 5 ? '#fef08a' : '#dcfce7';
+  var stockColor = p.stock === 0 ? '#b91c1c' : p.stock <= 5 ? '#854d0e' : '#166534';
+  var handleAddToCart = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.n) {
+          case 0:
+            if (!(p.stock > 0)) {
+              _context.n = 2;
+              break;
+            }
+            _context.n = 1;
+            return addToCart(p.id, qty);
+          case 1:
+            setToastMsg === null || setToastMsg === void 0 || setToastMsg("Added ".concat(qty, " item(s) to Cart"));
+            setTimeout(function () {
+              return setToastMsg === null || setToastMsg === void 0 ? void 0 : setToastMsg('');
+            }, 3000);
+            closeModal();
+          case 2:
+            return _context.a(2);
+        }
+      }, _callee);
+    }));
+    return function handleAddToCart() {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+  var handleBuyNow = function handleBuyNow() {
+    if (p.stock > 0) {
+      closeModal();
+      navigate('/user/checkout', {
+        state: {
+          directPurchase: {
+            product: p,
+            quantity: qty
+          }
+        }
+      });
+    }
   };
+
+  // ─── JSX ───────────────────────────────────────────────────────────────────
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
     className: "jk-modal-overlay",
     onClick: closeModal,
@@ -38634,225 +40482,303 @@ function ProductModal(_ref) {
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
         className: "jk-modal-close",
         onClick: closeModal,
+        "aria-label": "Close",
         children: "\xD7"
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
         className: "jk-modal-content",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
           className: "jk-modal-image-col",
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("img", {
-            src: getImageUrl(selectedProduct.image),
-            alt: selectedProduct.name,
+            src: getImageUrl(p.image),
+            alt: p.name,
             className: "jk-modal-image"
           })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           className: "jk-modal-info-col",
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
-              fontSize: '0.85rem',
-              color: '#666',
+              fontSize: '0.78rem',
+              color: '#888',
               textTransform: 'uppercase',
               letterSpacing: '1px',
-              fontWeight: 600,
+              fontWeight: 700,
               marginBottom: '0.5rem'
             },
-            children: [(_selectedProduct$bran = selectedProduct.brand) === null || _selectedProduct$bran === void 0 ? void 0 : _selectedProduct$bran.name, " \u2022 ", (_selectedProduct$cate = selectedProduct.category) === null || _selectedProduct$cate === void 0 ? void 0 : _selectedProduct$cate.name]
+            children: [(_p$brand = p.brand) === null || _p$brand === void 0 ? void 0 : _p$brand.name, (_p$brand2 = p.brand) !== null && _p$brand2 !== void 0 && _p$brand2.name && (_p$category = p.category) !== null && _p$category !== void 0 && _p$category.name ? ' • ' : '', (_p$category2 = p.category) === null || _p$category2 === void 0 ? void 0 : _p$category2.name]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h2", {
             style: {
-              fontSize: '1.8rem',
+              fontSize: '1.7rem',
               fontFamily: '"Playfair Display", serif',
               fontWeight: 800,
-              marginBottom: '1rem',
+              margin: '0 0 0.75rem',
               color: '#111',
-              lineHeight: '1.2'
+              lineHeight: 1.2
             },
-            children: selectedProduct.name
+            children: p.name
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
-              fontSize: '1.4rem',
+              fontSize: '1.5rem',
               fontWeight: 800,
               color: '#C9A84C',
-              marginBottom: '1.5rem'
+              marginBottom: '1rem'
             },
-            children: ["\u20B1", Number(selectedProduct.price).toLocaleString('en-PH', {
+            children: ["\u20B1", Number(p.price).toLocaleString('en-PH', {
               minimumFractionDigits: 2
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
             style: {
-              marginBottom: '1.5rem'
+              marginBottom: '1.25rem'
             },
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
               style: {
-                padding: '0.3rem 0.6rem',
-                background: selectedProduct.stock > 0 ? selectedProduct.stock <= 5 ? '#fef08a' : '#dcfce7' : '#fee2e2',
-                color: selectedProduct.stock > 0 ? selectedProduct.stock <= 5 ? '#854d0e' : '#166534' : '#b91c1c',
+                display: 'inline-block',
+                padding: '0.3rem 0.7rem',
+                background: stockBg,
+                color: stockColor,
                 borderRadius: '4px',
-                fontSize: '0.8rem',
+                fontSize: '0.78rem',
                 fontWeight: 700
               },
-              children: selectedProduct.stock === 0 ? 'Out of Stock' : selectedProduct.stock <= 5 ? "Low Stock (".concat(selectedProduct.stock, " items left)") : "In Stock (".concat(selectedProduct.stock, " items left)")
+              children: stockLabel
             })
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             style: {
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '0.8rem',
-              marginBottom: '2rem'
-            },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-              style: {
-                fontSize: '0.75rem',
-                background: '#f3f4f6',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                color: '#374151',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              },
-              children: "\uD83D\uDD12 100% Secure Checkout"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-              style: {
-                fontSize: '0.75rem',
-                background: '#f3f4f6',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                color: '#374151',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              },
-              children: "\uD83D\uDE9A Cash on Delivery Available"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-              style: {
-                fontSize: '0.75rem',
-                background: '#f3f4f6',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                color: '#374151',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              },
-              children: "\uD83D\uDEE1 Authorized Retailer"
-            })]
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-            style: {
-              marginBottom: '2rem'
+              background: '#f9f9f9',
+              border: '1px solid #eee',
+              borderRadius: '8px',
+              padding: '1rem 1.1rem',
+              marginBottom: '1.25rem'
             },
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
               style: {
-                fontSize: '0.8rem',
-                color: '#666',
-                marginBottom: '0.5rem',
-                fontWeight: 600
+                fontSize: '0.68rem',
+                fontWeight: 700,
+                color: '#aaa',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '0.75rem'
               },
-              children: "Accepted Payments:"
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+              children: "PRODUCT DETAILS"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
               style: {
-                display: 'flex',
-                gap: '1rem',
-                flexWrap: 'wrap'
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '0.6rem 1rem',
+                marginBottom: colors.length > 0 ? '0.75rem' : 0
               },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+              children: [{
+                label: 'Brand',
+                value: (_p$brand3 = p.brand) === null || _p$brand3 === void 0 ? void 0 : _p$brand3.name
+              }, {
+                label: 'Category',
+                value: (_p$category3 = p.category) === null || _p$category3 === void 0 ? void 0 : _p$category3.name
+              }, {
+                label: 'Gender',
+                value: p.gender || 'All'
+              }, {
+                label: 'Age Group',
+                value: p.variant || 'All'
+              }].map(function (_ref3) {
+                var label = _ref3.label,
+                  value = _ref3.value;
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+                    style: {
+                      fontSize: '0.68rem',
+                      color: '#bbb',
+                      fontWeight: 600,
+                      marginBottom: '2px'
+                    },
+                    children: label
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+                    style: {
+                      fontSize: '0.88rem',
+                      color: '#222',
+                      fontWeight: 700
+                    },
+                    children: value || '—'
+                  })]
+                }, label);
+              })
+            }), colors.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+              style: {
+                borderTop: '1px solid #eee',
+                paddingTop: '0.7rem'
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                 style: {
-                  fontWeight: 800,
-                  color: '#0052E0',
-                  fontSize: '0.9rem'
+                  fontSize: '0.68rem',
+                  color: '#bbb',
+                  fontWeight: 600,
+                  marginBottom: '0.5rem'
                 },
-                children: "GCash"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                children: "Color Variant"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                 style: {
-                  fontWeight: 800,
-                  color: '#62D9A2',
-                  fontSize: '0.9rem'
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '6px'
                 },
-                children: "Maya"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-                style: {
-                  fontWeight: 800,
-                  color: '#333',
-                  fontSize: '0.9rem'
-                },
-                children: "Bank Transfer"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-                style: {
-                  fontWeight: 800,
-                  color: '#d97706',
-                  fontSize: '0.9rem'
-                },
-                children: "Cash on Delivery"
+                children: colors.map(function (c, i) {
+                  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("span", {
+                    style: {
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      background: '#fff',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 20,
+                      padding: '3px 10px 3px 6px',
+                      fontSize: '0.8rem',
+                      color: '#333',
+                      fontWeight: 500
+                    },
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                      style: {
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        background: getColorCSS(c),
+                        border: '1.5px solid rgba(0,0,0,0.15)',
+                        display: 'inline-block',
+                        flexShrink: 0
+                      }
+                    }), c]
+                  }, i);
+                })
               })]
             })]
-          }), selectedProduct.stock > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+            style: {
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.5rem',
+              marginBottom: '1.25rem'
+            },
+            children: [{
+              icon: '🔒',
+              label: '100% Secure Checkout'
+            }, {
+              icon: '🚚',
+              label: 'Cash on Delivery Available'
+            }, {
+              icon: '🛡️',
+              label: 'Authorized Retailer'
+            }].map(function (_ref4) {
+              var icon = _ref4.icon,
+                label = _ref4.label;
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("span", {
+                style: {
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '0.72rem',
+                  background: '#f3f4f6',
+                  padding: '4px 9px',
+                  borderRadius: '4px',
+                  color: '#374151',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap'
+                },
+                children: [icon, " ", label]
+              }, label);
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+            style: {
+              marginBottom: '1.5rem'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+              style: {
+                fontSize: '0.72rem',
+                color: '#aaa',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '0.5rem'
+              },
+              children: "Accepted Payments:"
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+              style: {
+                display: 'flex',
+                gap: '0.75rem',
+                flexWrap: 'wrap',
+                alignItems: 'center'
+              },
+              children: [{
+                name: 'GCash',
+                color: '#0052E0'
+              }, {
+                name: 'Maya',
+                color: '#00A651'
+              }, {
+                name: 'Bank Transfer',
+                color: '#374151'
+              }, {
+                name: 'Cash on Delivery',
+                color: '#374151'
+              }].map(function (_ref5) {
+                var name = _ref5.name,
+                  color = _ref5.color;
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+                  style: {
+                    fontWeight: 800,
+                    color: color,
+                    fontSize: '0.85rem',
+                    whiteSpace: 'nowrap'
+                  },
+                  children: name
+                }, name);
+              })
+            })]
+          }), p.stock > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             className: "jk-modal-actions",
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
               className: "jk-modal-stepper",
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+                className: "jk-stepper-btn",
                 onClick: function onClick() {
-                  return setModalQty(function (q) {
+                  return setQty(function (q) {
                     return Math.max(1, q - 1);
                   });
                 },
-                className: "jk-stepper-btn",
                 children: "\u2212"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("input", {
                 type: "text",
-                value: modalQty,
+                value: qty,
                 readOnly: true,
                 className: "jk-stepper-input"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
+                className: "jk-stepper-btn",
                 onClick: function onClick() {
-                  return setModalQty(function (q) {
-                    return Math.min(selectedProduct.stock, q + 1);
+                  return setQty(function (q) {
+                    return Math.min(p.stock, q + 1);
                   });
                 },
-                className: "jk-stepper-btn",
                 children: "+"
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
               className: "jk-modal-btn-group",
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
-                onClick: /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-                  return _regenerator().w(function (_context) {
-                    while (1) switch (_context.n) {
-                      case 0:
-                        if (!(selectedProduct.stock > 0)) {
-                          _context.n = 2;
-                          break;
-                        }
-                        _context.n = 1;
-                        return addToCart(selectedProduct.id, modalQty);
-                      case 1:
-                        setToastMsg === null || setToastMsg === void 0 || setToastMsg("Added ".concat(modalQty, " item(s) to Cart"));
-                        setTimeout(function () {
-                          return setToastMsg === null || setToastMsg === void 0 ? void 0 : setToastMsg('');
-                        }, 3000);
-                        closeModal();
-                      case 2:
-                        return _context.a(2);
-                    }
-                  }, _callee);
-                })),
                 className: "jk-btn-add",
-                children: "Add to Cart"
+                onClick: handleAddToCart,
+                children: "ADD TO CART"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
-                onClick: function onClick() {
-                  if (selectedProduct.stock > 0) {
-                    closeModal();
-                    navigate('/user/checkout', {
-                      state: {
-                        directPurchase: {
-                          product: selectedProduct,
-                          quantity: modalQty
-                        }
-                      }
-                    });
-                  }
-                },
                 className: "jk-btn-buy",
-                children: "Buy It Now"
+                onClick: handleBuyNow,
+                children: "BUY IT NOW"
               })]
             })]
+          }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+            style: {
+              padding: '1rem',
+              background: '#fee2e2',
+              borderRadius: '6px',
+              color: '#b91c1c',
+              fontWeight: 700,
+              textAlign: 'center',
+              fontSize: '0.9rem'
+            },
+            children: "This product is currently out of stock."
           })]
         })]
       })]

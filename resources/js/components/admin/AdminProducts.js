@@ -15,6 +15,10 @@ function stockStatus(stock) {
     return                   { bg: 'rgba(39,174,96,0.12)',  color: '#27ae60', label: 'Active' };
 }
 
+const ADMIN_COLOR_CSS = { black:'#111', white:'#e0e0e0', silver:'#C0C0C0', gold:'#FFD700', 'rose gold':'#B76E79', blue:'#3B82F6', navy:'#1E3A5F', green:'#22C55E', red:'#EF4444', orange:'#F97316', yellow:'#EAB308', purple:'#A855F7', pink:'#EC4899', brown:'#92400E', gray:'#6B7280', grey:'#6B7280', titanium:'#878681', champagne:'#F7E7CE' };
+const getAdminColorCSS = (name) => ADMIN_COLOR_CSS[name?.toLowerCase()?.trim()] || '#888';
+const parseColorVariants = (raw) => { if (!raw) return []; if (Array.isArray(raw)) return raw; try { return JSON.parse(raw); } catch { return []; } };
+
 const parseBrands = (b) => {
     if (!b) return [];
     if (Array.isArray(b)) return b;
@@ -28,7 +32,7 @@ const S = {
                 background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
                 animation: 'admin-fade-in 0.25s ease-out' },
-    modal:    { background: '#1a1a1a', borderRadius: 12, width: '100%', maxWidth: 660,
+    modal:    { background: '#1a1a1a', borderRadius: 12, width: '100%', maxWidth: 900,
                 maxHeight: '90vh', overflowY: 'auto', border: '1px solid rgba(201,168,76,0.2)',
                 boxShadow: '0 24px 64px rgba(0,0,0,0.8)',
                 animation: 'admin-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1)' },
@@ -65,9 +69,9 @@ const S = {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 border: '1px solid rgba(255,255,255,0.08)' },
     mTd:      { padding: '0.55rem 0.8rem', borderBottom: '1px solid rgba(255,255,255,0.04)', color: '#aaa' },
-    miniThumb:{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover',
+    miniThumb:{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover',
                 border: '1px solid rgba(255,255,255,0.1)' },
-    miniNoImg:{ width: 36, height: 36, borderRadius: 6, background: '#222',
+    miniNoImg:{ width: 48, height: 48, borderRadius: 6, background: '#222',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 border: '1px solid rgba(255,255,255,0.08)' },
     coCard: { background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10,
@@ -314,7 +318,7 @@ function AddProductModal({ onClose, onSaved }) {
 
     // Order form state (no payment_method here — moved to step 3)
     const [form, setForm] = useState({
-        product_id: '', quantity: 1, delivery_date: '',
+        product_id: '', quantity: 0, delivery_date: '',
     });
 
     useEffect(() => {
@@ -440,6 +444,9 @@ function AddProductModal({ onClose, onSaved }) {
                     price:       Number(selProduct?.price),
                     stock:       qty,
                     image:       selProduct?.image,
+                    gender:         selProduct?.gender         || 'All',
+                    variant:        selProduct?.variant        || 'All',
+                    color_variants: selProduct?.color_variants || [],
                 },
             };
             reqStore.add(reqData);
@@ -544,7 +551,7 @@ function AddProductModal({ onClose, onSaved }) {
                                 <table style={S.miniTable}>
                                     <thead>
                                         <tr>
-                                            {['Image','Product Name','Brand','Category','Unit Price','Stock'].map(h => (
+                                            {['Image','Product Name','Brand','Category','Unit Price','Stock','Gender','Age Group','Color Variant'].map(h => (
                                                 <th key={h} style={S.mTh}>{h}</th>
                                             ))}
                                         </tr>
@@ -573,6 +580,21 @@ function AddProductModal({ onClose, onSaved }) {
                                                     {formatCurrency(p.price)}
                                                 </td>
                                                 <td style={S.mTd}>{p.stock}</td>
+                                                <td style={{ ...S.mTd, color: '#e5e5e5' }}>{p.gender || 'All'}</td>
+                                                <td style={{ ...S.mTd, color: '#e5e5e5' }}>{p.variant || 'All'}</td>
+                                                <td style={S.mTd}>
+                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                                                        {parseColorVariants(p.color_variants).length === 0
+                                                            ? <span style={{ color: '#555' }}>—</span>
+                                                            : parseColorVariants(p.color_variants).map((c, i) => (
+                                                                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '2px 7px', fontSize: '0.72rem', color: '#ccc', whiteSpace: 'nowrap' }}>
+                                                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: getAdminColorCSS(c), border: '1px solid rgba(255,255,255,0.2)', display: 'inline-block', flexShrink: 0 }} />
+                                                                    {c}
+                                                                </span>
+                                                            ))
+                                                        }
+                                                    </div>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -604,20 +626,36 @@ function AddProductModal({ onClose, onSaved }) {
                                 </div>
 
                                 {selProduct && (
-                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: '#111', padding: '1rem', borderRadius: 8, marginBottom: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start', background: 'rgba(201,168,76,0.07)', border: '1px solid rgba(201,168,76,0.25)', padding: '1.25rem', borderRadius: 10, marginBottom: '1.25rem' }}>
                                         {selProduct.image ? (
                                             <img src={IMG_BASE + selProduct.image} alt={selProduct.name}
-                                                 style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)' }}
+                                                 style={{ width: 110, height: 110, objectFit: 'cover', borderRadius: 10, cursor: 'pointer', border: '2px solid rgba(201,168,76,0.35)', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.4)' }}
                                                  onClick={() => setLightbox(IMG_BASE + selProduct.image)} />
                                         ) : (
-                                            <div style={{ width: 64, height: 64, borderRadius: 8, background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <span style={{ fontSize: '0.7rem', color: '#666' }}>No Image</span>
+                                            <div style={{ width: 110, height: 110, borderRadius: 10, background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px dashed rgba(255,255,255,0.1)' }}>
+                                                <span style={{ fontSize: '0.75rem', color: '#555' }}>No Image</span>
                                             </div>
                                         )}
-                                        <div>
-                                            <div style={{ fontWeight: 600, color: '#fff' }}>{selProduct.name}</div>
-                                            <div style={{ color: '#C9A84C', fontWeight: 700, fontSize: '0.95rem' }}>{formatCurrency(selProduct.price)}</div>
-                                            <div style={{ color: '#888', fontSize: '0.8rem' }}>Stock available: {selProduct.stock}</div>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.15rem', marginBottom: '0.35rem', lineHeight: 1.3 }}>{selProduct.name}</div>
+                                            <div style={{ color: '#C9A84C', fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.4rem' }}>{formatCurrency(selProduct.price)}</div>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                                <span style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 6, padding: '2px 10px', color: '#ccc' }}>📦 Stock: <strong style={{ color: '#fff' }}>{selProduct.stock}</strong></span>
+                                                <span style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 6, padding: '2px 10px', color: '#ccc' }}>🏷️ {selProduct.brand?.name || '—'}</span>
+                                                <span style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 6, padding: '2px 10px', color: '#ccc' }}>⚙️ {selProduct.category?.name || '—'}</span>
+                                                {selProduct.gender && selProduct.gender !== 'All' && <span style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 6, padding: '2px 10px', color: '#ccc' }}>👤 {selProduct.gender}</span>}
+                                                {selProduct.variant && selProduct.variant !== 'All' && <span style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 6, padding: '2px 10px', color: '#ccc' }}>📐 {selProduct.variant}</span>}
+                                            </div>
+                                            {parseColorVariants(selProduct.color_variants).length > 0 && (
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: '0.5rem', alignItems: 'center' }}>
+                                                    <span style={{ color: '#888', fontSize: '0.78rem' }}>Colors:</span>
+                                                    {parseColorVariants(selProduct.color_variants).map((c, i) => (
+                                                        <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '2px 8px', fontSize: '0.78rem', color: '#ddd' }}>
+                                                            <span style={{ width: 9, height: 9, borderRadius: '50%', background: getAdminColorCSS(c), border: '1px solid rgba(255,255,255,0.25)', display: 'inline-block' }} />{c}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -625,9 +663,9 @@ function AddProductModal({ onClose, onSaved }) {
                                 {/* Quantity only — no Payment Method here */}
                                 <div style={S.field}>
                                     <label style={S.label}>Quantity *</label>
-                                    <input type="number" min="1" value={form.quantity}
+                                    <input type="number" min="0" value={form.quantity}
                                            onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))}
-                                           style={S.input} />
+                                           style={S.input} placeholder="Enter quantity to order" />
                                 </div>
 
                                 {selProduct && form.quantity > 0 && (
@@ -703,7 +741,7 @@ function PaymentModal({ selProduct, quantity, selCompany, onBack, onClose, onCon
 
     return (
         <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
-            <div style={{ ...S.modal, maxWidth: 480 }}>
+            <div style={{ ...S.modal, maxWidth: 620 }}>
                 <div style={{ ...S.mHeader, position: 'sticky', top: 0, background: '#1a1a1a', zIndex: 2 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <button style={S.backBtn} onClick={onBack}>‹</button>
@@ -713,52 +751,55 @@ function PaymentModal({ selProduct, quantity, selCompany, onBack, onClose, onCon
                 </div>
                 <div style={S.mBody}>
                     {/* Order Summary */}
-                    <div style={{ background: '#111', borderRadius: 10, padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-                        <p style={{ color: '#aaa', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem' }}>Order Summary</p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: '#888', fontSize: '0.875rem' }}>Product</span>
-                                <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem' }}>{selProduct?.name}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: '#888', fontSize: '0.875rem' }}>Brand</span>
-                                <span style={{ color: '#aaa', fontWeight: 600, fontSize: '0.875rem' }}>{selProduct?.brand?.name || '—'}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: '#888', fontSize: '0.875rem' }}>Category</span>
-                                <span style={{ color: '#aaa', fontWeight: 600, fontSize: '0.875rem' }}>{selProduct?.category?.name || '—'}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: '#888', fontSize: '0.875rem' }}>Company</span>
-                                <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem' }}>{selCompany?.name}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.2rem' }}>
-                                <span style={{ color: '#888', fontSize: '0.875rem' }}>Unit Price</span>
-                                <span style={{ color: '#C9A84C', fontWeight: 700, fontSize: '0.875rem' }}>{formatCurrency(selProduct?.price)}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: '#888', fontSize: '0.875rem' }}>Quantity</span>
-                                <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem' }}>{quantity}</span>
-                            </div>
-                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '0.5rem', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ color: '#fff', fontWeight: 700, fontSize: '1rem' }}>Total Amount</span>
-                                <span style={{ color: '#C9A84C', fontWeight: 900, fontSize: '1.35rem' }}>{formatCurrency(total)}</span>
+                    <div style={{ background: '#111', borderRadius: 10, padding: '1.5rem', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <p style={{ color: '#C9A84C', fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: '1.1rem', borderBottom: '1px solid rgba(201,168,76,0.15)', paddingBottom: '0.6rem' }}>📋 Order Summary</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            {[
+                                { label: 'Product',    value: selProduct?.name,              valueStyle: { color: '#fff', fontWeight: 700 } },
+                                { label: 'Brand',      value: selProduct?.brand?.name || '—', valueStyle: { color: '#ddd', fontWeight: 600 } },
+                                { label: 'Category',   value: selProduct?.category?.name || '—', valueStyle: { color: '#ddd', fontWeight: 600 } },
+                                { label: 'Company',    value: selCompany?.name,              valueStyle: { color: '#fff', fontWeight: 700 } },
+                                { label: 'Unit Price', value: formatCurrency(selProduct?.price), valueStyle: { color: '#C9A84C', fontWeight: 800, fontSize: '1rem' } },
+                                { label: 'Quantity',   value: `${quantity} unit${quantity !== 1 ? 's' : ''}`, valueStyle: { color: '#fff', fontWeight: 700 } },
+                                { label: 'Gender',     value: selProduct?.gender || 'All',   valueStyle: { color: '#ddd', fontWeight: 600 } },
+                                { label: 'Age Group',  value: selProduct?.variant || 'All',  valueStyle: { color: '#ddd', fontWeight: 600 } },
+                            ].map(({ label, value, valueStyle }) => (
+                                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.1rem 0' }}>
+                                    <span style={{ color: '#888', fontSize: '0.9rem', minWidth: 110 }}>{label}</span>
+                                    <span style={{ fontSize: '0.9rem', textAlign: 'right', ...valueStyle }}>{value}</span>
+                                </div>
+                            ))}
+                            {parseColorVariants(selProduct?.color_variants).length > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '0.1rem 0' }}>
+                                    <span style={{ color: '#888', fontSize: '0.9rem', minWidth: 110, paddingTop: 4 }}>Color Variant</span>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, justifyContent: 'flex-end', maxWidth: '65%' }}>
+                                        {parseColorVariants(selProduct.color_variants).map((c, i) => (
+                                            <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 12, padding: '2px 9px', fontSize: '0.8rem', color: '#ddd' }}>
+                                                <span style={{ width: 9, height: 9, borderRadius: '50%', background: getAdminColorCSS(c), border: '1px solid rgba(255,255,255,0.25)', display: 'inline-block' }} />{c}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '0.5rem', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: '#fff', fontWeight: 800, fontSize: '1.05rem' }}>Total Amount</span>
+                                <span style={{ color: '#C9A84C', fontWeight: 900, fontSize: '1.6rem', letterSpacing: '-0.02em' }}>{formatCurrency(total)}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Payment Method */}
                     <div style={S.field}>
-                        <label style={S.label}>Payment Method *</label>
+                        <label style={{ ...S.label, fontSize: '0.85rem', color: '#C9A84C', marginBottom: '0.6rem' }}>💳 Payment Method *</label>
                         <select value={paymentMethod} onChange={e => {
                             setPaymentMethod(e.target.value);
                             setGcashNumber(''); setMayaNumber(''); setBankName(''); setBankAccount('');
-                        }} style={S.input}>
+                        }} style={{ ...S.input, fontSize: '0.95rem', padding: '0.85rem 1rem', border: '1px solid rgba(201,168,76,0.3)', background: '#0d0d0d' }}>
                             <option value="">— Select Payment Method —</option>
-                            <option value="Cash">Cash</option>
-                            <option value="GCash">GCash</option>
-                            <option value="Maya">Maya</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cash">💵 Cash</option>
+                            <option value="GCash">📱 GCash</option>
+                            <option value="Maya">📲 Maya</option>
+                            <option value="Bank Transfer">🏦 Bank Transfer</option>
                         </select>
                     </div>
 
@@ -806,14 +847,14 @@ function PaymentModal({ selProduct, quantity, selCompany, onBack, onClose, onCon
 
                     {error && <div style={{ ...S.errBox, marginTop: '0.75rem' }}>{error}</div>}
 
-                    <div style={{ ...S.mFooter, marginTop: '1.5rem' }}>
-                        <button style={S.cancelBtn} onClick={onClose}>Cancel</button>
+                    <div style={{ ...S.mFooter, marginTop: '1.75rem', gap: '1rem' }}>
+                        <button style={{ ...S.cancelBtn, background: '#444', fontSize: '0.95rem', padding: '0.7rem 1.6rem' }} onClick={onClose}>Cancel</button>
                         <button
-                            style={{ ...S.saveBtn, opacity: isValid() ? 1 : 0.45, cursor: isValid() ? 'pointer' : 'not-allowed' }}
+                            style={{ ...S.saveBtn, opacity: isValid() ? 1 : 0.4, cursor: isValid() ? 'pointer' : 'not-allowed', fontSize: '1rem', padding: '0.85rem 2.5rem', background: isValid() ? 'linear-gradient(135deg,#C9A84C,#a8873d)' : '#555', boxShadow: isValid() ? '0 4px 16px rgba(201,168,76,0.35)' : 'none', letterSpacing: '0.02em' }}
                             onClick={handlePlaceOrder}
                             disabled={!isValid() || loading}
                         >
-                            {loading ? 'Placing Order…' : '🚚 Place Order'}
+                            {loading ? '⏳ Placing Order…' : '🚚 Place Order'}
                         </button>
                     </div>
                 </div>
@@ -864,10 +905,27 @@ function EditStockModal({ product, onClose, onSaved }) {
 
 // ─── Delete Modal (Product Management — admin side only, no supplier impact) ──
 function DeleteModal({ product, onClose, onDeleted }) {
-    const handleDelete = () => {
-        // Mark the underlying reqStore entries as deleted
+    const [loading, setLoading] = useState(false);
+    const handleDelete = async () => {
+        setLoading(true);
         if (product.reqIds) {
             product.reqIds.forEach(id => reqStore.update(id, { _deletedFromMgmt: true }));
+        }
+        try {
+            const { data: existing } = await axios.get('/api/admin/products', authHead());
+            const brandId = String(product.brand?.id || product.reqBrandId || '');
+            const catId = String(product.category?.id || product.reqCategoryId || '');
+            const match = existing.find(e =>
+                e.name.trim().toLowerCase() === product.name.trim().toLowerCase() &&
+                String(e.brand_id) === brandId &&
+                String(e.category_id) === catId
+            );
+            if (match) {
+                await axios.delete(`/api/admin/products/${match.id}`, authHead());
+                window.dispatchEvent(new Event('jk_inventory_update'));
+            }
+        } catch (err) {
+            console.error('Failed to remove from inventory:', err);
         }
         onDeleted();
     };
@@ -876,7 +934,7 @@ function DeleteModal({ product, onClose, onDeleted }) {
             <div style={{ ...S.modal, maxWidth: 400 }}>
                 <div style={S.mHeader}>
                     <h2 style={{ ...S.mTitle, color: '#e74c3c' }}>Delete Product</h2>
-                    <button style={S.closeBtn} onClick={onClose}>✕</button>
+                    <button style={S.closeBtn} onClick={onClose} disabled={loading}>✕</button>
                 </div>
                 <div style={{ padding: '1.5rem' }}>
                     <p style={{ color: '#ccc', marginBottom: '1.5rem', lineHeight: 1.6 }}>
@@ -884,9 +942,9 @@ function DeleteModal({ product, onClose, onDeleted }) {
                         <strong style={{ color: '#fff' }}>{product.name}</strong>?
                     </p>
                     <div style={S.mFooter}>
-                        <button type="button" style={{ padding: '0.6rem 1.4rem', borderRadius: 8, background: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }} onClick={onClose}>Cancel</button>
-                        <button className="admin-btn-red" onClick={handleDelete}>
-                            Yes, Delete
+                        <button type="button" style={{ padding: '0.6rem 1.4rem', borderRadius: 8, background: '#444', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }} onClick={onClose} disabled={loading}>Cancel</button>
+                        <button className="admin-btn-red" onClick={handleDelete} disabled={loading}>
+                            {loading ? 'Deleting…' : 'Yes, Delete'}
                         </button>
                     </div>
                 </div>
@@ -895,145 +953,11 @@ function DeleteModal({ product, onClose, onDeleted }) {
     );
 }
 
-// ─── Place In Inventory Modal ────────────────────────────────────────────────
-function PlaceInInventoryModal({ product, onClose, onSaved }) {
-    const [qty, setQty] = useState(product.stock);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-
-    const handleConfirm = async () => {
-        const moveQty = Number(qty);
-        if (moveQty <= 0 || moveQty > product.stock) {
-            return setError('Invalid quantity. Cannot exceed available stock.');
-        }
-        setLoading(true);
-        try {
-            // Deduct sequentially from origin requests
-            let remaining = moveQty;
-            const allReqs = reqStore.getAll();
-            
-            for (const reqId of product.reqIds) {
-                if (remaining <= 0) break;
-                const reqItem = allReqs.find(r => r.id === reqId);
-                if (!reqItem || !reqItem._productSnapshot || reqItem._placedInInventory || reqItem._deletedFromMgmt) continue;
-                
-                const curStock = reqItem._productSnapshot.stock || 0;
-                if (curStock <= 0) continue;
-                
-                const deduct = Math.min(curStock, remaining);
-                remaining -= deduct;
-                
-                const newStock = curStock - deduct;
-                const patch = {
-                    _productSnapshot: { ...reqItem._productSnapshot, stock: newStock }
-                };
-                if (newStock === 0) patch._placedInInventory = true;
-                
-                reqStore.update(reqId, patch);
-            }
-            
-            // Post to backend API
-            const payload = {
-                name: product.name,
-                brand_id: product.brand?.id || product.reqBrandId,
-                category_id: product.category?.id || product.reqCategoryId,
-                supplier_id: product.supplier?.id || product.reqSupplierId,
-                price: product.price,
-                stock: moveQty,
-                existing_image: product.image
-            };
-            // Fallbacks in case ID wasn't preserved perfectly
-            if (!payload.brand_id) payload.brand_id = 1; 
-            if (!payload.category_id) payload.category_id = 1;
-            
-            // Check if product strongly matches an existing inventory item
-            const res = await axios.get('/api/admin/products', authHead());
-            const inventoryProducts = res.data || [];
-            
-            const existing = inventoryProducts.find(p => 
-                p.name.trim().toLowerCase() === payload.name.trim().toLowerCase() &&
-                String(p.brand_id) === String(payload.brand_id) &&
-                String(p.category_id) === String(payload.category_id)
-            );
-
-            if (existing) {
-                // ADD quantity to existing product row instead of duplicating
-                const newDbStock = Number(existing.stock || 0) + Number(payload.stock);
-                await axios.put(`/api/admin/products/${existing.id}`, {
-                    stock: newDbStock,
-                    price: payload.price
-                }, authHead());
-            } else {
-                // CREATE new product row
-                await axios.post('/api/admin/products', payload, authHead());
-            }
-
-            onSaved();
-        } catch (err) {
-            setError(err.message || 'Failed to place in inventory');
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
-            <div style={{ ...S.modal, maxWidth: 480 }}>
-                <div style={S.mHeader}>
-                    <h2 style={{ ...S.mTitle, color: '#27ae60' }}>Place in Inventory</h2>
-                    <button style={S.closeBtn} onClick={onClose}>✕</button>
-                </div>
-                <div style={{ padding: '1.5rem' }}>
-                    {/* Product details header */}
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: 'rgba(39,174,96,0.07)', border: '1px solid rgba(39,174,96,0.2)', borderRadius: 10, padding: '1rem', marginBottom: '1.25rem' }}>
-                        <div style={{ width: 70, height: 70, borderRadius: 8, background: '#111', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                            {product.image
-                                ? <img src={IMG_BASE + product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
-                                : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 800, color: '#fff', fontSize: '1rem', marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#aaa', marginBottom: 4 }}>{product.brand?.name || '—'} &bull; {product.category?.name || '—'}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#888' }}>🏢 {product.supplier?.name || '—'}</div>
-                        </div>
-                    </div>
-
-                    {/* Detail grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem', marginBottom: '1.25rem' }}>
-                        {[
-                            { label: 'Unit Price', value: `₱${Number(product.price || 0).toLocaleString()}`, color: '#C9A84C' },
-                            { label: 'Available Stock', value: `${product.stock} units`, color: '#27ae60' },
-                            { label: 'Status', value: product.status || 'Active', color: '#aaa' },
-                        ].map(f => (
-                            <div key={f.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '0.6rem 0.8rem', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                <div style={{ fontSize: '0.68rem', color: '#666', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{f.label}</div>
-                                <div style={{ fontWeight: 800, color: f.color, fontSize: '0.88rem' }}>{f.value}</div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {error && <div style={S.errBox}>{error}</div>}
-
-                    <div style={S.field}>
-                        <label style={S.label}>Quantity to place in Inventory *</label>
-                        <input type="number" min="1" max={product.stock} value={qty}
-                               onChange={e => setQty(e.target.value)}
-                               style={S.input} />
-                        <div style={{ fontSize: '0.75rem', color: '#666', marginTop: 4 }}>Max: {product.stock} units available</div>
-                    </div>
-
-                    <div style={S.mFooter}>
-                        <button type="button" style={{ padding: '0.6rem 1.4rem', borderRadius: 8, background: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }} onClick={onClose} disabled={loading}>Cancel</button>
-                        <button className="admin-btn-gold" style={{ background: '#27ae60' }} onClick={handleConfirm} disabled={loading}>
-                            {loading ? 'Processing...' : 'Confirm'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-
+// ─── (Place In Inventory Modal removed — placement is now automatic) ─────────
+// ─── Main Page placeholder to keep section marker ────────────────────────────
+function _removed_PlaceInInventoryModal() { return null; }
+/* eslint-disable-next-line no-unused-vars */
+const _pim = _removed_PlaceInInventoryModal;
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AdminProducts() {
@@ -1043,55 +967,91 @@ export default function AdminProducts() {
     const [modal,    setModal]    = useState(null);
 
 
-    // Group reqStore entries that reached 'completed' status, aggregating duplicate stock
     const load = () => {
+        axios.get('/api/admin/products', authHead())
+            .then(r => setProducts(Array.isArray(r.data) ? r.data : []))
+            .catch(err => console.error('Failed to load products:', err));
+    };
+
+    const autoSync = async () => {
+        const token = getToken();
+        if (!token) return;
+        const all = reqStore.getAll() || [];
+
+        // ── Only process NEWLY completed supplier deliveries that haven't been
+        //    placed into the products table yet. This prevents the bug where
+        //    visiting Product Management resets stock back to the supplier total,
+        //    undoing customer-order deductions made by the rider delivery flow.
+        const newlyCompleted = all.filter(r =>
+            r?.status === 'completed' && r?._productSnapshot && !r?._deletedFromMgmt && !r?._placedInInventory
+        );
+        if (!newlyCompleted.length) return; // Nothing new to sync — leave DB untouched
+
+        const grouped = {};
+        newlyCompleted.forEach(r => {
+            const s = r._productSnapshot;
+            const key = `${s.name}|${s.brand?.name||''}|${s.category?.name||''}|${s.supplier?.name||''}`;
+            if (!grouped[key]) {
+                const rawImg = s.image && s.image.startsWith('/storage/')
+                    ? s.image.replace(/^\/storage\//, '') : (s.image || null);
+                grouped[key] = {
+                    newReqIds: [], name: s.name,
+                    brand_id: s.brand_id || s.brand?.id,
+                    category_id: s.category_id || s.category?.id,
+                    supplier_id: s.supplier_id || s.supplier?.id,
+                    price: s.price, addStock: 0, existing_image: rawImg,
+                    gender: s.gender || 'All',
+                    variant: s.variant || 'All',
+                    color_variants: s.color_variants || [],
+                };
+            }
+            // Accumulate only the NEW delivery quantity — never the historical total
+            grouped[key].addStock += (s.stock || 0);
+            grouped[key].newReqIds.push(r.id);
+        });
+
         try {
-            const all = reqStore.getAll() || [];
-            const delivered = all.filter(r => 
-                r?.status === 'completed' && 
-                r?._productSnapshot &&
-                !r?._placedInInventory &&
-                !r?._deletedFromMgmt
-            );
-            
-            const grouped = {};
-            delivered.forEach(r => {
-                const s = r._productSnapshot;
-                // Group by identifying details
-                const key = `${s.name}|${s.brand?.name || ''}|${s.category?.name || ''}|${s.supplier?.name || ''}`;
-                if (!grouped[key]) {
-                    grouped[key] = {
-                        id: 'PM-' + r.id,
-                        reqIds: [], // Track all origin REQs
-                        name: s.name,
-                        brand: s.brand,
-                        category: s.category,
-                        supplier: s.supplier,
-                        price: s.price,
-                        stock: 0,
-                        image: s.image,
-                        reqBrandId: s.brand_id,
-                        reqCategoryId: s.category_id,
-                        reqSupplierId: s.supplier_id
-                    };
+            const { data: existing } = await axios.get('/api/admin/products', authHead());
+            let anyChange = false;
+            for (const p of Object.values(grouped)) {
+                if (!p.brand_id) p.brand_id = 1;
+                if (!p.category_id) p.category_id = 1;
+                const match = existing.find(e =>
+                    e.name.trim().toLowerCase() === p.name.trim().toLowerCase() &&
+                    String(e.brand_id) === String(p.brand_id) &&
+                    String(e.category_id) === String(p.category_id)
+                );
+                if (match) {
+                    // ADD new supplier stock on top of the current DB stock
+                    // (do NOT replace — the current stock already reflects customer deductions)
+                    const updatedStock = Number(match.stock) + p.addStock;
+                    await axios.put(`/api/admin/products/${match.id}`, {
+                        stock: updatedStock, price: p.price
+                    }, authHead());
+                    anyChange = true;
+                } else {
+                    // Brand-new product — create it with the initial stock from this delivery
+                    await axios.post('/api/admin/products', { ...p, stock: p.addStock }, authHead());
+                    anyChange = true;
                 }
-                grouped[key].stock += (s.stock || 0);
-                grouped[key].reqIds.push(r.id);
-            });
-            // Keep all products including those with 0 stock (show as No Stock, not deleted)
-            setProducts(Object.values(grouped));
-        } catch (error) {
-            console.error('Failed to load products from store:', error);
-            setProducts([]); 
+                // Mark these supplier orders as placed so they're never synced again
+                p.newReqIds.forEach(id => reqStore.update(id, { _placedInInventory: true }));
+            }
+            if (anyChange) window.dispatchEvent(new Event('jk_inventory_update'));
+        } catch (err) {
+            console.error('Auto-sync to inventory failed:', err);
         }
     };
 
     useEffect(() => {
         load();
-        const sync = () => load();
+        autoSync().then(() => load());
+        window.addEventListener('jk_inventory_update', load);
+        const sync = () => { load(); autoSync().then(() => load()); };
         window.addEventListener('jk_req_update', sync);
         window.addEventListener('storage', sync);
         return () => {
+            window.removeEventListener('jk_inventory_update', load);
             window.removeEventListener('jk_req_update', sync);
             window.removeEventListener('storage', sync);
         };
@@ -1127,7 +1087,8 @@ export default function AdminProducts() {
                     </div>
                 </div>
 
-                <table className="admin-table">
+                <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+                <table className="admin-table" style={{ minWidth: 1700, tableLayout: 'auto' }}>
                     <thead>
                         <tr>
                             <th>#</th>
@@ -1138,13 +1099,16 @@ export default function AdminProducts() {
                             <th>Category</th>
                             <th>Unit Price</th>
                             <th>Stock</th>
+                            <th>Gender</th>
+                            <th>Age Group</th>
+                            <th>Color Variant</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredProducts.length === 0 && (
-                            <tr><td colSpan="10" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                            <tr><td colSpan="13" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
                                 No products found.
                             </td></tr>
                         )}
@@ -1170,10 +1134,24 @@ export default function AdminProducts() {
                                     <td className="admin-table__muted">{p.brand?.name ?? '—'}</td>
                                     <td className="admin-table__muted">{p.supplier?.name ?? '—'}</td>
                                     <td className="admin-table__muted">{p.category?.name ?? '—'}</td>
-                                    <td style={{ color: '#C9A84C', fontWeight: 700 }}>
+                                    <td style={{ color: '#111', fontWeight: 700 }}>
                                         {formatCurrency(p.price)}
                                     </td>
                                     <td style={{ fontWeight: 600, color: p.stock === 0 ? '#e74c3c' : 'inherit' }}>{p.stock}</td>
+                                    <td className="admin-table__muted">{p.gender || 'All'}</td>
+                                    <td className="admin-table__muted">{p.variant || 'All'}</td>
+                                    <td>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                                            {parseColorVariants(p.color_variants).length === 0
+                                                ? <span style={{ color: '#111', fontSize: '0.82rem' }}>—</span>
+                                                : parseColorVariants(p.color_variants).map((c, i) => (
+                                                    <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: 'rgba(0,0,0,0.04)', border: '1px solid #e5e7eb', borderRadius: 10, padding: '1px 7px', fontSize: '0.72rem', color: '#111', whiteSpace: 'nowrap' }}>
+                                                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: getAdminColorCSS(c), border: '1px solid rgba(0,0,0,0.18)', display: 'inline-block', flexShrink: 0 }} />{c}
+                                                    </span>
+                                                ))
+                                            }
+                                        </div>
+                                    </td>
                                     <td>
                                         <span className="admin-badge" style={{ background: st.bg, color: st.color, whiteSpace: 'nowrap' }}>
                                             {st.label}
@@ -1181,20 +1159,6 @@ export default function AdminProducts() {
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '0.4rem' }}>
-                                            {/* Place in Inventory — upload icon */}
-                                            <button
-                                                title="Place in Inventory"
-                                                className="admin-icon-btn admin-icon-btn--success"
-                                                onClick={() => setModal({ type: 'placeInInventory', product: p })}
-                                                disabled={p.stock === 0}
-                                                style={{ opacity: p.stock === 0 ? 0.35 : 1, cursor: p.stock === 0 ? 'not-allowed' : 'pointer' }}
-                                            >
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                                                    <polyline points="17 8 12 3 7 8"/>
-                                                    <line x1="12" y1="3" x2="12" y2="15"/>
-                                                </svg>
-                                            </button>
                                             {/* Delete — trash icon */}
                                             <button
                                                 title="Delete"
@@ -1215,10 +1179,10 @@ export default function AdminProducts() {
                         })}
                     </tbody>
                 </table>
+                </div>
             </div>
 
             {modal === 'add'          && <AddProductModal  onClose={closeModal} onSaved={saved} />}
-            {modal?.type === 'placeInInventory' && <PlaceInInventoryModal product={modal.product} onClose={closeModal} onSaved={saved} />}
             {modal?.type === 'delete' && <DeleteModal      product={modal.product} onClose={closeModal} onDeleted={saved} />}
         </AdminLayout>
     );

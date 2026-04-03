@@ -11,11 +11,13 @@ class SupplierProduct extends Model
     
     protected $fillable = [
         'name', 'slug', 'description', 'price', 'image', 
-        'brand_id', 'category_id', 'supplier_id', 'stock', 'status'
+        'brand_id', 'category_id', 'supplier_id', 'stock', 'status',
+        'gender', 'variant', 'color_variants'
     ];
     
     protected $casts = [
-        'price' => 'float',
+        'price'          => 'float',
+        'color_variants' => 'array',
     ];
 
     public function brand() { return $this->belongsTo(Brand::class); }

@@ -9,6 +9,9 @@ const getToken = () => localStorage.getItem('jk_token');
 const authHead = () => ({ headers: { Authorization: `Bearer ${getToken()}` } });
 const IMG_BASE = '/storage/';
 
+const INV_COLOR_CSS = { black:'#111', white:'#e0e0e0', silver:'#C0C0C0', gold:'#FFD700', 'rose gold':'#B76E79', blue:'#3B82F6', navy:'#1E3A5F', green:'#22C55E', red:'#EF4444', orange:'#F97316', yellow:'#EAB308', purple:'#A855F7', pink:'#EC4899', brown:'#92400E', gray:'#6B7280', grey:'#6B7280', titanium:'#878681', champagne:'#F7E7CE' };
+const getInvColorCSS = (name) => INV_COLOR_CSS[name?.toLowerCase()?.trim()] || '#888';
+const parseInvColors = (raw) => { if (!raw) return []; if (Array.isArray(raw)) return raw; try { return JSON.parse(raw); } catch { return []; } };
 
 function stockStatus(stock) {
     if (stock === 0) return { bg: 'rgba(231,76,60,0.12)', color: '#e74c3c', label: 'Out of Stock' };
@@ -31,164 +34,8 @@ const S = {
     noImg: { width: 44, height: 44, borderRadius: 8, background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }
 };
 
-// ─── Edit Stock & Price Modal ────────────────────────────────────────────────
-function EditModal({ product, onClose, onSaved }) {
-    const [newStock, setNewStock] = useState(product.stock || 0);
-    const [price, setPrice] = useState(product.price || 0);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-
-    // Compute available stock in Product Management
-    const allReqs = reqStore.getAll() || [];
-    const delivered = allReqs.filter(r =>
-        r?.status === 'completed' &&
-        r?._productSnapshot &&
-        !r?._placedInInventory &&
-        !r?._deletedFromMgmt
-    );
-
-    const pKey = `${product.name}|${product.brand?.name || ''}|${product.category?.name || ''}|${product.supplier?.name || ''}`;
-    let availableStock = 0;
-    const matchingReqs = [];
-    delivered.forEach(r => {
-        const s = r._productSnapshot;
-        const key = `${s.name}|${s.brand?.name || ''}|${s.category?.name || ''}|${s.supplier?.name || ''}`;
-        if (key === pKey) {
-            availableStock += (s.stock || 0);
-            matchingReqs.push(r);
-        }
-    });
-
-    // Live preview: projected available stock after the edit
-    const newStockNum = Number(newStock);
-    const diff = newStockNum - product.stock; // positive = taking from PM, negative = returning to PM
-    const projectedAvailable = availableStock - diff;
-    const notEnoughStock = diff > 0 && diff > availableStock;
-
-    const handleSave = async () => {
-        setError('');
-        const newStockNum = Number(newStock);
-        if (newStockNum < 0) return setError('Stock cannot be negative.');
-        if (notEnoughStock) return setError('Not enough stock in Product Management.');
-
-        setLoading(true);
-        try {
-            await axios.put(`/api/admin/products/${product.id}`, {
-                stock: newStockNum,
-                price: Number(price)
-            }, authHead());
-
-            if (diff < 0) {
-                // Return stock to PM (Inventory stock decreased)
-                reqStore.add({
-                    id: 'RES-' + Date.now(),
-                    _isRestoreRecord: true,
-                    status: 'completed',
-                    date: new Date().toISOString(),
-                    _productSnapshot: { ...product, stock: Math.abs(diff) }
-                });
-            } else if (diff > 0) {
-                // Deduct stock from PM (Inventory stock increased)
-                let remainingToDeduct = diff;
-                for (const reqItem of [...matchingReqs].sort((a, b) => new Date(a.date) - new Date(b.date))) {
-                    if (remainingToDeduct <= 0) break;
-                    const curStock = reqItem._productSnapshot?.stock || 0;
-                    if (curStock <= 0) continue;
-
-                    const deductAmount = Math.min(curStock, remainingToDeduct);
-                    remainingToDeduct -= deductAmount;
-                    const newCurStock = curStock - deductAmount;
-
-                    const patch = {
-                        _productSnapshot: { ...reqItem._productSnapshot, stock: newCurStock }
-                    };
-                    if (newCurStock === 0) patch._placedInInventory = true;
-
-                    reqStore.update(reqItem.id, patch);
-                }
-            }
-
-            onSaved();
-        } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.message || 'Failed to update inventory.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
-            <div style={S.modal}>
-                <div style={S.mHeader}>
-                    <h2 style={S.mTitle}>Edit Product</h2>
-                    <button style={S.closeBtn} onClick={onClose} disabled={loading}>✕</button>
-                </div>
-                <div style={{ padding: '1.5rem' }}>
-                    {/* Product image + name header */}
-                    <div style={{ display: 'flex', gap: '0.9rem', alignItems: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.9rem', marginBottom: '1.25rem' }}>
-                        <div style={{ width: 58, height: 58, borderRadius: 8, background: '#111', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {product.image
-                                ? <img src={IMG_BASE + product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display='none'} />
-                                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>}
-                        </div>
-                        <div>
-                            <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.95rem', marginBottom: 3 }}>{product.name}</div>
-                            <div style={{ color: '#888', fontSize: '0.8rem' }}>{product.brand?.name ?? '—'} &bull; {product.category?.name ?? '—'}</div>
-                        </div>
-                    </div>
-
-                    <div style={{ marginBottom: '1rem', background: notEnoughStock ? 'rgba(231,76,60,0.08)' : 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: 8, border: notEnoughStock ? '1px solid rgba(231,76,60,0.3)' : '1px solid transparent' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: notEnoughStock ? '0.4rem' : 0 }}>
-                            <span style={{ color: '#aaa', fontSize: '0.85rem' }}>Available stock in Product Management:</span>
-                            <span style={{ color: notEnoughStock ? '#e74c3c' : '#C9A84C', fontWeight: 800 }}>
-                                {newStockNum === product.stock ? availableStock : projectedAvailable}
-                            </span>
-                        </div>
-                        {notEnoughStock && (
-                            <div style={{ color: '#e74c3c', fontSize: '0.78rem', fontWeight: 600 }}>Not enough stock in Product Management</div>
-                        )}
-                    </div>
-
-                    {error && (
-                        <div style={{ background: 'rgba(231,76,60,0.1)', color: '#e74c3c', padding: '0.75rem', borderRadius: 8, marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 500, border: '1px solid rgba(231,76,60,0.3)' }}>
-                            {error}
-                        </div>
-                    )}
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                        <div>
-                            <label style={S.label}>Current Stock in Inventory</label>
-                            <input type="text" value={product.stock} readOnly style={{ ...S.input, background: '#222', color: '#888', cursor: 'not-allowed' }} />
-                        </div>
-                        <div>
-                            <label style={S.label}>New Stock Quantity</label>
-                            <input type="number" min="0" value={newStock}
-                                onChange={e => setNewStock(e.target.value)}
-                                style={S.input} />
-                        </div>
-                    </div>
-
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <label style={S.label}>New Unit Price</label>
-                        <input type="number" min="0" value={price}
-                            onChange={e => setPrice(e.target.value)}
-                            style={S.input} />
-                    </div>
-
-                    <div style={S.mFooter}>
-                        <button type="button" style={{ padding: '0.6rem 1.25rem', borderRadius: 8, background: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }} onClick={onClose} disabled={loading}>Cancel</button>
-                        <button className="admin-btn-gold" onClick={handleSave} disabled={loading}>
-                            {loading ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 // ─── Delete Modal ─────────────────────────────────────────────────────────────
+
 function DeleteModal({ product, onClose, onDeleted }) {
     const [loading, setLoading] = useState(false);
 
@@ -196,28 +43,20 @@ function DeleteModal({ product, onClose, onDeleted }) {
         setLoading(true);
         try {
             await axios.delete(`/api/admin/products/${product.id}`, authHead());
-            reqStore.add({
-                id: 'RES-' + Date.now(),
-                _isRestoreRecord: true,
-                status: 'completed',
-                // Keep minimal request properties that might be needed
-                date: new Date().toISOString(),
-                _productSnapshot: {
-                    name: product.name,
-                    brand: product.brand,
-                    brand_id: product.brand_id,
-                    category: product.category,
-                    category_id: product.category_id,
-                    supplier: product.supplier,
-                    supplier_id: product.supplier_id,
-                    price: product.price,
-                    stock: product.stock,
-                    image: product.image
+            const all = reqStore.getAll() || [];
+            all.forEach(r => {
+                if (!r?._productSnapshot) return;
+                const s = r._productSnapshot;
+                const nameMatch = s.name?.trim().toLowerCase() === product.name?.trim().toLowerCase();
+                const brandMatch = String(s.brand_id || s.brand?.id || '') === String(product.brand_id || '');
+                const catMatch = String(s.category_id || s.category?.id || '') === String(product.category_id || '');
+                if (nameMatch && brandMatch && catMatch) {
+                    reqStore.update(r.id, { _deletedFromMgmt: true });
                 }
             });
             onDeleted();
         } catch (err) {
-            console.error("Failed to delete and restore", err);
+            console.error('Failed to delete', err);
             setLoading(false);
         }
     };
@@ -225,20 +64,17 @@ function DeleteModal({ product, onClose, onDeleted }) {
         <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
             <div style={{ ...S.modal, maxWidth: 420 }}>
                 <div style={S.mHeader}>
-                    <h2 style={{ ...S.mTitle, color: '#e74c3c' }}>Remove from Inventory</h2>
+                    <h2 style={{ ...S.mTitle, color: '#e74c3c' }}>Delete Product Inventory</h2>
                     <button style={S.closeBtn} onClick={onClose} disabled={loading}>✕</button>
                 </div>
                 <div style={{ padding: '1.5rem' }}>
-                    <p style={{ color: '#ccc', marginBottom: '1rem', lineHeight: 1.5 }}>
+                    <p style={{ color: '#ccc', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                         Are you sure you want to remove <strong style={{ color: '#fff' }}>{product.name}</strong> from inventory?
                     </p>
-                    <p style={{ color: '#f59e0b', fontSize: '0.88rem', marginBottom: '1.5rem', background: 'rgba(245,158,11,0.1)', padding: '0.75rem', borderRadius: 8, border: '1px solid rgba(245,158,11,0.2)' }}>
-                        The stock ({product.stock} units) will be returned to Product Management.
-                    </p>
                     <div style={S.mFooter}>
-                        <button type="button" style={{ padding: '0.6rem 1.25rem', borderRadius: 8, background: '#e74c3c', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }} onClick={onClose} disabled={loading}>Cancel</button>
+                        <button type="button" style={{ padding: '0.6rem 1.25rem', borderRadius: 8, background: '#444', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }} onClick={onClose} disabled={loading}>Cancel</button>
                         <button className="admin-btn-red" onClick={handleDelete} disabled={loading}>
-                            {loading ? 'Removing...' : 'Yes, Remove & Restore'}
+                            {loading ? 'Deleting...' : 'Yes, Delete'}
                         </button>
                     </div>
                 </div>
@@ -299,7 +135,8 @@ export default function AdminInventory() {
                     </div>
                 </div>
 
-                <table className="admin-table">
+                <div style={{ overflowX: 'auto', width: '100%' }}>
+                <table className="admin-table" style={{ minWidth: 1100 }}>
                     <thead>
                         <tr>
                             <th>#</th>
@@ -310,14 +147,17 @@ export default function AdminInventory() {
                             <th>Category</th>
                             <th>Unit Price</th>
                             <th>Stock</th>
+                            <th>Gender</th>
+                            <th>Age Group</th>
+                            <th>Color Variant</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filtered.length === 0 && (
-                            <tr><td colSpan="10" style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
-                                No items in inventory. Add products from Product Management.
+                            <tr><td colSpan="13" style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
+                                No items in inventory. Products will appear here automatically when added in Product Management.
                             </td></tr>
                         )}
                         {filtered.map((p, i) => {
@@ -342,10 +182,24 @@ export default function AdminInventory() {
                                     <td className="admin-table__muted">{p.brand?.name ?? '—'}</td>
                                     <td className="admin-table__muted">{p.supplier?.name ?? '—'}</td>
                                     <td className="admin-table__muted">{p.category?.name ?? '—'}</td>
-                                    <td style={{ color: '#C9A84C', fontWeight: 700 }}>
+                                    <td style={{ color: '#111', fontWeight: 700 }}>
                                         {formatCurrency(p.price)}
                                     </td>
                                     <td style={{ fontWeight: 600, color: p.stock === 0 ? '#e74c3c' : 'inherit' }}>{p.stock}</td>
+                                    <td className="admin-table__muted">{p.gender || 'All'}</td>
+                                    <td className="admin-table__muted">{p.variant || 'All'}</td>
+                                    <td>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                                            {parseInvColors(p.color_variants).length === 0
+                                                ? <span style={{ color: '#111', fontSize: '0.82rem' }}>—</span>
+                                                : parseInvColors(p.color_variants).map((c, i) => (
+                                                    <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: 'rgba(0,0,0,0.04)', border: '1px solid #e5e7eb', borderRadius: 10, padding: '1px 7px', fontSize: '0.72rem', color: '#111', whiteSpace: 'nowrap' }}>
+                                                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: getInvColorCSS(c), border: '1px solid rgba(0,0,0,0.18)', display: 'inline-block', flexShrink: 0 }} />{c}
+                                                    </span>
+                                                ))
+                                            }
+                                        </div>
+                                    </td>
                                     <td>
                                         <span className="admin-badge" style={{ background: st.bg, color: st.color, whiteSpace: 'nowrap' }}>
                                             {st.label}
@@ -353,14 +207,6 @@ export default function AdminInventory() {
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '0.4rem' }}>
-                                            <button title="Edit Item" className="admin-icon-btn admin-icon-btn--success"
-                                                onClick={() => setModal({ type: 'edit', product: p })}>
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                                                    <polyline points="17 8 12 3 7 8"/>
-                                                    <line x1="12" y1="3" x2="12" y2="15"/>
-                                                </svg>
-                                            </button>
                                             <button title="Remove" className="admin-icon-btn admin-icon-btn--delete"
                                                 onClick={() => setModal({ type: 'delete', product: p })}>
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -377,9 +223,9 @@ export default function AdminInventory() {
                         })}
                     </tbody>
                 </table>
+                </div>
             </div>
 
-            {modal?.type === 'edit' && <EditModal product={modal.product} onClose={closeModal} onSaved={saved} />}
             {modal?.type === 'delete' && <DeleteModal product={modal.product} onClose={closeModal} onDeleted={saved} />}
         </AdminLayout>
     );

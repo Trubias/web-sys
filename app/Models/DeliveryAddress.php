@@ -14,10 +14,14 @@ class DeliveryAddress extends Model
         'region',
         'phone',
         'is_default',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [
         'is_default' => 'boolean',
+        'latitude'   => 'float',
+        'longitude'  => 'float',
     ];
 
     public function user()

@@ -4,183 +4,251 @@ import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
 import UserLayout from '../user/UserLayout';
 
-const LocationPicker = ({ lat, lng, address, city, region, country, onChange }) => {
-    const mapRef = React.useRef(null);
+// ─── LocationPicker ──────────────────────────────────────────────────────────
+// Receives `address` and `city` as explicit props — always reads live
+// Delivery Details values. Runs geocoding INTERNALLY on button click.
+// Parent receives final lat/lng via onLocationFound(lat, lng).
+// NO GPS. NO browser geolocation. NO stale-closure risk.
+const LocationPicker = ({ lat, lng, address, city, onDrag, onLocationFound }) => {
+    const mapRef    = React.useRef(null);
     const markerRef = React.useRef(null);
-    const [geoError, setGeoError] = React.useState(false);
+    const [findState,    setFindState]    = React.useState('idle');
+    const [foundName,    setFoundName]    = React.useState('');
+    const [lastQuery,    setLastQuery]    = React.useState('');
+    const [notFoundAddr, setNotFoundAddr] = React.useState('');
 
+    // ── Bootstrap Leaflet once ──
     React.useEffect(() => {
         let isMounted = true;
-        
+
         if (!document.getElementById('leaflet-css')) {
             const link = document.createElement('link');
-            link.id = 'leaflet-css';
-            link.rel = 'stylesheet';
+            link.id = 'leaflet-css'; link.rel = 'stylesheet';
             link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
             document.head.appendChild(link);
         }
-        
         if (!document.getElementById('leaflet-js')) {
             const script = document.createElement('script');
-            script.id = 'leaflet-js';
-            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-            script.async = true;
-            document.head.appendChild(script);
+            script.id = 'leaflet-js'; script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.async = true; document.head.appendChild(script);
         }
 
         const checkL = setInterval(() => {
             if (window.L && document.getElementById('checkout-map')) {
                 clearInterval(checkL);
                 if (!isMounted || mapRef.current) return;
-                
-                const map = window.L.map('checkout-map').setView([12.8797, 121.7740], 6);
-                const satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    attribution: 'Tiles courtesy of Esri and the GIS community', maxZoom: 19
-                });
-                const streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                });
+
+                const initLat = lat || 12.8797;
+                const initLng = lng || 121.7740;
+                const map = window.L.map('checkout-map').setView([initLat, initLng], lat ? 15 : 6);
+
+                const satLayer    = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles © Esri', maxZoom: 19 });
+                const streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' });
                 satLayer.addTo(map);
                 let isSat = true;
+
                 const toggleCtrl = window.L.control({ position: 'topright' });
                 toggleCtrl.onAdd = function() {
                     const btn = window.L.DomUtil.create('button', '');
-                    btn.type = 'button';
-                    btn.innerHTML = '🗺️ Street View';
+                    btn.type = 'button'; btn.innerHTML = '🗺️ Street View';
                     btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
                     window.L.DomEvent.on(btn, 'click', function(e) {
                         window.L.DomEvent.stopPropagation(e);
                         if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); btn.innerHTML = '🛰️ Satellite View'; isSat = false; }
-                        else { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
+                        else       { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
                     });
                     return btn;
                 };
                 toggleCtrl.addTo(map);
 
-                const marker = window.L.marker([12.8797, 121.7740], { draggable: true }).addTo(map);
-                marker.on('dragend', function (e) {
+                const marker = window.L.marker([initLat, initLng], { draggable: true }).addTo(map);
+                marker.on('dragend', function() {
                     const pos = marker.getLatLng();
-                    onChange(pos.lat, pos.lng);
+                    onDrag(pos.lat, pos.lng);
                 });
 
-                mapRef.current = map;
+                mapRef.current    = map;
                 markerRef.current = marker;
-
-                if (lat && lng) {
-                   map.setView([lat, lng], 16);
-                   marker.setLatLng([lat, lng]);
-                }
-                
                 setTimeout(() => { map.invalidateSize(); }, 200);
             }
         }, 100);
 
-        return () => { 
-            isMounted = false; 
-            clearInterval(checkL); 
-        };
-    }, []);
+        return () => { isMounted = false; clearInterval(checkL); };
+    }, []); // run once
 
-    // Auto-geocode whenever Address, City, or Region changes
+    // ── Move pin whenever lat/lng change (driven by parent) ──
     React.useEffect(() => {
-        const parts = [address, city, region, country || 'Philippines'].filter(Boolean);
-        if (parts.length < 2) return;
-        const fullQuery = parts.join(', ');
+        if (!mapRef.current || !markerRef.current) return;
+        if (!lat || !lng) return;
+        mapRef.current.setView([lat, lng], 16);
+        markerRef.current.setLatLng([lat, lng]);
+        setTimeout(() => { mapRef.current.invalidateSize(); }, 100);
+    }, [lat, lng]);
 
-        const timer = setTimeout(async () => {
-            if (!mapRef.current || !markerRef.current) return;
-            try {
-                const res = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ph&q=${encodeURIComponent(fullQuery)}`
-                );
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    const newLat = parseFloat(data[0].lat);
-                    const newLon = parseFloat(data[0].lon);
-                    const zoom = address && address.trim().length > 3 ? 16 : 13;
-                    mapRef.current.setView([newLat, newLon], zoom);
-                    markerRef.current.setLatLng([newLat, newLon]);
-                    mapRef.current.invalidateSize();
-                    onChange(newLat, newLon);
-                    setGeoError(false);
-                } else {
-                    setGeoError(true);
-                }
-            } catch {
-                // network error — leave map as-is
-            }
-        }, 800);
+    const handleFindClick = async () => {
+        const currentAddress = (address || '').trim();
+        const currentCity    = (city    || '').trim();
 
-        return () => clearTimeout(timer);
-    }, [address, city, region]);
+        if (!currentAddress && !currentCity) {
+            setFindState('notfound');
+            setNotFoundAddr('');
+            setTimeout(() => setFindState('idle'), 4000);
+            return;
+        }
 
-    const handleCurrentLocation = () => {
-        const queries = [];
-        if (address && city) queries.push(`${address}, ${city}, ${country || 'Philippines'}`);
-        if (city) queries.push(`${city}, ${country || 'Philippines'}`);
-        
-        const tryGeocode = async (index) => {
-            // Fallback to GPS if address isn't provided or geocoding failed
-            if (index >= queries.length) {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition((position) => {
-                        const { latitude, longitude } = position.coords;
-                        onChange(latitude, longitude);
-                        if (mapRef.current && markerRef.current) {
-                            mapRef.current.setView([latitude, longitude], 16);
-                            markerRef.current.setLatLng([latitude, longitude]);
-                            setTimeout(() => { mapRef.current.invalidateSize(); }, 200);
-                        }
-                    }, (error) => {
-                        alert("Unable to find your typed address and GPS access was denied. Please drag the pin manually.");
-                    });
-                }
-                return;
-            }
-            
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queries[index])}`);
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    const newLat = parseFloat(data[0].lat);
-                    const newLon = parseFloat(data[0].lon);
-                    if (mapRef.current && markerRef.current) {
-                        mapRef.current.setView([newLat, newLon], index === 0 ? 16 : 13);
-                        markerRef.current.setLatLng([newLat, newLon]);
-                        setTimeout(() => { mapRef.current.invalidateSize(); }, 200);
-                        onChange(newLat, newLon);
-                    }
-                } else {
-                    tryGeocode(index + 1);
-                }
-            } catch (err) {
-                tryGeocode(index + 1);
-            }
-        };
-        
-        tryGeocode(0);
+        setFindState('loading');
+        setFoundName('');
+        setLastQuery('');
+        setNotFoundAddr('');
+
+        const result = await findLocationByText(currentAddress, currentCity);
+
+        if (!result) {
+            setFindState('notfound');
+            setNotFoundAddr(currentAddress && currentCity ? `${currentAddress}, ${currentCity}` : currentAddress || currentCity);
+            setTimeout(() => setFindState('idle'), 8000);
+        } else {
+            setLastQuery(result.query || '');
+            onLocationFound && onLocationFound(result.lat, result.lng);
+            setFoundName(result.name || '');
+            setFindState('found');
+            setTimeout(() => setFindState('idle'), 8000);
+        }
     };
 
     return (
         <div style={{ marginBottom: '1.5rem', background: '#fff', padding: '1.5rem', border: '1px solid #ddd', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.8rem', fontWeight: 700 }}>📍 Pin Your Delivery Location</h3>
-            <button type="button" onClick={handleCurrentLocation} style={{ marginBottom: '1rem', padding: '0.6rem 1.2rem', background: '#f8f9fa', color: '#333', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}>
-                Use My Current Location
+            <h3 style={{ fontSize: '1rem', marginBottom: '0.3rem', fontWeight: 700 }}>📍 Delivery Location Map</h3>
+            <p style={{ fontSize: '0.78rem', color: '#888', marginBottom: '0.9rem', lineHeight: 1.4 }}>
+                Press <strong>Find Location</strong> to pin your delivery address on the map.
+                {address && city && <span style={{ color: '#555' }}> Searching for: <em>{address}, {city}</em></span>}
+            </p>
+
+            <button
+                type="button"
+                onClick={handleFindClick}
+                disabled={findState === 'loading'}
+                style={{
+                    marginBottom: '0.75rem', padding: '0.6rem 1.3rem',
+                    background: findState === 'found' ? '#f0fdf4' : '#f8f9fa',
+                    color:      findState === 'found' ? '#166534' : '#333',
+                    border:     findState === 'found' ? '1px solid #86efac' : '1px solid #ddd',
+                    borderRadius: '4px', cursor: findState === 'loading' ? 'not-allowed' : 'pointer',
+                    fontSize: '0.88rem', fontWeight: 700, width: '100%', textAlign: 'center', transition: 'all 0.2s',
+                }}
+            >
+                {findState === 'loading' ? '⏳ Searching...' : findState === 'found' ? '✅ Location Found!' : '🔍 Find Location'}
             </button>
-            <div id="checkout-map" style={{ height: '300px', width: '100%', borderRadius: '8px', zIndex: 1, border: '1px solid #ddd' }}></div>
-            {geoError && (
-                <div style={{ marginTop: '0.5rem', padding: '0.45rem 0.8rem', background: '#fff8e1', border: '1px solid #f9a825', borderRadius: '4px', fontSize: '0.8rem', color: '#7a5c00', fontWeight: 600 }}>
-                    ⚠️ Location not found. Please drag the pin to your delivery location manually.
+
+            {findState === 'found' && (
+                <div style={{ marginBottom: '0.6rem', padding: '0.6rem 0.9rem', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '6px', fontSize: '0.8rem', color: '#166534', fontWeight: 600, lineHeight: 1.5 }}>
+                    ✅ <strong>Location Found!</strong>
+                    {foundName && <div style={{ marginTop: '0.2rem', fontSize: '0.75rem', fontWeight: 400, opacity: 0.9 }}>{foundName.split(',').slice(0, 4).join(',')}</div>}
                 </div>
             )}
-            <div style={{ marginTop: '0.8rem', fontSize: '0.85rem', color: '#888' }}>
-                Latitude: {lat || '___'} | Longitude: {lng || '___'}
+            {findState === 'notfound' && (
+                <div style={{ marginBottom: '0.6rem', padding: '0.6rem 0.9rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', fontSize: '0.8rem', color: '#b91c1c', fontWeight: 600, lineHeight: 1.5 }}>
+                    ❌ {notFoundAddr
+                        ? <>Could not find <strong>{notFoundAddr}</strong>. Please check your address spelling.</>
+                        : <>Address not found. Please check and try again.</>}
+                </div>
+            )}
+
+            <div id="checkout-map" style={{ height: '300px', width: '100%', borderRadius: '8px', zIndex: 1, border: '1px solid #ddd' }} />
+
+            <div style={{ marginTop: '0.7rem', fontSize: '0.78rem', color: '#555', fontWeight: 500 }}>
+                {lat && lng
+                    ? <span>📌 <strong>{Number(lat).toFixed(6)}</strong>, <strong>{Number(lng).toFixed(6)}</strong></span>
+                    : <span style={{ color: '#aaa' }}>Press "Find Location" to pin your delivery address.</span>}
             </div>
-            <input type="hidden" name="latitude" id="latitude" value={lat || ''} />
-            <input type="hidden" name="longitude" id="longitude" value={lng || ''} />
+            {lastQuery && (
+                <div style={{ marginTop: '0.3rem', fontSize: '0.72rem', color: '#888', fontStyle: 'italic' }}>
+                    🔎 Searched: <strong style={{ fontStyle: 'normal', color: '#555' }}>{lastQuery}</strong>
+                </div>
+            )}
+            <input type="hidden" name="latitude"  value={lat  || ''} />
+            <input type="hidden" name="longitude" value={lng || ''} />
         </div>
     );
 };
+
+// ─── Find Location geocoder ─────────────────────────────────────────────────────
+// 3 cascading Nominatim queries. Takes the FIRST result within Philippines
+// bounding box. No address-text filtering — avoids false "not found" errors.
+// Philippines bounding box: lat 4.5–21.5, lng 116.0–127.0
+const PH_BOUNDS = { minLat: 4.5, maxLat: 21.5, minLng: 116.0, maxLng: 127.0 };
+
+const findLocationByText = async (streetAddress, city) => {
+    const street = (streetAddress || '').trim();
+    const town   = (city          || '').trim();
+    if (!street && !town) return null;
+
+    const inPhilippines = (r) => {
+        const lat = parseFloat(r.lat), lng = parseFloat(r.lon);
+        return lat >= PH_BOUNDS.minLat && lat <= PH_BOUNDS.maxLat &&
+               lng >= PH_BOUNDS.minLng && lng <= PH_BOUNDS.maxLng;
+    };
+
+    const query = async (url, label) => {
+        try {
+            const res  = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+            const data = await res.json();
+            if (!data || data.length === 0) return null;
+            const best = data.find(r => inPhilippines(r));
+            if (!best) return null;
+            return { lat: parseFloat(best.lat), lng: parseFloat(best.lon), name: best.display_name, query: label };
+        } catch { return null; }
+    };
+
+    // Fix 1a: [ADDRESS] + [CITY] + Philippines — most specific
+    if (street && town) {
+        const r = await query(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(`${street} ${town} Philippines`)}&countrycodes=ph&limit=5`,
+            `${street} ${town} Philippines`
+        );
+        if (r) return r;
+    }
+
+    // Fix 1b: [ADDRESS] + Philippines — broader
+    if (street) {
+        const r = await query(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(`${street} Philippines`)}&countrycodes=ph&limit=5`,
+            `${street} Philippines`
+        );
+        if (r) return r;
+    }
+
+    // Fix 1c: [CITY] + Philippines — city-level fallback
+    if (town) {
+        const r = await query(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(`${town} Philippines`)}&countrycodes=ph&limit=1`,
+            `${town} Philippines`
+        );
+        if (r) return r;
+    }
+
+    return null;
+};
+
+// Used ONLY when saving an address to the DB (no Butuan-City-specific validation)
+const geocodeByText = async (streetAddress, city) => {
+    const street = (streetAddress || '').trim();
+    const town   = (city          || '').trim();
+    if (!street && !town) return null;
+    try {
+        const res  = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ph&q=${encodeURIComponent([street, town, 'Philippines'].filter(Boolean).join(', '))}`,
+            { headers: { 'Accept-Language': 'en' } }
+        );
+        const data = await res.json();
+        if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+            if (lat >= 4.5 && lat <= 21.5 && lng >= 116 && lng <= 127) return { lat, lng };
+        }
+        return null;
+    } catch { return null; }
+};
+
 
 export default function Checkout() {
     const { user, refreshCart, fetchUser } = useAuth();
@@ -228,7 +296,7 @@ export default function Checkout() {
         longitude: null
     });
 
-    // Fetch saved addresses on login
+    // ── Rule 1: On load, only set Delivery Details text — map pin does NOT auto-move ──
     useEffect(() => {
         if (!user) return;
         axios.get('/api/delivery-addresses').then(res => {
@@ -236,7 +304,16 @@ export default function Checkout() {
             if (res.data.length > 0) {
                 const def = res.data.find(a => a.is_default) || res.data[0];
                 setSelectedAddrId(def.id);
-                setForm(f => ({ ...f, name: def.full_name, address: def.address, city: def.city, region: normalizeRegion(def.region), phone: def.phone || f.phone }));
+                setForm(f => ({
+                    ...f,
+                    name:      def.full_name,
+                    address:   def.address,
+                    city:      def.city,
+                    region:    normalizeRegion(def.region),
+                    phone:     def.phone || f.phone,
+                    latitude:  null, // pin does NOT auto-move
+                    longitude: null,
+                }));
             }
         }).catch(() => {});
     }, [user]);
@@ -284,10 +361,19 @@ export default function Checkout() {
         return 'Luzon'; // Metro Manila and any legacy value → Luzon
     };
 
-    // Apply a saved address card into the checkout form
+    // ── Rule 1: Switching addresses ONLY updates Delivery Details text — pin does NOT move ──
     const applyAddress = (addr) => {
         setSelectedAddrId(addr.id);
-        setForm(f => ({ ...f, name: addr.full_name, address: addr.address, city: addr.city, region: normalizeRegion(addr.region), phone: addr.phone || f.phone }));
+        setForm(f => ({
+            ...f,
+            name:      addr.full_name,
+            address:   addr.address,
+            city:      addr.city,
+            region:    normalizeRegion(addr.region),
+            phone:     addr.phone || f.phone,
+            // Intentionally do NOT change lat/lng — pin stays where it is
+            // until the customer explicitly presses "Find Location"
+        }));
     };
 
     const startAdd = () => {
@@ -302,6 +388,7 @@ export default function Checkout() {
         setAddrMode('edit');
     };
 
+    // ── Rule 3 (save): Geocode on save, also store coords in DB ──
     const handleSaveAddress = async () => {
         if (!addrForm.full_name.trim() || !addrForm.address.trim() || !addrForm.city.trim()) {
             alert('Full Name, Address, and City are required.');
@@ -309,14 +396,21 @@ export default function Checkout() {
         }
         setAddrSaving(true);
         try {
+            const coords = await geocodeByText(addrForm.address, addrForm.city);
+            const payload = {
+                ...addrForm,
+                latitude:  coords ? coords.lat : null,
+                longitude: coords ? coords.lng : null,
+            };
+
             if (addrMode === 'add') {
-                const res = await axios.post('/api/delivery-addresses', addrForm);
+                const res = await axios.post('/api/delivery-addresses', payload);
                 setSavedAddresses(prev => [...prev, res.data]);
-                applyAddress(res.data);
+                await applyAddress(res.data);
             } else {
-                const res = await axios.put(`/api/delivery-addresses/${editingAddr.id}`, addrForm);
+                const res = await axios.put(`/api/delivery-addresses/${editingAddr.id}`, payload);
                 setSavedAddresses(prev => prev.map(a => a.id === editingAddr.id ? res.data : a));
-                if (selectedAddrId === editingAddr.id) applyAddress(res.data);
+                if (selectedAddrId === editingAddr.id) await applyAddress(res.data);
             }
             setAddrMode(null);
             setEditingAddr(null);
@@ -410,8 +504,12 @@ export default function Checkout() {
 
     return (
         <UserLayout>
-            <div className="mobile-p-2" style={{ flex: 1, padding: '4rem 2rem', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
-                <h1 style={{ fontFamily: '"Playfair Display", serif', fontSize: '2.5rem', fontWeight: 800, marginBottom: '2rem' }}>Checkout</h1>
+            <div className="mobile-p-2" style={{ flex: 1, padding: '4rem 5rem', maxWidth: '1400px', margin: '0 auto', width: '100%', fontFamily: 'Inter, sans-serif' }}>
+                <div style={{ marginBottom: '2rem', borderBottom: '2px solid #C9A84C', paddingBottom: '1rem' }}>
+                    <h1 style={{ fontFamily: '"Playfair Display", serif', fontSize: '2.5rem', fontWeight: 800, margin: 0, color: '#111' }}>
+                        <span style={{ color: '#C9A84C' }}>Secure</span> Checkout
+                    </h1>
+                </div>
 
                 {error && <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '1rem', borderRadius: '4px', marginBottom: '2rem', fontWeight: 600 }}>{error}</div>}
 
@@ -422,7 +520,7 @@ export default function Checkout() {
 
                         {/* Contact */}
                         <section style={{ marginBottom: '3rem' }}>
-                            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '1px solid #ddd', paddingBottom: '0.5rem' }}>Contact Information</h2>
+                            <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', borderBottom: '2px solid #C9A84C', paddingBottom: '0.5rem', display: 'inline-block', fontFamily: '"Playfair Display", serif', fontWeight: 700 }}>Contact Information</h2>
                             <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#666', marginBottom: '0.4rem' }}>Email Address</label>
                                 <input type="email" value={form.email} readOnly style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px', background: '#f3f4f6', color: '#9ca3af', cursor: 'not-allowed' }} />
@@ -432,7 +530,7 @@ export default function Checkout() {
 
                         {/* Delivery */}
                         <section style={{ marginBottom: '3rem' }}>
-                            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '1px solid #ddd', paddingBottom: '0.5rem' }}>Delivery Information</h2>
+                            <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', borderBottom: '2px solid #C9A84C', paddingBottom: '0.5rem', display: 'inline-block', fontFamily: '"Playfair Display", serif', fontWeight: 700 }}>Delivery Information</h2>
 
                             {/* ── Saved Address Cards ── */}
                             {savedAddresses.length > 0 && (
@@ -578,17 +676,19 @@ export default function Checkout() {
                                 </div>
                             )}
 
-                            <LocationPicker 
-                                lat={form.latitude} 
-                                lng={form.longitude} 
+                            <LocationPicker
+                                lat={form.latitude}
+                                lng={form.longitude}
                                 address={form.address}
                                 city={form.city}
-                                region={form.region}
-                                country="Philippines"
-                                onChange={(lat, lng) => {
+                                onDrag={(lat, lng) => {
                                     setVal('latitude', lat);
                                     setVal('longitude', lng);
-                                }} 
+                                }}
+                                onLocationFound={(lat, lng) => {
+                                    setVal('latitude',  lat);
+                                    setVal('longitude', lng);
+                                }}
                             />
 
                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#333' }}>
@@ -599,7 +699,7 @@ export default function Checkout() {
 
                         {/* Shipping */}
                         <section style={{ marginBottom: '3rem' }}>
-                            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '1px solid #ddd', paddingBottom: '0.5rem' }}>Shipping Method</h2>
+                            <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', borderBottom: '2px solid #C9A84C', paddingBottom: '0.5rem', display: 'inline-block', fontFamily: '"Playfair Display", serif', fontWeight: 700 }}>Shipping Method</h2>
                             <div style={{ padding: '1rem', border: '1px solid #C9A84C', background: '#fdfbf6', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
                                 <span>Standard Delivery</span>
                                 <span>Free</span>
@@ -608,7 +708,7 @@ export default function Checkout() {
 
                         {/* Payment */}
                         <section style={{ marginBottom: '3rem' }}>
-                            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '1px solid #ddd', paddingBottom: '0.5rem' }}>Payment</h2>
+                            <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', borderBottom: '2px solid #C9A84C', paddingBottom: '0.5rem', display: 'inline-block', fontFamily: '"Playfair Display", serif', fontWeight: 700 }}>Payment</h2>
                             <div style={{ border: '1px solid #ddd', borderRadius: form.paymentMethod === 'Bank Transfer' ? '4px 4px 0 0' : '4px', overflow: 'hidden' }}>
                                 {['GCash', 'Maya', 'Bank Transfer', 'Cash on Delivery (COD)'].map((method, i) => (
                                     <label key={method} style={{ display: 'block', padding: '1rem', borderBottom: i < 3 ? '1px solid #ddd' : 'none', cursor: 'pointer', background: form.paymentMethod === method ? '#fafafa' : '#fff' }}>
@@ -677,23 +777,23 @@ export default function Checkout() {
 
                         {/* Order Note */}
                         <section style={{ marginBottom: '3rem' }}>
-                            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '1px solid #ddd', paddingBottom: '0.5rem' }}>Order Note (Optional)</h2>
+                            <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', borderBottom: '2px solid #C9A84C', paddingBottom: '0.5rem', display: 'inline-block', fontFamily: '"Playfair Display", serif', fontWeight: 700 }}>Order Note (Optional)</h2>
                             <textarea value={form.orderNote} onChange={e => setVal('orderNote', e.target.value)} rows="3" style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px', resize: 'vertical' }} placeholder="Notes about your order..."></textarea>
                         </section>
 
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <button type="submit" disabled={isSubmitting} style={{ flex: 1, padding: '1rem', background: '#000', color: '#C9A84C', fontWeight: 800, textTransform: 'uppercase', fontSize: '1.1rem', border: '1px solid #000', borderRadius: '4px', cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { if (!isSubmitting) e.target.style.background = '#111'; }} onMouseLeave={e => { if (!isSubmitting) e.target.style.background = '#000'; }}>
-                                {isSubmitting ? 'Processing...' : 'BUY NOW'}
+                            <button type="submit" disabled={isSubmitting} style={{ flex: 1, padding: '1rem', background: '#16a34a', color: '#fff', fontWeight: 800, textTransform: 'uppercase', fontSize: '1rem', border: '1px solid #16a34a', borderRadius: '4px', cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { if (!isSubmitting) { e.target.style.background = '#15803d'; e.target.style.borderColor = '#15803d'; } }} onMouseLeave={e => { if (!isSubmitting) { e.target.style.background = '#16a34a'; e.target.style.borderColor = '#16a34a'; } }}>
+                                {isSubmitting ? 'Processing...' : 'PLACE ORDER'}
                             </button>
-                            <button type="button" onClick={() => navigate('/user/cart')} disabled={isSubmitting} style={{ flex: 1, padding: '1rem', background: 'red', color: '#fff', fontWeight: 800, textTransform: 'uppercase', fontSize: '1.1rem', border: '1px solid red', borderRadius: '4px', cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { if (!isSubmitting) e.target.style.background = '#d32f2f'; }} onMouseLeave={e => { if (!isSubmitting) e.target.style.background = 'red'; }}>
-                                Cancel
+                            <button type="button" onClick={() => navigate('/user/cart')} disabled={isSubmitting} style={{ flex: 1, padding: '1rem', background: '#dc2626', color: '#fff', fontWeight: 700, textTransform: 'uppercase', fontSize: '1rem', border: '1px solid #dc2626', borderRadius: '4px', cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { if (!isSubmitting) { e.currentTarget.style.background = '#b91c1c'; e.currentTarget.style.borderColor = '#b91c1c'; } }} onMouseLeave={e => { if (!isSubmitting) { e.currentTarget.style.background = '#dc2626'; e.currentTarget.style.borderColor = '#dc2626'; } }}>
+                                CANCEL ORDER
                             </button>
                         </div>
                     </form>
 
                     {/* RIGHT COLUMN: ORDER SUMMARY */}
                     <div style={{ flex: '1 1 400px', background: '#fafafa', padding: '2rem', borderRadius: '8px', border: '1px solid #eaeaea', position: 'sticky', top: '90px' }}>
-                        <h2 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', borderBottom: '1px solid #ddd', paddingBottom: '0.5rem' }}>Order Summary</h2>
+                        <h2 style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.3rem', marginBottom: '1.5rem', borderBottom: '2px solid #C9A84C', paddingBottom: '0.5rem', display: 'inline-block', fontWeight: 700 }}>Order Summary</h2>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
                             {cartItems.map(item => (

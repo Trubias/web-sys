@@ -61,12 +61,28 @@ function AddProductModal({ user, products, onClose, onSaved }) {
     const [form, setForm] = useState({
         name: '', price: '', stock: '',
         brand_id: '', category_id: '', image: null,
+        gender: 'All', variant: 'All',
     });
     const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [brands, setBrands] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [colorInput, setColorInput] = useState('');
+    const [colorTags, setColorTags] = useState([]);
+
+    const COLOR_CSS = { black:'#111', white:'#fff', silver:'#C0C0C0', gold:'#FFD700', 'rose gold':'#B76E79', blue:'#3B82F6', navy:'#1E3A5F', green:'#22C55E', red:'#EF4444', orange:'#F97316', yellow:'#EAB308', purple:'#A855F7', pink:'#EC4899', brown:'#92400E', gray:'#6B7280', grey:'#6B7280', titanium:'#878681', champagne:'#F7E7CE' };
+    const getColorCSS = (name) => COLOR_CSS[name?.toLowerCase()?.trim()] || '#888';
+
+    const addColor = () => {
+        const val = colorInput.trim();
+        if (!val) return;
+        if (!colorTags.map(c => c.toLowerCase()).includes(val.toLowerCase())) {
+            setColorTags(prev => [...prev, val]);
+        }
+        setColorInput('');
+    };
+    const removeColor = (idx) => setColorTags(prev => prev.filter((_, i) => i !== idx));
 
     const FIXED_CATEGORIES = ['Automatic', 'Chronograph', 'Diver', 'Dress'];
 
@@ -169,6 +185,9 @@ function AddProductModal({ user, products, onClose, onSaved }) {
         if (!form.name || !form.brand_id || !form.category_id || !form.price || form.stock === '') {
             return setError('Product Name, Brand, Category, Price and Stock are required.');
         }
+        if (colorTags.length === 0) {
+            return setError('At least one Color Variant is required.');
+        }
 
         setLoading(true);
         try {
@@ -216,6 +235,9 @@ function AddProductModal({ user, products, onClose, onSaved }) {
             fd.append('brand_id', form.brand_id);
             fd.append('category_id', form.category_id);
             fd.append('supplier_id', user.id);
+            fd.append('gender', form.gender || 'All');
+            fd.append('variant', form.variant || 'All');
+            fd.append('color_variants', JSON.stringify(colorTags));
             if (form.image) fd.append('image', form.image);
 
             await axios.post('/api/supplier-products', fd, {
@@ -303,6 +325,46 @@ function AddProductModal({ user, products, onClose, onSaved }) {
                         <div>
                             <label style={INV_MODAL.lbl}>Stock Quantity *</label>
                             <input name="stock" type="number" min="0" value={form.stock} onChange={handleChange} style={INV_MODAL.inp} placeholder="0" />
+                        </div>
+                        <div>
+                            <label style={INV_MODAL.lbl}>Gender</label>
+                            <select name="gender" value={form.gender} onChange={handleChange} style={INV_MODAL.inp}>
+                                <option value="All">All</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={INV_MODAL.lbl}>Age Group</label>
+                            <select name="variant" value={form.variant} onChange={handleChange} style={INV_MODAL.inp}>
+                                <option value="All">All</option>
+                                <option value="Adult">Adult</option>
+                                <option value="Kids">Kids</option>
+                            </select>
+                        </div>
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <label style={INV_MODAL.lbl}>Color Variant *</label>
+                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <input
+                                    type="text"
+                                    value={colorInput}
+                                    onChange={e => setColorInput(e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addColor(); } }}
+                                    placeholder="Type a color and press Enter or Add..."
+                                    style={{ ...INV_MODAL.inp, flex: 1 }}
+                                />
+                                <button type="button" onClick={addColor} style={{ ...INV_MODAL.saveBtn, padding: '0.65rem 1rem', whiteSpace: 'nowrap' }}>+ Add</button>
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', minHeight: '2rem' }}>
+                                {colorTags.length === 0 && <span style={{ color: '#9ca3af', fontSize: '0.8rem', lineHeight: '1.8rem' }}>No colors added yet — at least one required</span>}
+                                {colorTags.map((c, i) => (
+                                    <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: 20, padding: '0.25rem 0.6rem 0.25rem 0.45rem', fontSize: '0.82rem', fontWeight: 600, color: '#374151' }}>
+                                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: getColorCSS(c), border: '1px solid rgba(0,0,0,0.18)', display: 'inline-block', flexShrink: 0 }} />
+                                        {c}
+                                        <button type="button" onClick={() => removeColor(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#6b7280', fontSize: '0.8rem', lineHeight: 1, marginLeft: 2 }}>✕</button>
+                                    </span>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

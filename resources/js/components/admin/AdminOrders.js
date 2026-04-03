@@ -318,12 +318,16 @@ export default function AdminOrders() {
 
     const visibleCustomerOrders = customerOrders.map(o => {
         const mappedStatus = mapStatus(o.status);
+        // Pull gender/age-group/color_variants from the related product record
+        const pGender   = o.product?.gender        || '—';
+        const pVariant  = o.product?.variant       || '—';
+        const pColors   = o.product?.color_variants || [];
         return {
             ...o,
             id: o.ref,
             keyId: o.id,
             customer: o.customer_name || o.user?.name || 'Unknown',
-            // Change 2: expose brand/category/image for new columns
+            // brand / category / image
             brand: o.brand?.name || o.brand_name || '—',
             category: o.product?.category?.name || '—',
             rawImage: o.product?.image || null,
@@ -338,7 +342,11 @@ export default function AdminOrders() {
             date: fmtDate(o.created_at),
             status: mappedStatus,
             region: o.region || o.user?.region || '',
-            isArchived: o.admin_archived || o.isArchived
+            isArchived: o.admin_archived || o.isArchived,
+            // New product-attribute columns
+            gender: pGender,
+            ageGroup: pVariant,
+            colorVariants: Array.isArray(pColors) ? pColors : [],
         };
     });
 
@@ -384,8 +392,8 @@ export default function AdminOrders() {
 
 
 
-    // Change 2: updated column spans to include Image, Brand, Category
-    const colSpan = orderType === 'supplier' ? 11 : 10;
+    // Column count: customer=13 cols, supplier=14 cols (extra Company/Orderer)
+    const colSpan = orderType === 'supplier' ? 14 : 13;
 
     return (
         <AdminLayout>
@@ -476,21 +484,25 @@ export default function AdminOrders() {
             </div>
 
             <div className="admin-card">
-                {/* Problem 1: scrollable wrapper so table never squishes */}
-                <div style={{ overflowX: 'auto', width: '100%' }}>
-                    <table className="admin-table" style={{ minWidth: 1200, tableLayout: 'fixed' }}>
+                {/* Scrollable wrapper — never squishes columns */}
+                <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+                    <table className="admin-table" style={{ minWidth: 1600, tableLayout: 'auto' }}>
                         <colgroup>
                             <col style={{ minWidth: 130 }} />
                             <col style={{ width: 70 }} />
                             <col style={{ minWidth: 100 }} />
                             <col style={{ minWidth: 110 }} />
-                            <col style={{ minWidth: 90 }} />
+                            <col style={{ minWidth: 110 }} />
                             {orderType === 'supplier' && <col style={{ minWidth: 130 }} />}
-                            <col style={{ minWidth: 150 }} />
+                            <col style={{ minWidth: 160 }} />
                             <col style={{ minWidth: 100 }} />
                             <col style={{ minWidth: 90 }} />
-                            <col style={{ minWidth: 110 }} />
+                            {/* New columns */}
+                            <col style={{ minWidth: 80 }} />
+                            <col style={{ minWidth: 80 }} />
                             <col style={{ minWidth: 140 }} />
+                            <col style={{ minWidth: 110 }} />
+                            <col style={{ minWidth: 150 }} />
                         </colgroup>
                         <thead>
                             <tr>
@@ -503,6 +515,9 @@ export default function AdminOrders() {
                                 <th>Product Details</th>
                                 <th>Date</th>
                                 <th>Amount</th>
+                                <th>Gender</th>
+                                <th>Age Group</th>
+                                <th>Color Variant</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -556,6 +571,23 @@ export default function AdminOrders() {
                                         </td>
                                         <td className="admin-table__muted">{o.date}</td>
                                         <td style={{ fontWeight: 700 }}>{o.amount}</td>
+                                        {/* Gender column */}
+                                        <td className="admin-table__muted" style={{ fontSize: '0.82rem' }}>
+                                            {orderType === 'customer' ? (o.gender || '—') : '—'}
+                                        </td>
+                                        {/* Age Group column */}
+                                        <td className="admin-table__muted" style={{ fontSize: '0.82rem' }}>
+                                            {orderType === 'customer' ? (o.ageGroup || '—') : '—'}
+                                        </td>
+                                        {/* Color Variant column */}
+                                        <td>
+                                            {orderType === 'customer' && Array.isArray(o.colorVariants) && o.colorVariants.length > 0
+                                                ? <span style={{ fontSize: '0.82rem', color: '#111' }}>
+                                                    {o.colorVariants.join(', ')}
+                                                  </span>
+                                                : <span style={{ color: '#111', fontSize: '0.82rem' }}>—</span>
+                                            }
+                                        </td>
                                         <td>
                                             <span className="admin-badge" style={{ background: st.bg, color: st.color, fontWeight: 700 }}>
                                                 {o.status}

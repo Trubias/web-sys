@@ -365,8 +365,8 @@ select {
   top: 0.875rem;
   left: 0.875rem;
   z-index: 2;
-  background: #C9A84C;
-  color: #0a0a0a;
+  background: #16a34a;
+  color: #fff;
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 1px;
@@ -407,7 +407,7 @@ select {
   width: 100%;
   height: 210px;
   overflow: hidden;
-  background: #F5F5F0;
+  background: #f7f7f7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -415,8 +415,8 @@ select {
 .product-card__image img {
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  -o-object-fit: contain;
+     object-fit: contain;
   transition: all 0.3s ease;
 }
 .product-card__image-placeholder {
@@ -2031,7 +2031,7 @@ select {
   background: rgba(201, 168, 76, 0.04);
 }
 .admin-table__muted {
-  color: #6b7280 !important;
+  color: #111 !important;
 }
 
 .admin-search {
@@ -2512,30 +2512,28 @@ select {
 
 .jk-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1.5rem;
   box-sizing: border-box;
+  backdrop-filter: blur(2px);
 }
 
 .jk-modal-container {
   background: #fff;
-  width: 860px;
-  max-width: 100%;
-  max-height: 90vh;
+  width: 900px;
+  max-width: 96vw;
+  max-height: 88vh;
   border-radius: 12px;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.25);
   box-sizing: border-box;
 }
 
@@ -2545,49 +2543,64 @@ select {
 
 .jk-modal-close {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 14px;
+  right: 16px;
   background: none;
   border: none;
-  font-size: 1.8rem;
+  font-size: 2rem;
+  line-height: 1;
   cursor: pointer;
-  z-index: 10;
-  color: #666;
-  transition: color 0.2s;
+  z-index: 20;
+  color: #e74c3c;
+  width: 36px;
+  height: 36px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+  padding: 0;
 }
 .jk-modal-close:hover {
-  color: #f00;
+  opacity: 0.7;
 }
 
 .jk-modal-content {
   display: flex;
   flex-direction: row;
-  box-sizing: border-box;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .jk-modal-image-col {
-  flex: 0 0 40%;
-  background: #000;
-  padding: 2rem;
+  flex: 0 0 38%;
+  background: #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
   box-sizing: border-box;
+  border-right: 1px solid #eee;
+  min-height: 0;
+  align-self: stretch;
 }
 
 .jk-modal-image {
   width: 100%;
-  max-height: 400px;
+  max-height: 380px;
   -o-object-fit: contain;
      object-fit: contain;
+  display: block;
 }
 
 .jk-modal-info-col {
-  flex: 0 0 60%;
-  padding: 2.5rem;
+  flex: 1 1 62%;
+  padding: 2.25rem 2.5rem;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .jk-modal-actions {
@@ -2595,79 +2608,98 @@ select {
   align-items: stretch;
   gap: 1rem;
   margin-top: auto;
-  flex-wrap: wrap;
-  box-sizing: border-box;
+  padding-top: 0.5rem;
+  flex-wrap: nowrap;
 }
 
 .jk-modal-stepper {
   display: flex;
-  flex: 1 1 auto;
-  min-width: 100px;
   align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
   overflow: hidden;
   height: 48px;
-  gap: 8px;
+  flex: 0 0 120px;
+  background: #fff;
 }
 
 .jk-stepper-btn {
-  padding: 0 1rem;
-  background: #f9f9f9;
+  flex: 0 0 38px;
+  height: 100%;
+  background: #f5f5f5;
   border: none;
   cursor: pointer;
-  font-weight: 600;
-  height: 100%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  transition: background 0.15s;
+}
+.jk-stepper-btn:hover {
+  background: #ebebeb;
 }
 
 .jk-stepper-input {
-  width: 40px;
   flex: 1;
   text-align: center;
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 1rem;
   border: none;
   outline: none;
   background: transparent;
+  min-width: 0;
 }
 
 .jk-modal-btn-group {
   display: flex;
-  gap: 1rem;
-  flex: 2 1 auto;
-  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .jk-btn-add {
-  flex: 1 1 120px;
+  flex: 1;
+  height: 48px;
   background: #fff;
   border: 2px solid #C9A84C;
   color: #C9A84C;
   font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s;
-  height: 48px;
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
 }
 .jk-btn-add:hover {
-  background: #fefdf8;
+  background: #fdfbf1;
+}
+.jk-btn-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .jk-btn-buy {
-  flex: 1 1 120px;
-  background: #000;
-  border: 2px solid #000;
+  flex: 1;
+  height: 48px;
+  background: #111;
+  border: 2px solid #111;
   color: #C9A84C;
   font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
+  border-radius: 6px;
   transition: background 0.2s;
-  height: 48px;
-  border-radius: 4px;
+  white-space: nowrap;
 }
 .jk-btn-buy:hover {
-  background: #111;
+  background: #222;
+}
+.jk-btn-buy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .jk-search-form {
@@ -2755,53 +2787,65 @@ select {
     max-width: 100%;
     margin: 0;
     border-radius: 20px 20px 0 0;
-    max-height: 90vh;
-    /* Enforced 90vh max height */
-    overflow-y: auto;
+    max-height: 92vh;
+    overflow: hidden;
     position: fixed;
     bottom: 0;
     top: auto;
-    padding-top: 1rem;
   }
   .jk-modal-drag-handle {
     display: block;
-    width: 50px;
-    height: 6px;
+    width: 48px;
+    height: 5px;
     background: #ddd;
     border-radius: 3px;
-    margin: 0 auto 1rem auto;
+    margin: 0.75rem auto 0;
+    flex-shrink: 0;
   }
   .jk-modal-close {
-    display: none;
+    display: flex !important;
+    top: 12px;
+    right: 14px;
   }
   .jk-modal-content {
     flex-direction: column;
+    overflow-y: auto;
+    max-height: calc(92vh - 30px);
+    flex: 1;
+    min-height: 0;
   }
   .jk-modal-image-col {
-    padding: 1rem;
     flex: 0 0 auto;
+    padding: 1rem;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    align-self: auto;
+    height: 220px;
   }
   .jk-modal-image {
-    max-height: 250px;
+    max-height: 200px;
   }
   .jk-modal-info-col {
-    padding: 1.5rem;
     flex: 0 0 auto;
+    padding: 1.25rem 1.5rem 2rem;
+    overflow-y: visible;
   }
   .jk-modal-actions {
     flex-direction: column;
+    flex-wrap: nowrap;
   }
   .jk-modal-stepper {
+    flex: 0 0 48px;
     width: 100%;
   }
   .jk-modal-btn-group {
     width: 100%;
-    flex-direction: column;
+    flex-direction: row;
   }
   .jk-btn-add,
   .jk-btn-buy {
-    width: 100%;
-    flex: 1 1 auto;
+    flex: 1;
+    min-width: 0;
   }
   .jk-search-form {
     position: fixed;
@@ -2830,19 +2874,11 @@ html, body {
     display: flex !important;
   }
   .jk-modal-close {
-    display: block !important;
-    top: 1rem;
-    right: 1rem;
-    font-size: 1.6rem;
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
     display: flex !important;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    color: #333;
+    color: #e74c3c !important;
+    top: 12px;
+    right: 14px;
+    background: none;
   }
   .user-hero-section {
     padding: 2rem 1rem !important;
@@ -2925,23 +2961,19 @@ body, html {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)) !important;
 }
 
-.jk-modal-image, .product-card__image img {
-  max-width: 100% !important;
-  height: auto !important;
+.jk-modal-image {
   -o-object-fit: contain !important;
      object-fit: contain !important;
-}
-
-.product-card__image {
-  height: auto !important;
-  aspect-ratio: 1/1;
+  background: #f5f5f5;
+  max-height: 380px;
+  width: 100%;
+  display: block;
 }
 
 .jk-modal-close {
-  display: block !important;
-  color: red !important;
-  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+  color: #e74c3c !important;
   z-index: 1000;
+  display: flex !important;
 }
 
 .cart-item__remove, .cart-item__remove svg {

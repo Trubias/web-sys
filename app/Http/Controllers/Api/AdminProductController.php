@@ -70,6 +70,11 @@ class AdminProductController extends Controller
             $values['image'] = $imagePath;
         }
 
+        $values['gender']        = $request->gender  ?? 'All';
+        $values['variant']       = $request->variant ?? 'All';
+        $cv = $request->color_variants;
+        $values['color_variants'] = is_array($cv) ? $cv : json_decode($cv ?? '[]', true);
+
         if ($existing) {
             $existing->update($values);
             $product = $existing->fresh(['brand', 'category', 'supplier']);
@@ -103,10 +108,12 @@ class AdminProductController extends Controller
         // Admin actions must NEVER write to supplier_products (Supplier Portal table).
 
         // Admin inventory stock update
-        $product->update($request->only([
-            'name', 'price', 'stock', 'description',
-            'brand_id', 'category_id', 'supplier_id'
-        ]));
+        $updateData = $request->only(['name', 'price', 'stock', 'description', 'brand_id', 'category_id', 'supplier_id', 'gender', 'variant']);
+        if ($request->has('color_variants')) {
+            $cv = $request->color_variants;
+            $updateData['color_variants'] = is_array($cv) ? $cv : json_decode($cv ?? '[]', true);
+        }
+        $product->update($updateData);
         
         // Update Inventory (Product) status
         if ($product->stock == 0) {

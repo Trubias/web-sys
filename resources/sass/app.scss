@@ -421,8 +421,8 @@ select {
         top: 0.875rem;
         left: 0.875rem;
         z-index: 2;
-        background: $gold;
-        color: $black;
+        background: #16a34a;
+        color: #fff;
         font-size: 0.62rem;
         font-weight: 700;
         letter-spacing: 1px;
@@ -468,7 +468,7 @@ select {
         width: 100%;
         height: 210px;
         overflow: hidden;
-        background: $white-soft;
+        background: #f7f7f7;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -476,7 +476,7 @@ select {
         img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             transition: $transition;
         }
 
@@ -2321,7 +2321,7 @@ $admin-dark-text-muted: rgba(255, 255, 255, 0.55);
     }
 
     &__muted {
-        color: $admin-text-muted !important;
+        color: #111 !important;
     }
 }
 
@@ -2873,167 +2873,216 @@ $admin-dark-text-muted: rgba(255, 255, 255, 0.55);
 }
 
 // =============================================
-// Product Detail Modal (Desktop Default)
+// Product Detail Modal — Canonical Styles
 // =============================================
+
+// Overlay: always a centred dark backdrop
 .jk-modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 1.5rem;
     box-sizing: border-box;
+    backdrop-filter: blur(2px);
 }
 
+// Container: fixed size, never stretches beyond viewport
 .jk-modal-container {
     background: #fff;
-    width: 860px;
-    max-width: 100%;
-    max-height: 90vh;
+    width: 900px;
+    max-width: 96vw;
+    max-height: 88vh;
     border-radius: 12px;
-    overflow-y: auto;
+    overflow: hidden;          // clip children, NOT scroll
     display: flex;
     flex-direction: column;
     position: relative;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.25);
     box-sizing: border-box;
 }
 
+// Mobile drag handle — hidden on desktop
 .jk-modal-drag-handle {
     display: none;
 }
 
+// Close button — always visible top-right, red ×
 .jk-modal-close {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 14px;
+    right: 16px;
     background: none;
     border: none;
-    font-size: 1.8rem;
+    font-size: 2rem;
+    line-height: 1;
     cursor: pointer;
-    z-index: 10;
-    color: #666;
-    transition: color 0.2s;
+    z-index: 20;
+    color: #e74c3c;
+    width: 36px;
+    height: 36px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+    padding: 0;
 
     &:hover {
-        color: #f00;
+        opacity: 0.7;
     }
 }
 
+// Two-column row — ALWAYS side by side on desktop
 .jk-modal-content {
     display: flex;
-    flex-direction: row;
-    box-sizing: border-box;
+    flex-direction: row;       // image LEFT, info RIGHT
+    flex: 1;
+    overflow: hidden;          // children handle their own scroll
+    min-height: 0;
 }
 
+// ── LEFT column: product image ──
 .jk-modal-image-col {
-    flex: 0 0 40%;
-    background: #000;
-    padding: 2rem;
+    flex: 0 0 38%;             // always exactly 38% wide
+    background: #f5f5f5;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 2rem;
     box-sizing: border-box;
+    border-right: 1px solid #eee;
+    // fixed height = modal max-height so image never collapses
+    min-height: 0;
+    align-self: stretch;
 }
 
 .jk-modal-image {
     width: 100%;
-    max-height: 400px;
+    max-height: 380px;
     object-fit: contain;
+    display: block;
 }
 
+// ── RIGHT column: all product details ──
 .jk-modal-info-col {
-    flex: 0 0 60%;
-    padding: 2.5rem;
+    flex: 1 1 62%;             // always fills remainder
+    padding: 2.25rem 2.5rem;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    overflow-y: auto;          // only THIS side scrolls
+    min-height: 0;
 }
 
+// ── Actions row (qty stepper + buttons) ──
 .jk-modal-actions {
     display: flex;
     align-items: stretch;
     gap: 1rem;
     margin-top: auto;
-    flex-wrap: wrap;
-    box-sizing: border-box;
+    padding-top: 0.5rem;
+    flex-wrap: nowrap;         // force single row on desktop
 }
 
+// Qty stepper
 .jk-modal-stepper {
     display: flex;
-    flex: 1 1 auto;
-    min-width: 100px;
     align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
     overflow: hidden;
     height: 48px;
-    gap: 8px;
+    flex: 0 0 120px;           // fixed width, never shrinks
+    background: #fff;
 }
 
 .jk-stepper-btn {
-    padding: 0 1rem;
-    background: #f9f9f9;
+    flex: 0 0 38px;
+    height: 100%;
+    background: #f5f5f5;
     border: none;
     cursor: pointer;
-    font-weight: 600;
-    height: 100%;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    transition: background 0.15s;
+
+    &:hover {
+        background: #ebebeb;
+    }
 }
 
 .jk-stepper-input {
-    width: 40px;
     flex: 1;
     text-align: center;
-    font-weight: 600;
-    font-size: 16px;
+    font-weight: 700;
+    font-size: 1rem;
     border: none;
     outline: none;
     background: transparent;
+    min-width: 0;
 }
 
+// Button group
 .jk-modal-btn-group {
     display: flex;
-    gap: 1rem;
-    flex: 2 1 auto;
-    flex-wrap: wrap;
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
+// ADD TO CART — gold outlined
 .jk-btn-add {
-    flex: 1 1 120px;
+    flex: 1;
+    height: 48px;
     background: #fff;
     border: 2px solid #C9A84C;
     color: #C9A84C;
     font-weight: 800;
+    font-size: 0.82rem;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 0.2s;
-    height: 48px;
-    border-radius: 4px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
 
     &:hover {
-        background: #fefdf8;
+        background: #fdfbf1;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 }
 
+// BUY IT NOW — solid black
 .jk-btn-buy {
-    flex: 1 1 120px;
-    background: #000;
-    border: 2px solid #000;
+    flex: 1;
+    height: 48px;
+    background: #111;
+    border: 2px solid #111;
     color: #C9A84C;
     font-weight: 800;
+    font-size: 0.82rem;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     cursor: pointer;
+    border-radius: 6px;
     transition: background 0.2s;
-    height: 48px;
-    border-radius: 4px;
+    white-space: nowrap;
 
     &:hover {
-        background: #111;
+        background: #222;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 }
 
@@ -3128,7 +3177,7 @@ $admin-dark-text-muted: rgba(255, 255, 255, 0.55);
         z-index: 9999 !important;
     }
 
-    // Product Detail Bottom Sheet Overrides
+    // Product Detail — bottom sheet on mobile
     .jk-modal-overlay {
         padding: 0;
         align-items: flex-end;
@@ -3139,63 +3188,75 @@ $admin-dark-text-muted: rgba(255, 255, 255, 0.55);
         max-width: 100%;
         margin: 0;
         border-radius: 20px 20px 0 0;
-        max-height: 90vh;
-        /* Enforced 90vh max height */
-        overflow-y: auto;
+        max-height: 92vh;
+        overflow: hidden;
         position: fixed;
         bottom: 0;
         top: auto;
-        padding-top: 1rem;
     }
 
     .jk-modal-drag-handle {
         display: block;
-        width: 50px;
-        height: 6px;
+        width: 48px;
+        height: 5px;
         background: #ddd;
         border-radius: 3px;
-        margin: 0 auto 1rem auto;
+        margin: 0.75rem auto 0;
+        flex-shrink: 0;
     }
 
     .jk-modal-close {
-        display: none;
+        display: flex !important;
+        top: 12px;
+        right: 14px;
     }
 
     .jk-modal-content {
-        flex-direction: column;
+        flex-direction: column;  // stack vertically on mobile
+        overflow-y: auto;
+        max-height: calc(92vh - 30px);
+        flex: 1;
+        min-height: 0;
     }
 
     .jk-modal-image-col {
-        padding: 1rem;
         flex: 0 0 auto;
+        padding: 1rem;
+        border-right: none;
+        border-bottom: 1px solid #eee;
+        align-self: auto;
+        height: 220px;
     }
 
     .jk-modal-image {
-        max-height: 250px;
+        max-height: 200px;
     }
 
     .jk-modal-info-col {
-        padding: 1.5rem;
         flex: 0 0 auto;
+        padding: 1.25rem 1.5rem 2rem;
+        overflow-y: visible;  // parent scrolls on mobile
     }
 
     .jk-modal-actions {
-        flex-direction: column;
+        flex-direction: column;  // stack qty + buttons vertically
+        flex-wrap: nowrap;
     }
 
     .jk-modal-stepper {
+        flex: 0 0 48px;
         width: 100%;
     }
 
     .jk-modal-btn-group {
         width: 100%;
-        flex-direction: column;
+        flex-direction: row;  // keep buttons side by side if room, else they wrap
     }
 
     .jk-btn-add,
     .jk-btn-buy {
-        width: 100%;
-        flex: 1 1 auto;
+        flex: 1;
+        min-width: 0;
     }
 
     // Search Bar Mobile Overrides
@@ -3234,21 +3295,13 @@ html, body {
         display: flex !important;
     }
 
-    // Adjust modal close button for bottom-sheet usage: show an X on top-right
+    // Modal close button — always red, always visible
     .jk-modal-close {
-        display: block !important;
-        top: 1rem;
-        right: 1rem;
-        font-size: 1.6rem;
-        background: rgba(0,0,0,0.05);
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
         display: flex !important;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-        color: #333;
+        color: #e74c3c !important;
+        top: 12px;
+        right: 14px;
+        background: none;
     }
 
     // Hero section — center text on mobile
@@ -3368,22 +3421,19 @@ body, html {
 }
 
 // Responsive images for Wishlist & Details
-.jk-modal-image, .product-card__image img {
-    max-width: 100% !important;
-    height: auto !important;
+.jk-modal-image {
     object-fit: contain !important;
-}
-.product-card__image {
-    height: auto !important;
-    aspect-ratio: 1 / 1;
+    background: #f5f5f5;
+    max-height: 380px;
+    width: 100%;
+    display: block;
 }
 
-// X Close & Remove buttons visibly red
+// X Close always red
 .jk-modal-close {
-    display: block !important;
-    color: red !important;
-    text-shadow: 0 0 2px rgba(255,255,255,0.5);
+    color: #e74c3c !important;
     z-index: 1000;
+    display: flex !important;
 }
 .cart-item__remove, .cart-item__remove svg {
     color: red !important;
@@ -3521,4 +3571,4 @@ body, html {
             }
         }
     }
-}
+}

@@ -189,13 +189,13 @@ export default function UserDashboard() {
                                     <img
                                         src={item.image ? (item.image.startsWith('http') ? item.image : `/storage/${item.image}`) : 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=400&auto=format&fit=crop'}
                                         alt={item.name}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '0.5rem' }}
                                     />
                                 </div>
-                                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.3rem', fontFamily: '"Playfair Display", Georgia, serif' }}>{item.name}</h3>
-                                <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1rem' }}>{item.brand?.name || item.category?.name || 'Luxury Timepiece'}</div>
+                                <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem', fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#111', lineHeight: 1.2 }}>{item.name}</h3>
+                                <div style={{ fontSize: '0.7rem', color: '#C9A84C', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '0.8rem' }}>{item.brand?.name || item.category?.name || 'Luxury Timepiece'}</div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>${Number(item.price).toLocaleString()}</div>
+                                    <div style={{ fontWeight: 800, fontSize: '1rem', color: '#111' }}>₱{Number(item.price).toLocaleString()}</div>
                                     <button style={{
                                         padding: '0.5rem 1rem',
                                         background: item.stock > 0 ? '#C9A84C' : '#e5e7eb',
@@ -287,7 +287,7 @@ export default function UserDashboard() {
                                         <div style={{ color: '#888', fontSize: '0.75rem' }}>{item.brand?.name || item.category?.name || 'Luxury Timepiece'}</div>
                                     </div>
                                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#111' }}>
-                                        ${Number(item.price).toLocaleString()}
+                                        ₱{Number(item.price).toLocaleString()}
                                     </div>
                                 </div>
                             ))}

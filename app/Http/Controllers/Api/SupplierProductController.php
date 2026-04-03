@@ -66,6 +66,11 @@ class SupplierProductController extends Controller
             'description' => $request->description ?? '',
             'image'       => $imagePath,
             'supplier_id' => $supplier_id,
+            'gender'         => $request->gender ?? 'All',
+            'variant'        => $request->variant ?? 'All',
+            'color_variants' => is_array($request->color_variants)
+                ? $request->color_variants
+                : json_decode($request->color_variants ?? '[]', true),
         ]);
 
         return response()->json($product->load(['brand', 'category', 'supplier']), 201);
@@ -88,10 +93,11 @@ class SupplierProductController extends Controller
             'image'       => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $updateData = $request->only([
-            'name', 'price', 'stock', 'description',
-            'brand_id', 'category_id'
-        ]);
+        $updateData = $request->only(['name', 'price', 'stock', 'description', 'brand_id', 'category_id', 'gender', 'variant']);
+        if ($request->has('color_variants')) {
+            $cv = $request->color_variants;
+            $updateData['color_variants'] = is_array($cv) ? $cv : json_decode($cv ?? '[]', true);
+        }
         
         // Admins can change the supplier mapping, but Suppliers cannot
         if ($request->filled('supplier_id') && (!$request->user() || $request->user()->role !== 'supplier')) {

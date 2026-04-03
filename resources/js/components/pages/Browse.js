@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../Footer';
 import ProductCard from '../ProductCard';
 import ProductModal from '../ProductModal';
+
+const BROWSE_COLOR_CSS = { black:'#111', white:'#e0e0e0', silver:'#C0C0C0', gold:'#FFD700', 'rose gold':'#B76E79', blue:'#3B82F6', navy:'#1E3A5F', green:'#22C55E', red:'#EF4444', orange:'#F97316', yellow:'#EAB308', purple:'#A855F7', pink:'#EC4899', brown:'#92400E', gray:'#6B7280', grey:'#6B7280', titanium:'#878681', champagne:'#F7E7CE' };
+const getBrowseColorCSS = (name) => BROWSE_COLOR_CSS[name?.toLowerCase()?.trim()] || '#888';
 
 export default function Browse() {
     const navigate = useNavigate();
@@ -42,8 +45,19 @@ export default function Browse() {
     const [searchQuery, setSearchQuery] = useState('');
     const [brandFilter, setBrandFilter] = useState('All Brands');
     const [priceSort, setPriceSort] = useState('All Prices');
-    const [conditionFilter, setConditionFilter] = useState('All Conditions');
     const [categoryFilter, setCategoryFilter] = useState('All Categories');
+    const [genderFilter, setGenderFilter] = useState('All Genders');
+    const [variantFilter, setVariantFilter] = useState('All Age Groups');
+    const [colorSearch, setColorSearch] = useState('');
+    const [colorFilter, setColorFilter] = useState('');
+    const [colorSearchOpen, setColorSearchOpen] = useState(false);
+    const colorRef = useRef(null);
+
+    useEffect(() => {
+        const onOut = (e) => { if (colorRef.current && !colorRef.current.contains(e.target)) setColorSearchOpen(false); };
+        document.addEventListener('mousedown', onOut);
+        return () => document.removeEventListener('mousedown', onOut);
+    }, []);
 
     // Dynamic Filter Options based strictly on the live Admin Inventory
     const availableBrands = useMemo(() => {
@@ -56,13 +70,25 @@ export default function Browse() {
         return ['All Categories', ...new Set(cats)].sort();
     }, [allProducts]);
 
-    const availableConditions = ['All Conditions', 'New', 'Pre-owned', 'Limited'];
+    const availableColors = useMemo(() => {
+        const set = new Set();
+        allProducts.forEach(p => {
+            const cv = Array.isArray(p.color_variants)
+                ? p.color_variants
+                : (typeof p.color_variants === 'string' ? (() => { try { return JSON.parse(p.color_variants || '[]'); } catch { return []; } })() : []);
+            cv.forEach(c => { if (c) String(c).split(',').map(s => s.trim()).filter(Boolean).forEach(s => set.add(s)); });
+        });
+        return [...set].sort();
+    }, [allProducts]);
 
-    // Utility mapping Admin booleans to Customer Condition strings visually
-    const getCondition = (p) => {
-        if (p.is_new) return 'New';
-        if (p.is_featured || p.status === 'Low Stock' || (p.stock > 0 && p.stock <= 5)) return 'Limited';
-        return 'Pre-owned';
+    const colorSuggestions = useMemo(() => {
+        if (!colorSearch.trim()) return availableColors;
+        return availableColors.filter(c => c.toLowerCase().includes(colorSearch.toLowerCase()));
+    }, [availableColors, colorSearch]);
+
+    const isAutoNew = (p) => {
+        if (!p.created_at) return false;
+        return (Date.now() - new Date(p.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000;
     };
 
     // Featured Sidebar (Real live products instead of mock data)
@@ -78,11 +104,17 @@ export default function Browse() {
             const safeName = p.name || '';
             const matchSearch = safeName.toLowerCase().includes(searchQuery.toLowerCase());
             const matchBrand = brandFilter === 'All Brands' || p.brand?.name === brandFilter;
-            const itemCond = getCondition(p);
-            const matchCondition = conditionFilter === 'All Conditions' || itemCond === conditionFilter;
             const matchCategory = categoryFilter === 'All Categories' || p.category?.name === categoryFilter;
+            const matchGender  = genderFilter  === 'All Genders'  || !p.gender  || p.gender  === 'All' || p.gender  === genderFilter;
+            const matchVariant = variantFilter === 'All Age Groups' || !p.variant || p.variant === 'All' || p.variant === variantFilter;
+            const pColors = Array.isArray(p.color_variants)
+                ? p.color_variants
+                : (typeof p.color_variants === 'string' ? (() => { try { return JSON.parse(p.color_variants || '[]'); } catch { return []; } })() : []);
+            const flatColors = [];
+            pColors.forEach(c => String(c).split(',').map(s => s.trim()).filter(Boolean).forEach(s => flatColors.push(s)));
+            const matchColor = !colorFilter || flatColors.some(c => c.toLowerCase() === colorFilter.toLowerCase());
             
-            return matchSearch && matchBrand && matchCondition && matchCategory;
+            return matchSearch && matchBrand && matchCategory && matchGender && matchVariant && matchColor;
         });
 
         if (priceSort === 'Low to High') {
@@ -92,7 +124,7 @@ export default function Browse() {
         }
 
         return filtered;
-    }, [allProducts, searchQuery, brandFilter, conditionFilter, categoryFilter, priceSort]);
+    }, [allProducts, searchQuery, brandFilter, categoryFilter, priceSort, genderFilter, variantFilter, colorFilter]);
 
     const handleWishlistToggle = async (item) => {
         if (!auth.user) {
@@ -198,18 +230,72 @@ export default function Browse() {
                     </div>
 
                     <select value={priceSort} onChange={e => setPriceSort(e.target.value)} style={{ padding: '0.8rem 1rem', border: '1px solid #ddd', borderRadius: '4px', background: '#fff', outline: 'none', cursor: 'pointer', color: '#333', fontWeight: 500, minWidth: '150px' }}>
-                        <option>All Prices</option>
+                        <option value="All Prices">Prices</option>
                         <option>Low to High</option>
                         <option>High to Low</option>
                     </select>
 
-                    <select value={conditionFilter} onChange={e => setConditionFilter(e.target.value)} style={{ padding: '0.8rem 1rem', border: '1px solid #ddd', borderRadius: '4px', background: '#fff', outline: 'none', cursor: 'pointer', color: '#333', fontWeight: 500, minWidth: '150px' }}>
-                        {availableConditions.map(c => <option key={c} value={c}>{c}</option>)}
+                    <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '0.8rem 1rem', border: '1px solid #ddd', borderRadius: '4px', background: '#fff', outline: 'none', cursor: 'pointer', color: '#333', fontWeight: 500, minWidth: '150px' }}>
+                        <option value="All Categories">Categories</option>
+                        {availableCategories.filter(c => c !== 'All Categories').map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
 
-                    <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '0.8rem 1rem', border: '1px solid #ddd', borderRadius: '4px', background: '#fff', outline: 'none', cursor: 'pointer', color: '#333', fontWeight: 500, minWidth: '150px' }}>
-                        {availableCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                    <select value={genderFilter} onChange={e => setGenderFilter(e.target.value)} style={{ padding: '0.8rem 1rem', border: '1px solid #ddd', borderRadius: '4px', background: '#fff', outline: 'none', cursor: 'pointer', color: '#333', fontWeight: 500, minWidth: '140px' }}>
+                        <option value="All Genders">Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
                     </select>
+
+                    <select value={variantFilter} onChange={e => setVariantFilter(e.target.value)} style={{ padding: '0.8rem 1rem', border: '1px solid #ddd', borderRadius: '4px', background: '#fff', outline: 'none', cursor: 'pointer', color: '#333', fontWeight: 500, minWidth: '140px' }}>
+                        <option value="All Age Groups">Age Group</option>
+                        <option value="Adult">Adult</option>
+                        <option value="Kids">Kids</option>
+                    </select>
+
+                    <div ref={colorRef} style={{ position: 'relative' }}>
+                        <div
+                            onClick={() => setColorSearchOpen(o => !o)}
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.8rem 1rem', border: colorFilter ? '1px solid #C9A84C' : '1px solid #ddd', borderRadius: '4px', background: '#fff', cursor: 'pointer', color: colorFilter ? '#C9A84C' : '#555', fontWeight: colorFilter ? 700 : 500, minWidth: '130px', fontSize: '0.93rem', userSelect: 'none' }}
+                        >
+                            {colorFilter ? (
+                                <>
+                                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: getBrowseColorCSS(colorFilter), border: '1px solid rgba(0,0,0,0.15)', flexShrink: 0, display: 'inline-block' }} />
+                                    <span style={{ flex: 1 }}>{colorFilter}</span>
+                                    <span style={{ color: '#aaa', fontSize: '0.8rem', lineHeight: 1 }} onClick={e => { e.stopPropagation(); setColorFilter(''); setColorSearch(''); }}>✕</span>
+                                </>
+                            ) : 'Color Variant ▾'}
+                        </div>
+                        {colorSearchOpen && (
+                            <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 200, background: '#fff', border: '1px solid #ddd', borderRadius: '6px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', minWidth: '210px', padding: '0.5rem' }}>
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    value={colorSearch}
+                                    onChange={e => setColorSearch(e.target.value)}
+                                    placeholder="Search color..."
+                                    style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: '4px', outline: 'none', fontSize: '0.88rem', boxSizing: 'border-box', marginBottom: '0.4rem' }}
+                                />
+                                <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
+                                    {!colorSearch.trim()
+                                        ? <div style={{ color: '#bbb', fontSize: '0.82rem', padding: '0.4rem 0.5rem', fontStyle: 'italic' }}>Type a color name to search...</div>
+                                        : colorSuggestions.length === 0
+                                            ? <div style={{ color: '#aaa', fontSize: '0.83rem', padding: '0.4rem 0.5rem' }}>No colors found</div>
+                                            : colorSuggestions.map(c => (
+                                            <div key={c}
+                                                onClick={() => { setColorFilter(c); setColorSearch(''); setColorSearchOpen(false); }}
+                                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.6rem', cursor: 'pointer', borderRadius: '4px', background: colorFilter === c ? '#fef9ed' : 'transparent' }}
+                                                onMouseEnter={e => { if (colorFilter !== c) e.currentTarget.style.background = '#f3f4f6'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.background = colorFilter === c ? '#fef9ed' : 'transparent'; }}
+                                            >
+                                                <span style={{ width: 10, height: 10, borderRadius: '50%', background: getBrowseColorCSS(c), border: '1px solid rgba(0,0,0,0.18)', flexShrink: 0 }} />
+                                                <span style={{ fontSize: '0.88rem', color: '#333' }}>{c}</span>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                 </div>
 

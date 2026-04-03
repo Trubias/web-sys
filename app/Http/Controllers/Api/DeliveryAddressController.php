@@ -22,12 +22,14 @@ class DeliveryAddressController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'address'   => 'required|string|max:500',
-            'city'      => 'required|string|max:255',
-            'region'    => 'required|string|max:100',
-            'phone'     => 'nullable|string|max:50',
+            'full_name'  => 'required|string|max:255',
+            'address'    => 'required|string|max:500',
+            'city'       => 'required|string|max:255',
+            'region'     => 'required|string|max:100',
+            'phone'      => 'nullable|string|max:50',
             'is_default' => 'boolean',
+            'latitude'   => 'nullable|numeric|between:-90,90',
+            'longitude'  => 'nullable|numeric|between:-180,180',
         ]);
 
         $userId = $request->user()->id;
@@ -44,7 +46,7 @@ class DeliveryAddressController extends Controller
             'address_id' => $address->id,
             'action'     => 'created',
             'old_values' => null,
-            'new_values' => $address->only(['full_name', 'address', 'city', 'region', 'phone', 'is_default']),
+            'new_values' => $address->only(['full_name', 'address', 'city', 'region', 'phone', 'is_default', 'latitude', 'longitude']),
         ]);
 
         return response()->json($address, 201);
@@ -63,10 +65,12 @@ class DeliveryAddressController extends Controller
             'region'     => 'required|string|max:100',
             'phone'      => 'nullable|string|max:50',
             'is_default' => 'boolean',
+            'latitude'   => 'nullable|numeric|between:-90,90',
+            'longitude'  => 'nullable|numeric|between:-180,180',
         ]);
 
-        $userId = $request->user()->id;
-        $oldValues = $address->only(['full_name', 'address', 'city', 'region', 'phone', 'is_default']);
+        $userId    = $request->user()->id;
+        $oldValues = $address->only(['full_name', 'address', 'city', 'region', 'phone', 'is_default', 'latitude', 'longitude']);
 
         // If setting as default, clear others
         if (!empty($data['is_default'])) {
@@ -82,7 +86,7 @@ class DeliveryAddressController extends Controller
             'address_id' => $address->id,
             'action'     => 'updated',
             'old_values' => $oldValues,
-            'new_values' => $address->only(['full_name', 'address', 'city', 'region', 'phone', 'is_default']),
+            'new_values' => $address->only(['full_name', 'address', 'city', 'region', 'phone', 'is_default', 'latitude', 'longitude']),
         ]);
 
         return response()->json($address);

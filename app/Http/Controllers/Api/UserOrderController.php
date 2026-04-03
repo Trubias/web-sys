@@ -11,39 +11,61 @@ use Illuminate\Support\Str;
 
 class UserOrderController extends Controller
 {
+    // ── My Orders list: excludes orders hidden by the customer ────────────────
     public function index(Request $request)
     {
         $orders = Order::with(['rider', 'product'])
             ->where('user_id', $request->user()->id)
+            ->where('hidden_by_user', false)        // Fix 3/4: hidden orders stay in DB
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Always use the freshest product image from the products table
         $orders = $orders->map(function ($order) {
             $data = $order->toArray();
             $image = null;
 
-            // Primary: match by product_id (FK)
-            if ($order->product && $order->product->image) {
+            // Fix 1: primary — use product_image stored at order time
+            if ($order->product_image) {
+                $image = $order->product_image;
+            }
+            // Fallback: live product image by FK
+            elseif ($order->product && $order->product->image) {
                 $image = $order->product->image;
             }
-
-            // Fallback: match by product name (handles re-created products with new IDs)
-            if (!$image && $order->product_name) {
+            // Last resort: match by name
+            elseif ($order->product_name) {
                 $p = Product::where('name', $order->product_name)->whereNotNull('image')->first();
-                if ($p) {
-                    $image = $p->image;
-                }
+                if ($p) $image = $p->image;
             }
 
-            if ($image) {
-                $data['product_image'] = $image;
-            }
-
+            if ($image) $data['product_image'] = $image;
             return $data;
         });
 
         return response()->json($orders);
+    }
+
+    // ── Profile Overview stats: counts ALL orders, ignores hidden_by_user ─────
+    // Fix 4: Profile totals are never affected by the customer hiding orders.
+    public function stats(Request $request)
+    {
+        $userId = $request->user()->id;
+        $total  = Order::where('user_id', $userId)->count();
+        $spent  = Order::where('user_id', $userId)->sum('total_amount');
+        return response()->json(['total_orders' => $total, 'total_spent' => (float) $spent]);
+    }
+
+    // ── Hide an order from My Orders (Fix 3/4) ───────────────────────────────
+    // Sets hidden_by_user=true — keeps the record for stats, admin view, etc.
+    // ── Delete from My Orders history (Fix 1-5) ─────────────────────────────
+    // Uses hidden_by_user=true so the record is preserved for Profile stats,
+    // admin reporting, and audit trails — but is permanently gone from the
+    // customer's My Orders list (Fix 5: Profile Overview totals unaffected).
+    public function deleteFromHistory(Request $request, $id)
+    {
+        $order = Order::where('user_id', $request->user()->id)->findOrFail($id);
+        $order->update(['hidden_by_user' => true]);
+        return response()->json(['message' => 'Order deleted from history'], 200);
     }
 
     public function store(Request $request)

@@ -153,19 +153,33 @@ class RiderDeliveryController extends Controller
         $order->save();
 
         // ── Deduct stock now that order is confirmed delivered ─────────────────
+        // Try primary lookup by product_id FK, then fallback to product_name.
+        $product = null;
         if ($order->product_id) {
             $product = Product::find($order->product_id);
-            if ($product) {
-                $product->stock = max(0, $product->stock - $order->quantity);
-                if ($product->stock == 0) {
-                    $product->status = 'Out of Stock';
-                } elseif ($product->stock <= 5) {
-                    $product->status = 'Low Stock';
-                } else {
-                    $product->status = 'Active';
-                }
-                $product->save();
+        }
+        if (!$product && $order->product_name) {
+            // Fallback: match by name (and brand if available) for legacy orders
+            $query = Product::where('name', $order->product_name);
+            if ($order->brand_id) {
+                $query->where('brand_id', $order->brand_id);
             }
+            $product = $query->first();
+        }
+
+        if ($product) {
+            $newStock = max(0, $product->stock - $order->quantity);
+            $product->stock = $newStock;
+            if ($newStock == 0) {
+                $product->status = 'Out of Stock';
+            } elseif ($newStock <= 5) {
+                $product->status = 'Low Stock';
+            } else {
+                $product->status = 'Active';
+            }
+            $product->save();
+        } else {
+            \Log::warning("RiderDelivery: Could not find product to deduct stock for order {$order->ref}. product_id={$order->product_id}, product_name={$order->product_name}");
         }
 
         if ($order->user_id) {

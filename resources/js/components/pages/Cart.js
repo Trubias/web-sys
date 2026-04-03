@@ -61,10 +61,12 @@ export default function Cart() {
 
     return (
         <UserLayout>
-            <div className="container mobile-p-2" style={{ padding: '4rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
-                <div className="page-header" style={{ marginBottom: '2rem' }}>
-                    <h1 style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '2.5rem', color: '#111' }}>Shopping Cart</h1>
-                    <p>{items.length} item{items.length !== 1 ? 's' : ''} in your cart</p>
+            <div className="container mobile-p-2" style={{ padding: '4rem 5rem', maxWidth: '1400px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
+                <div style={{ marginBottom: '2rem', borderBottom: '2px solid #C9A84C', paddingBottom: '1rem' }}>
+                    <h1 style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '2.5rem', color: '#111', fontWeight: 800, margin: 0 }}>
+                        <span style={{ color: '#C9A84C' }}>My</span> Cart
+                    </h1>
+                    <p style={{ color: '#666', fontSize: '0.9rem', margin: '0.4rem 0 0' }}>{items.length} item{items.length !== 1 ? 's' : ''} in your cart</p>
                 </div>
 
                 {items.length === 0 ? (
@@ -89,7 +91,7 @@ export default function Cart() {
                                 </label>
                                 <button 
                                     onClick={clearSelected}
-                                    style={{ padding: '0.4rem 1rem', background: selectedItems.length > 0 ? 'red' : '#ccc', color: selectedItems.length > 0 ? '#fff' : '#666', border: 'none', borderRadius: '4px', fontWeight: 700, cursor: selectedItems.length > 0 ? 'pointer' : 'not-allowed', transition: 'all 0.2s', fontSize: '0.85rem' }}
+                                    style={{ padding: '0.4rem 1rem', background: selectedItems.length > 0 ? '#111' : '#e5e7eb', color: selectedItems.length > 0 ? '#C9A84C' : '#9ca3af', border: 'none', borderRadius: '4px', fontWeight: 700, cursor: selectedItems.length > 0 ? 'pointer' : 'not-allowed', transition: 'all 0.2s', fontSize: '0.85rem' }}
                                 >
                                     Clear Selected
                                 </button>
@@ -106,12 +108,12 @@ export default function Cart() {
                                             }}
                                             style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#C9A84C' }} 
                                         />
-                                        <div className="cart-item__img" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '4px' }}>
-                                            <img src={(item.product?.image && item.product.image.startsWith('http')) ? item.product.image : `/storage/${item.product?.image}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={item.product?.name} />
+                                        <div className="cart-item__img" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '4px', background: '#f8f9fa', border: '1px solid #eee' }}>
+                                            <img src={(item.product?.image && item.product.image.startsWith('http')) ? item.product.image : `/storage/${item.product?.image}`} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '2px' }} alt={item.product?.name} />
                                         </div>
                                         <div className="cart-item__info" style={{ flex: 1 }}>
-                                            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#111' }}>{item.product?.name}</h3>
-                                            <p style={{ margin: 0, color: '#666', fontSize: '0.85rem' }}>{item.product?.brand?.name}</p>
+                                            <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.2rem' }}>{item.product?.brand?.name}</div>
+                                            <h3 style={{ margin: '0 0 0.4rem 0', fontSize: '0.95rem', fontWeight: 800, color: '#111' }}>{item.product?.name}</h3>
                                         </div>
                                         
                                         <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
@@ -130,13 +132,18 @@ export default function Cart() {
                                 ))}
                             </div>
                             <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-                                <button style={{ padding: '0.6rem 1rem', background: 'red', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 800, cursor: 'pointer' }} onClick={clearCart}>Clear Cart</button>
-                                <button style={{ padding: '0.6rem 1rem', background: 'transparent', border: '1px solid #ccc', borderRadius: '4px', fontWeight: 500, cursor: 'pointer' }} onClick={() => navigate('/user/browse')}>← Continue Shopping</button>
+                                <button
+                                    style={{ padding: '0.6rem 1.2rem', background: '#111', color: '#C9A84C', border: '1px solid #111', borderRadius: '4px', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem', transition: 'all 0.2s' }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = '#C9A84C'; e.currentTarget.style.color = '#000'; e.currentTarget.style.borderColor = '#C9A84C'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = '#111'; e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = '#111'; }}
+                                    onClick={clearCart}
+                                >🗑 Clear Cart</button>
+                                <button style={{ padding: '0.6rem 1.2rem', background: 'transparent', border: '1px solid #ddd', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', color: '#555', fontSize: '0.85rem' }} onClick={() => navigate('/user/browse')}>← Continue Shopping</button>
                             </div>
                         </div>
 
                         <div className="cart-summary">
-                            <h2>Order Summary</h2>
+                            <h2 style={{ fontFamily: '"Playfair Display", Georgia, serif', borderBottom: '2px solid #C9A84C', paddingBottom: '0.5rem', display: 'inline-block', marginBottom: '1.5rem' }}>Order Summary</h2>
                             <div className="cart-summary__row"><span>Subtotal</span><span>₱{fmt(total)}</span></div>
                             <div className="cart-summary__row"><span>Shipping</span><span>Free</span></div>
                             <div className="cart-summary__row cart-summary__row--total"><span>Total</span><span>₱{fmt(total)}</span></div>

@@ -46,8 +46,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/user/notifications', [\App\Http\Controllers\Api\UserNotificationController::class, 'destroyAll']);
 
     Route::get('/orders', [\App\Http\Controllers\Api\UserOrderController::class, 'index']);
+    Route::get('/orders/stats', [\App\Http\Controllers\Api\UserOrderController::class, 'stats']);
     Route::post('/orders', [\App\Http\Controllers\Api\UserOrderController::class, 'store']);
     Route::delete('/orders/{id}', [\App\Http\Controllers\Api\UserOrderController::class, 'destroy']);
+    Route::delete('/orders/{id}/delete', [\App\Http\Controllers\Api\UserOrderController::class, 'deleteFromHistory']);
 
     // Rider routes
     Route::get('/rider/deliveries', [\App\Http\Controllers\Api\RiderDeliveryController::class, 'index']);
