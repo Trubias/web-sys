@@ -120,6 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/supplier-products', [SupplierProductController::class, 'store']);
         Route::put('/supplier-products/{id}', [SupplierProductController::class, 'update']);
         Route::put('/supplier-products/{id}/deduct', [SupplierProductController::class, 'deductStock']);
+        Route::post('/supplier-products/sync-admin', [SupplierProductController::class, 'syncAdminProduct']);
         Route::delete('/supplier-products/{id}', [SupplierProductController::class, 'destroy']);
     });
 });

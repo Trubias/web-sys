@@ -165,4 +165,41 @@ class SupplierProductController extends Controller
 
         return response()->json($product);
     }
+
+    public function syncAdminProduct(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'stock' => 'required|numeric'
+        ]);
+
+        $existing = \App\Models\Product::where('name', $request->name)
+            ->where('supplier_id', $request->supplier_id)
+            ->first();
+
+        if ($existing) {
+            $existing->stock += $request->stock;
+            if ($existing->stock <= 0) $existing->status = 'Out of Stock';
+            else if ($existing->stock <= 5) $existing->status = 'Low Stock';
+            else $existing->status = 'Active';
+            $existing->save();
+        } else {
+            \App\Models\Product::create([
+                'name' => $request->name,
+                'slug' => \Illuminate\Support\Str::slug($request->name) . '-' . \Illuminate\Support\Str::random(4),
+                'brand_id' => $request->brand_id ?: 1,
+                'category_id' => $request->category_id ?: 1,
+                'supplier_id' => $request->supplier_id,
+                'price' => $request->price ?? 0,
+                'stock' => $request->stock,
+                'image' => $request->existing_image,
+                'gender' => $request->gender ?? 'All',
+                'variant' => $request->variant ?? 'All',
+                'color_variants' => $request->color_variants ?? [],
+                'status' => $request->stock <= 0 ? 'Out of Stock' : ($request->stock <= 5 ? 'Low Stock' : 'Active')
+            ]);
+        }
+
+        return response()->json(['message' => 'Synced']);
+    }
 }

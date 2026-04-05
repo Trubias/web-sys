@@ -22,12 +22,12 @@ class AdminReportsController extends Controller
             ->whereIn('status', ['completed', 'delivered'])
             ->get();
 
-        $totalRevenue  = $orders->sum('total_amount');
-        $orderCount    = $orders->count();
+        $totalRevenue = $orders->sum('total_amount');
+        $orderCount = $orders->count();
         $avgOrderValue = $orderCount > 0 ? round($totalRevenue / $orderCount, 2) : 0;
 
         // ── Total orders (all statuses) for conversion rate ───────────────────
-        $totalPlaced   = Order::whereYear('created_at', $year)->count();
+        $totalPlaced = Order::whereYear('created_at', $year)->count();
         $conversionRate = $totalPlaced > 0
             ? round(($orderCount / $totalPlaced) * 100, 1)
             : 0;
@@ -43,7 +43,8 @@ class AdminReportsController extends Controller
             $brandSales[$bName]['rev'] += $o->total_amount;
         }
         // Sort by qty desc
-        uasort($brandSales, function ($a, $b) { return $b['qty'] - $a['qty']; });
+        uasort($brandSales, function ($a, $b) {
+            return $b['qty'] - $a['qty']; });
 
         $topBrand = count($brandSales) > 0 ? array_key_first($brandSales) : null;
 
@@ -80,9 +81,9 @@ class AdminReportsController extends Controller
 
         $topProducts = $topProductsRaw->map(function ($row) {
             return [
-                'name'      => $row->name,
-                'qty'       => (int) $row->total_qty,
-                'rev'       => (float) $row->total_revenue,
+                'name' => $row->name,
+                'qty' => (int) $row->total_qty,
+                'rev' => (float) $row->total_revenue,
                 'image_url' => $row->image ? asset('storage/' . $row->image) : null,
             ];
         })->values()->all();
@@ -92,7 +93,8 @@ class AdminReportsController extends Controller
             $legacyStats = [];
             foreach ($orders->whereNull('product_id') as $o) {
                 $pName = $o->product_name;
-                if (!$pName) continue;
+                if (!$pName)
+                    continue;
                 if (!isset($legacyStats[$pName])) {
                     $legacyStats[$pName] = ['qty' => 0, 'rev' => 0];
                 }
@@ -102,12 +104,14 @@ class AdminReportsController extends Controller
             arsort($legacyStats);
             $existing = array_column($topProducts, 'name');
             foreach ($legacyStats as $name => $stats) {
-                if (count($topProducts) >= 5) break;
-                if (in_array($name, $existing)) continue;
+                if (count($topProducts) >= 5)
+                    break;
+                if (in_array($name, $existing))
+                    continue;
                 $topProducts[] = [
-                    'name'      => $name,
-                    'qty'       => $stats['qty'],
-                    'rev'       => $stats['rev'],
+                    'name' => $name,
+                    'qty' => $stats['qty'],
+                    'rev' => $stats['rev'],
                     'image_url' => null,
                 ];
             }
@@ -122,7 +126,7 @@ class AdminReportsController extends Controller
             ->all();
 
         $returningCount = 0;
-        $newCount       = 0;
+        $newCount = 0;
         foreach ($customerIds as $uid) {
             $lifetime = Order::where('user_id', $uid)->whereIn('status', ['completed', 'delivered'])->count();
             if ($lifetime > 1) {
@@ -131,7 +135,7 @@ class AdminReportsController extends Controller
                 $newCount++;
             }
         }
-        $totalCustomers   = $newCount + $returningCount;
+        $totalCustomers = $newCount + $returningCount;
         $returningPercent = $totalCustomers > 0
             ? round(($returningCount / $totalCustomers) * 100, 1)
             : 0;
@@ -145,17 +149,17 @@ class AdminReportsController extends Controller
         }
 
         return response()->json([
-            'year'              => $year,
-            'total_revenue'     => (float) $totalRevenue,
-            'order_count'       => $orderCount,
-            'avg_order_value'   => (float) $avgOrderValue,
-            'conversion_rate'   => (float) $conversionRate,
-            'top_brand'         => $topBrand,
-            'monthly_revenue'   => $monthlyRevenue,
-            'sales_by_brand'    => $brandSales,
-            'top_products'      => $topProducts,
+            'year' => $year,
+            'total_revenue' => (float) $totalRevenue,
+            'order_count' => $orderCount,
+            'avg_order_value' => (float) $avgOrderValue,
+            'conversion_rate' => (float) $conversionRate,
+            'top_brand' => $topBrand,
+            'monthly_revenue' => $monthlyRevenue,
+            'sales_by_brand' => $brandSales,
+            'top_products' => $topProducts,
             'returning_percent' => (float) $returningPercent,
-            'avg_ltv'           => (float) $avgLTV,
+            'avg_ltv' => (float) $avgLTV,
         ]);
     }
 
@@ -165,21 +169,21 @@ class AdminReportsController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'user_id'        => 'nullable|exists:users,id',
-            'customer_name'  => 'nullable|string|max:255',
+            'user_id' => 'nullable|exists:users,id',
+            'customer_name' => 'nullable|string|max:255',
             'customer_email' => 'nullable|email|max:255',
-            'product_id'     => 'nullable|exists:products,id',
-            'product_name'   => 'required|string|max:255',
-            'brand_id'       => 'nullable|exists:brands,id',
-            'brand_name'     => 'nullable|string|max:255',
-            'quantity'       => 'required|integer|min:1',
-            'unit_price'     => 'required|numeric|min:0',
-            'status'         => 'sometimes|string',
+            'product_id' => 'nullable|exists:products,id',
+            'product_name' => 'required|string|max:255',
+            'brand_id' => 'nullable|exists:brands,id',
+            'brand_name' => 'nullable|string|max:255',
+            'quantity' => 'required|integer|min:1',
+            'unit_price' => 'required|numeric|min:0',
+            'status' => 'sometimes|string',
         ]);
 
         $data['total_amount'] = $data['unit_price'] * $data['quantity'];
-        $data['ref']          = 'ORD-' . strtoupper(substr(uniqid(), -6));
-        $data['status']       = isset($data['status']) ? $data['status'] : 'completed';
+        $data['ref'] = 'ORD-' . strtoupper(substr(uniqid(), -6));
+        $data['status'] = isset($data['status']) ? $data['status'] : 'completed';
 
         $order = Order::create($data);
         return response()->json($order, 201);
@@ -212,7 +216,7 @@ class AdminReportsController extends Controller
 
         // Notify the customer if this order belongs to a user
         if ($order->user_id) {
-            $isPending   = $order->status === 'pending';
+            $isPending = $order->status === 'pending';
             $isDelivered = in_array($order->status, ['delivered', 'completed']);
 
             if ($isPending) {
@@ -225,9 +229,9 @@ class AdminReportsController extends Controller
 
             \App\Models\UserNotification::create([
                 'user_id' => $order->user_id,
-                'title'   => 'Order Cancelled',
+                'title' => 'Order Cancelled',
                 'message' => $msg,
-                'type'    => 'order_cancelled',
+                'type' => 'order_cancelled',
                 'is_read' => false,
             ]);
         }
@@ -239,7 +243,7 @@ class AdminReportsController extends Controller
         $order->save();
 
         return response()->json([
-            'message'       => 'Order deleted successfully',
+            'message' => 'Order deleted successfully',
             'stock_changed' => false,
         ]);
     }

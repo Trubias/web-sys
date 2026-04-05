@@ -83,7 +83,8 @@ class SupplierOrderController extends Controller
                 ->first();
 
             if ($product) {
-                $product->stock += $details['stock'];
+                // Rule 1: Set stock, do not add.
+                $product->stock = $details['stock'];
                 $product->price = $details['price'];
                 $product->image = $details['image'];
             } else {
@@ -104,7 +105,8 @@ class SupplierOrderController extends Controller
                 ->first();
 
             if ($inventory) {
-                $inventory->stock += $details['stock'];
+                // Rule 1: Set stock, do not add.
+                $inventory->stock = $details['stock'];
                 $inventory->price = $details['price'];
                 $inventory->image = $details['image'];
             } else {

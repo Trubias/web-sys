@@ -167,27 +167,48 @@ export default function DeliveriesPage({ user }) {
             if (!proofFiles[d.id] && !d.proof) return;
             const now = new Date().toISOString();
             
-            if (d.stock_deducted) {
-                reqStore.update(d.reqId, { status: 'completed', deliveredAt: now });
-                deliveryStore.update(d.id, { status: 'delivered', proof: proofFiles[d.id] || d.proof, deliveredAt: now });
-                notificationStore.add('admin', `Your order ${d.ref} has been successfully delivered. You can now place it in Inventory.`);
-                return;
-            }
+            if (!d.stock_deducted) {
+                const req = reqStore.getAll().find(r => String(r.id) === String(d.reqId));
+                const snap = req ? req._productSnapshot : null;
 
-            try {
-                if (d.product_id && d.qty) {
-                    await axios.put(`/api/supplier-products/${d.product_id}/deduct`, {
-                        quantity: Number(d.qty)
-                    }, suppHead());
-                    window.dispatchEvent(new Event('jk_supplier_stock_update'));
+                if (snap) {
+                    try {
+                        const rawImg = snap.image && snap.image.startsWith('/storage/') ? snap.image.replace(/^\/storage\//, '') : snap.image;
+                        await axios.post('/api/supplier-products/sync-admin', {
+                            name: snap.name,
+                            brand_id: snap.brand_id || snap.brand?.id,
+                            brand_name: snap.brand?.name || snap.brand || '',
+                            category_id: snap.category_id || snap.category?.id,
+                            category_name: snap.category?.name || snap.category || '',
+                            supplier_id: snap.supplier_id || snap.supplier?.id,
+                            price: snap.price,
+                            stock: Number(d.qty),
+                            existing_image: rawImg,
+                            gender: snap.gender || 'All',
+                            variant: snap.variant || 'All',
+                            color_variants: snap.color_variants || []
+                        }, suppHead());
+                    } catch (e) {
+                        console.error("Admin sync failed", e);
+                    }
                 }
-            } catch (err) {
-                console.error("Failed to deduct stock:", err);
+
+                try {
+                    if (d.product_id && d.qty) {
+                        await axios.put(`/api/supplier-products/${d.product_id}/deduct`, {
+                            quantity: Number(d.qty)
+                        }, suppHead());
+                        window.dispatchEvent(new Event('jk_supplier_stock_update'));
+                    }
+                } catch (err) {
+                    console.error("Failed to deduct stock:", err);
+                }
             }
 
-            reqStore.update(d.reqId, { status: 'completed', deliveredAt: now });
+            // By setting _placedInInventory to true immediately, AdminProducts.js autoSync will not double-count it.
+            reqStore.update(d.reqId, { status: 'completed', deliveredAt: now, _placedInInventory: true });
             deliveryStore.update(d.id, { status: 'delivered', proof: proofFiles[d.id] || d.proof, deliveredAt: now, stock_deducted: true });
-            notificationStore.add('admin', `Your order ${d.ref} has been successfully delivered. You can now place it in Inventory.`);
+            notificationStore.add('admin', `Supplier has delivered ${d.qty}x ${d.model}. Product is now live in the Browse page and Inventory!`);
         }
     };
 

@@ -26,7 +26,7 @@ class RiderDeliveryController extends Controller
             ->where('region', $user->region)
             ->where(function ($query) use ($user) {
                 $query->whereNull('rejected_by_riders')
-                      ->orWhereJsonDoesntContain('rejected_by_riders', $user->id);
+                    ->orWhereJsonDoesntContain('rejected_by_riders', $user->id);
             })
             ->orderByDesc('created_at')
             ->get();
@@ -88,7 +88,7 @@ class RiderDeliveryController extends Controller
         }
 
         $order = Order::findOrFail($orderId);
-        
+
         $rejected = $order->rejected_by_riders ?? [];
         if (!in_array($user->id, $rejected)) {
             $rejected[] = $user->id;
@@ -206,12 +206,12 @@ class RiderDeliveryController extends Controller
         }
 
         $validated = $request->validate([
-            'name'         => 'sometimes|string|max:255',
-            'phone'        => 'sometimes|nullable|string|max:20',
-            'region'       => 'sometimes|nullable|string|max:255',
-            'city'         => 'sometimes|nullable|string|max:255',
+            'name' => 'sometimes|string|max:255',
+            'phone' => 'sometimes|nullable|string|max:20',
+            'region' => 'sometimes|nullable|string|max:255',
+            'city' => 'sometimes|nullable|string|max:255',
             'vehicle_type' => 'sometimes|nullable|string|max:255',
-            'avatar'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         if ($request->hasFile('avatar')) {

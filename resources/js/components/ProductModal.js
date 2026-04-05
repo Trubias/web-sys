@@ -41,8 +41,9 @@ export default function ProductModal(props) {
 
     const colors     = parseColors(p.color_variants);
     const stockLabel = p.stock === 0 ? 'Out of Stock'
-        : p.stock <= 5 ? `Low Stock (${p.stock} items left)`
-        : `In Stock (${p.stock} items left)`;
+        : p.stock === 1 ? 'Low Stock (1 item left)'
+        : p.stock <= 5 ? 'Low Stock'
+        : 'In Stock';
     const stockBg    = p.stock === 0 ? '#fee2e2' : p.stock <= 5 ? '#fef08a' : '#dcfce7';
     const stockColor = p.stock === 0 ? '#b91c1c' : p.stock <= 5 ? '#854d0e' : '#166534';
 

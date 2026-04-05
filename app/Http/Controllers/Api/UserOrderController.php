@@ -35,10 +35,12 @@ class UserOrderController extends Controller
             // Last resort: match by name
             elseif ($order->product_name) {
                 $p = Product::where('name', $order->product_name)->whereNotNull('image')->first();
-                if ($p) $image = $p->image;
+                if ($p)
+                    $image = $p->image;
             }
 
-            if ($image) $data['product_image'] = $image;
+            if ($image)
+                $data['product_image'] = $image;
             return $data;
         });
 
@@ -50,8 +52,8 @@ class UserOrderController extends Controller
     public function stats(Request $request)
     {
         $userId = $request->user()->id;
-        $total  = Order::where('user_id', $userId)->count();
-        $spent  = Order::where('user_id', $userId)->sum('total_amount');
+        $total = Order::where('user_id', $userId)->count();
+        $spent = Order::where('user_id', $userId)->sum('total_amount');
         return response()->json(['total_orders' => $total, 'total_spent' => (float) $spent]);
     }
 

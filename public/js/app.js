@@ -8676,7 +8676,7 @@ function ProductModal(props) {
     setQty = _useState2[1];
   if (!p) return null;
   var colors = parseColors(p.color_variants);
-  var stockLabel = p.stock === 0 ? 'Out of Stock' : p.stock <= 5 ? "Low Stock (".concat(p.stock, " items left)") : "In Stock (".concat(p.stock, " items left)");
+  var stockLabel = p.stock === 0 ? 'Out of Stock' : p.stock === 1 ? 'Low Stock (1 item left)' : p.stock <= 5 ? 'Low Stock' : 'In Stock';
   var stockBg = p.stock === 0 ? '#fee2e2' : p.stock <= 5 ? '#fef08a' : '#dcfce7';
   var stockColor = p.stock === 0 ? '#b91c1c' : p.stock <= 5 ? '#854d0e' : '#166534';
   var handleAddToCart = /*#__PURE__*/function () {
@@ -15394,9 +15394,8 @@ function AdminProducts() {
                       _context6.n = 2;
                       break;
                     }
-                    // ADD new supplier stock on top of the current DB stock
-                    // (do NOT replace — the current stock already reflects customer deductions)
-                    updatedStock = Number(match.stock) + p.addStock;
+                    // SET new supplier stock (do NOT accumulate)
+                    updatedStock = p.addStock;
                     _context6.n = 1;
                     return axios__WEBPACK_IMPORTED_MODULE_3___default().put("/api/admin/products/".concat(match.id), {
                       stock: updatedStock,
@@ -28554,7 +28553,7 @@ function DeliveriesPage(_ref4) {
     },
     markDelivered: function () {
       var _markDelivered = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(d) {
-        var now, _t;
+        var now, req, snap, _snap$brand, _snap$brand2, _snap$category, _snap$category2, _snap$supplier, rawImg, _t, _t2;
         return _regenerator().w(function (_context) {
           while (1) switch (_context.p = _context.n) {
             case 0:
@@ -28565,44 +28564,67 @@ function DeliveriesPage(_ref4) {
               return _context.a(2);
             case 1:
               now = new Date().toISOString();
-              if (!d.stock_deducted) {
-                _context.n = 2;
+              if (d.stock_deducted) {
+                _context.n = 9;
                 break;
               }
-              _sharedStore__WEBPACK_IMPORTED_MODULE_1__.reqStore.update(d.reqId, {
-                status: 'completed',
-                deliveredAt: now
+              req = _sharedStore__WEBPACK_IMPORTED_MODULE_1__.reqStore.getAll().find(function (r) {
+                return String(r.id) === String(d.reqId);
               });
-              _sharedStore__WEBPACK_IMPORTED_MODULE_1__.deliveryStore.update(d.id, {
-                status: 'delivered',
-                proof: proofFiles[d.id] || d.proof,
-                deliveredAt: now
-              });
-              _sharedStore__WEBPACK_IMPORTED_MODULE_1__.notificationStore.add('admin', "Your order ".concat(d.ref, " has been successfully delivered. You can now place it in Inventory."));
-              return _context.a(2);
-            case 2:
+              snap = req ? req._productSnapshot : null;
+              if (!snap) {
+                _context.n = 5;
+                break;
+              }
               _context.p = 2;
+              rawImg = snap.image && snap.image.startsWith('/storage/') ? snap.image.replace(/^\/storage\//, '') : snap.image;
+              _context.n = 3;
+              return axios__WEBPACK_IMPORTED_MODULE_3___default().post('/api/supplier-products/sync-admin', {
+                name: snap.name,
+                brand_id: snap.brand_id || ((_snap$brand = snap.brand) === null || _snap$brand === void 0 ? void 0 : _snap$brand.id),
+                brand_name: ((_snap$brand2 = snap.brand) === null || _snap$brand2 === void 0 ? void 0 : _snap$brand2.name) || snap.brand || '',
+                category_id: snap.category_id || ((_snap$category = snap.category) === null || _snap$category === void 0 ? void 0 : _snap$category.id),
+                category_name: ((_snap$category2 = snap.category) === null || _snap$category2 === void 0 ? void 0 : _snap$category2.name) || snap.category || '',
+                supplier_id: snap.supplier_id || ((_snap$supplier = snap.supplier) === null || _snap$supplier === void 0 ? void 0 : _snap$supplier.id),
+                price: snap.price,
+                stock: Number(d.qty),
+                existing_image: rawImg,
+                gender: snap.gender || 'All',
+                variant: snap.variant || 'All',
+                color_variants: snap.color_variants || []
+              }, (0,_supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.suppHead)());
+            case 3:
+              _context.n = 5;
+              break;
+            case 4:
+              _context.p = 4;
+              _t = _context.v;
+              console.error("Admin sync failed", _t);
+            case 5:
+              _context.p = 5;
               if (!(d.product_id && d.qty)) {
-                _context.n = 4;
+                _context.n = 7;
                 break;
               }
-              _context.n = 3;
+              _context.n = 6;
               return axios__WEBPACK_IMPORTED_MODULE_3___default().put("/api/supplier-products/".concat(d.product_id, "/deduct"), {
                 quantity: Number(d.qty)
               }, (0,_supplierHelpers__WEBPACK_IMPORTED_MODULE_2__.suppHead)());
-            case 3:
-              window.dispatchEvent(new Event('jk_supplier_stock_update'));
-            case 4:
-              _context.n = 6;
-              break;
-            case 5:
-              _context.p = 5;
-              _t = _context.v;
-              console.error("Failed to deduct stock:", _t);
             case 6:
+              window.dispatchEvent(new Event('jk_supplier_stock_update'));
+            case 7:
+              _context.n = 9;
+              break;
+            case 8:
+              _context.p = 8;
+              _t2 = _context.v;
+              console.error("Failed to deduct stock:", _t2);
+            case 9:
+              // By setting _placedInInventory to true immediately, AdminProducts.js autoSync will not double-count it.
               _sharedStore__WEBPACK_IMPORTED_MODULE_1__.reqStore.update(d.reqId, {
                 status: 'completed',
-                deliveredAt: now
+                deliveredAt: now,
+                _placedInInventory: true
               });
               _sharedStore__WEBPACK_IMPORTED_MODULE_1__.deliveryStore.update(d.id, {
                 status: 'delivered',
@@ -28610,11 +28632,11 @@ function DeliveriesPage(_ref4) {
                 deliveredAt: now,
                 stock_deducted: true
               });
-              _sharedStore__WEBPACK_IMPORTED_MODULE_1__.notificationStore.add('admin', "Your order ".concat(d.ref, " has been successfully delivered. You can now place it in Inventory."));
-            case 7:
+              _sharedStore__WEBPACK_IMPORTED_MODULE_1__.notificationStore.add('admin', "Supplier has delivered ".concat(d.qty, "x ").concat(d.model, ". Product is now live in the Browse page and Inventory!"));
+            case 10:
               return _context.a(2);
           }
-        }, _callee, null, [[2, 5]]);
+        }, _callee, null, [[5, 8], [2, 4]]);
       }));
       function markDelivered(_x) {
         return _markDelivered.apply(this, arguments);

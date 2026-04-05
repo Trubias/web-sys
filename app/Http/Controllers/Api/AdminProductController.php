@@ -126,7 +126,7 @@ class AdminProductController extends Controller
         $product->save();
 
         if ($request->hasFile('image')) {
-            if ($product->image) {
+            if ($product->image && Str::startsWith($product->image, 'products/')) {
                 Storage::disk('public')->delete($product->image);
             }
             $product->image = $request->file('image')->store('products', 'public');
@@ -143,7 +143,7 @@ class AdminProductController extends Controller
         // NOTE: Stock is returned to Admin Product Management via the frontend (reqStore).
         // Admin actions must NEVER write to supplier_products (Supplier Portal table).
 
-        if ($product->image) {
+        if ($product->image && Str::startsWith($product->image, 'products/')) {
             Storage::disk('public')->delete($product->image);
         }
         $product->delete();

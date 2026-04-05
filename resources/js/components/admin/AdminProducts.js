@@ -1022,9 +1022,8 @@ export default function AdminProducts() {
                     String(e.category_id) === String(p.category_id)
                 );
                 if (match) {
-                    // ADD new supplier stock on top of the current DB stock
-                    // (do NOT replace — the current stock already reflects customer deductions)
-                    const updatedStock = Number(match.stock) + p.addStock;
+                    // SET new supplier stock (do NOT accumulate)
+                    const updatedStock = p.addStock;
                     await axios.put(`/api/admin/products/${match.id}`, {
                         stock: updatedStock, price: p.price
                     }, authHead());
