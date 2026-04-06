@@ -109,12 +109,12 @@ export default function Login() {
         setRegisterError(''); 
         setRegisterLoading(true);
         try {
-            const res = await axios.post('/api/register', { ...customerForm, role: 'user' });
-            const token = res.data.token;
-            localStorage.setItem('jk_token', token);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            navigate('/');
-            window.location.reload();
+            await axios.post('/api/register', { ...customerForm, role: 'user' });
+            setRegisterSuccess(true);
+            setTimeout(() => {
+                setRegisterSuccess(false);
+                setView('signin');
+            }, 3000);
         } catch (err) {
             const errors = err?.response?.data?.errors;
             if (errors) setRegisterError(Object.values(errors).flat().join(' '));
@@ -170,7 +170,7 @@ export default function Login() {
             localStorage.setItem('jk_token', token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             setTimeout(() => {
-                navigate('/rider/dashboard');
+                navigate('/rider/home');
                 window.location.reload();
             }, 2000);
         } catch (err) {

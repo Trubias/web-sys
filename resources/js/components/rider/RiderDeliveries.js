@@ -33,81 +33,97 @@ const DeliveriesMapModal = ({ order, onClose }) => {
                 while (!window.L.Routing) await new Promise(r => setTimeout(r, 100));
             }
 
-            if (isMounted && !mapRef.current && document.getElementById('delivery-map')) {
-                const map = window.L.map('delivery-map').setView([lat, lng], 16);
-                const satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    attribution: 'Tiles courtesy of Esri and the GIS community', maxZoom: 19
-                });
-                const streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                });
-                satLayer.addTo(map);
-                let isSat = true;
-                const toggleCtrl = window.L.control({ position: 'topright' });
-                toggleCtrl.onAdd = function() {
-                    const btn = window.L.DomUtil.create('button', '');
-                    btn.innerHTML = '🗺️ Street View';
-                    btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
-                    window.L.DomEvent.on(btn, 'click', function(e) {
-                        window.L.DomEvent.stopPropagation(e);
-                        if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); btn.innerHTML = '🛰️ Satellite View'; isSat = false; }
-                        else { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
-                    });
-                    return btn;
-                };
-                toggleCtrl.addTo(map);
-
-                const customerMarker = window.L.marker([lat, lng]).addTo(map);
-                const popupContent = `
-                    <div style="text-align:center; font-family:sans-serif; color:#000;">
-                        <strong style="display:block; margin-bottom:4px; font-size:14px;">${order.user?.name || order.customer_name || 'Customer'}</strong>
-                        <div style="font-size:12px;">${order.address || order.user?.address || ''}</div>
-                    </div>
-                `;
-                customerMarker.bindPopup(popupContent).openPopup();
-                
-                mapRef.current = map;
-                
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(pos => {
-                        if (!isMounted) return;
-                        const riderLat = pos.coords.latitude;
-                        const riderLng = pos.coords.longitude;
-                        
-                        const riderIcon = new window.L.Icon({
-                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png',
-                            iconSize: [36, 36],
-                            iconAnchor: [18, 18]
-                        });
-                        window.L.marker([riderLat, riderLng], {icon: riderIcon}).bindPopup('<b>Your Location</b>').addTo(map);
-
-                        window.L.Routing.control({
-                            waypoints: [
-                                window.L.latLng(riderLat, riderLng),
-                                window.L.latLng(lat, lng)
-                            ],
-                            lineOptions: { styles: [{ color: '#3498db', weight: 6, opacity: 0.8 }] },
-                            show: false,
-                            addWaypoints: false,
-                            createMarker: function() { return null; }
-                        }).addTo(map);
-                        
-                        const group = new window.L.featureGroup([
-                            window.L.marker([riderLat, riderLng]),
-                            window.L.marker([lat, lng])
-                        ]);
-                        map.fitBounds(group.getBounds(), { padding: [40, 40] });
-
-                    }, err => console.log('GPS tracking blocked or unavailable.'));
+            if (isMounted) {
+                // If there's an existing map instance, remove it so we can re-initialize properly.
+                if (mapRef.current) {
+                    mapRef.current.remove();
+                    mapRef.current = null;
                 }
-                
-                setTimeout(() => {
-                    map.invalidateSize();
-                }, 200);
+
+                if (document.getElementById('delivery-map')) {
+                    const map = window.L.map('delivery-map').setView([lat, lng], 16);
+                    const satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: 'Tiles courtesy of Esri and the GIS community', maxZoom: 19
+                    });
+                    const streetLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    });
+                    satLayer.addTo(map);
+                    let isSat = true;
+                    const toggleCtrl = window.L.control({ position: 'topright' });
+                    toggleCtrl.onAdd = function() {
+                        const btn = window.L.DomUtil.create('button', '');
+                        btn.innerHTML = '🗺️ Street View';
+                        btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
+                        window.L.DomEvent.on(btn, 'click', function(e) {
+                            window.L.DomEvent.stopPropagation(e);
+                            if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); btn.innerHTML = '🛰️ Satellite View'; isSat = false; }
+                            else { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
+                        });
+                        return btn;
+                    };
+                    toggleCtrl.addTo(map);
+
+                    const customerMarker = window.L.marker([lat, lng]).addTo(map);
+                    const popupContent = `
+                        <div style="text-align:center; font-family:sans-serif; color:#000;">
+                            <strong style="display:block; margin-bottom:4px; font-size:14px;">${order.user?.name || order.customer_name || 'Customer'}</strong>
+                            <div style="font-size:12px;">${order.address || order.user?.address || ''}</div>
+                        </div>
+                    `;
+                    customerMarker.bindPopup(popupContent).openPopup();
+                    
+                    mapRef.current = map;
+                    
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(pos => {
+                            if (!isMounted) return;
+                            const riderLat = pos.coords.latitude;
+                            const riderLng = pos.coords.longitude;
+                            
+                            const riderIcon = new window.L.Icon({
+                                iconUrl: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png',
+                                iconSize: [36, 36],
+                                iconAnchor: [18, 18]
+                            });
+                            window.L.marker([riderLat, riderLng], {icon: riderIcon}).bindPopup('<b>Your Location</b>').addTo(map);
+
+                            window.L.Routing.control({
+                                waypoints: [
+                                    window.L.latLng(riderLat, riderLng),
+                                    window.L.latLng(lat, lng)
+                                ],
+                                lineOptions: { styles: [{ color: '#3498db', weight: 6, opacity: 0.8 }] },
+                                show: false,
+                                addWaypoints: false,
+                                createMarker: function() { return null; }
+                            }).addTo(map);
+                            
+                            const group = new window.L.featureGroup([
+                                window.L.marker([riderLat, riderLng]),
+                                window.L.marker([lat, lng])
+                            ]);
+                            map.fitBounds(group.getBounds(), { padding: [40, 40] });
+
+                        }, err => console.log('GPS tracking blocked or unavailable.'));
+                    }
+                    
+                    setTimeout(() => {
+                        if (mapRef.current) {
+                            mapRef.current.invalidateSize();
+                        }
+                    }, 200);
+                }
             }
         };
         loadScripts();
-        return () => { isMounted = false; };
+        return () => { 
+            isMounted = false; 
+            if (mapRef.current) {
+                mapRef.current.remove();
+                mapRef.current = null;
+            }
+        };
     }, [order, lat, lng]);
 
     if (!order) return null;
@@ -320,6 +336,15 @@ export default function RiderDeliveries() {
                                 ) : o.status === 'out_for_delivery' ? (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid currentColor', borderColor: '#C9A84C' }}>
                                         <div style={{ color: '#C9A84C', fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem' }}>Proof of Delivery Required</div>
+                                        
+                                        <button 
+                                            onClick={() => setMapTarget(o)}
+                                            style={{ padding: '0.8rem', background: '#3498db', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                            onMouseEnter={e => e.currentTarget.style.background = '#2980b9'} onMouseLeave={e => e.currentTarget.style.background = '#3498db'}
+                                        >
+                                            📍 View Delivery Map
+                                        </button>
+
                                         <input 
                                             // Tie input uniquely per row
                                             id={`proof-input-${o.id}`}
