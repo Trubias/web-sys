@@ -248,7 +248,7 @@ export default function SupplierDashboard() {
                                             <button onClick={() => {
                                                 const remain = notificationStore.getAll().filter(n => !(n.target === 'supplier' || n.target === user?.name));
                                                 notificationStore.save(remain);
-                                            }} style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', fontWeight: 600, color: '#ef4444', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 6, cursor: 'pointer' }}>
+                                            }} style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', fontWeight: 600, color: '#dc2626', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 6, cursor: 'pointer' }}>
                                                 Clear All
                                             </button>
                                         )}

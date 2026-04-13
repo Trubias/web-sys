@@ -30,7 +30,8 @@ class Order extends Model
         'proof_of_delivery',
         'expected_delivery_date',
         'latitude',
-        'longitude'
+        'longitude',
+        'delivered_at'
     ];
 
     protected $casts = [
@@ -38,6 +39,7 @@ class Order extends Model
         'total_amount' => 'float',
         'quantity' => 'integer',
         'rejected_by_riders' => 'array',
+        'delivered_at' => 'datetime',
     ];
 
     public function user()
@@ -55,5 +57,14 @@ class Order extends Model
     public function rider()
     {
         return $this->belongsTo(Rider::class);
+    }
+    public function rating()
+    {
+        return $this->hasOne(OrderRating::class);
+    }
+
+    public function review()
+    {
+        return $this->hasOne(ProductReview::class);
     }
 }

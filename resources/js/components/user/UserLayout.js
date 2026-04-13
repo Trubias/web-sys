@@ -216,7 +216,7 @@ export default function UserLayout({ children }) {
                                     {notifications.length > 0 && (
                                         <div style={{ display: 'flex', gap: '0.8rem' }}>
                                             <button onClick={handleMarkAllRead} style={{ background: 'transparent', border: 'none', color: '#C9A84C', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, padding: 0 }}>Mark All Read</button>
-                                            <button onClick={handleClearAll} style={{ background: 'transparent', border: 'none', color: '#e74c3c', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, padding: 0 }}>Clear All</button>
+                                            <button onClick={handleClearAll} style={{ background: 'transparent', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, padding: 0 }}>Clear All</button>
                                         </div>
                                     )}
                                 </div>

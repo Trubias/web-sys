@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import RiderLayout from './RiderLayout';
 
 export default function RiderHistory() {
     const [deliveries, setDeliveries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedProof, setSelectedProof] = useState(null);
+    const [activeTab, setActiveTab] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const getProofUrl = (path) => {
         if (!path) return '';
@@ -30,9 +32,98 @@ export default function RiderHistory() {
 
     const fmt = (n) => new Intl.NumberFormat('en-PH', { minimumFractionDigits: 2 }).format(n);
 
+    // Helpers for dates
+    const isToday = (dateStr) => {
+        const d = new Date(dateStr);
+        const today = new Date();
+        return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+    };
+
+    const isThisWeek = (dateStr) => {
+        const d = new Date(dateStr);
+        const now = new Date();
+        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+        startOfWeek.setHours(0,0,0,0);
+        return d >= startOfWeek;
+    };
+
+    const isThisMonth = (dateStr) => {
+        const d = new Date(dateStr);
+        const today = new Date();
+        return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+    };
+
+    // Calculate delivery duration
+    const getDuration = (created, delivered) => {
+        if (!created || !delivered) return null;
+        const diffMs = new Date(delivered) - new Date(created);
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 60) return `${diffMins} min`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours} hr${diffHours > 1?'s':''}`;
+        const diffDays = Math.floor(diffHours / 24);
+        return `${diffDays} day${diffDays > 1?'s':''}`;
+    };
+
+    // Filters
+    const filteredDeliveries = useMemo(() => {
+        return deliveries.filter(d => {
+            const date = d.delivered_at || d.updated_at;
+            let matchTab = true;
+            if (activeTab === 'Today') matchTab = isToday(date);
+            else if (activeTab === 'This week') matchTab = isThisWeek(date);
+
+            let matchSearch = true;
+            if (searchQuery.trim() !== '') {
+                const q = searchQuery.toLowerCase();
+                const refMatch = (d.ref || String(d.id)).toLowerCase().includes(q);
+                const nameMatch = (d.user?.name || d.customer_name || '').toLowerCase().includes(q);
+                matchSearch = refMatch || nameMatch;
+            }
+
+            return matchTab && matchSearch;
+        });
+    }, [deliveries, activeTab, searchQuery]);
+
+    // Stats calculated dynamically from filtered deliveries
+    const stats = useMemo(() => {
+        let todayCount = 0;
+        let weekCount = 0;
+        let earnings = 0;
+
+        if (!loading) {
+            filteredDeliveries.forEach(d => {
+                const date = d.delivered_at || d.updated_at;
+                if (isToday(date)) todayCount++;
+                if (isThisWeek(date)) weekCount++;
+                
+                // Sum actual order amount as per user request
+                earnings += parseFloat(d.total_amount || 0);
+            });
+        }
+
+        return { todayCount, weekCount, earnings };
+    }, [filteredDeliveries, loading]);
+
+    const tabs = ['All', 'Today', 'This week'];
+    const getTabColor = (tab, isActive) => {
+        if (!isActive) return { bg: 'transparent', color: '#888', border: 'rgba(255,255,255,0.1)' };
+        if (tab === 'All') return { bg: '#333', color: '#fff', border: '#444' };
+        if (tab === 'Today') return { bg: 'rgba(39, 174, 96, 0.2)', color: '#27ae60', border: 'rgba(39, 174, 96, 0.5)' };
+        if (tab === 'This week') return { bg: 'rgba(52, 152, 219, 0.2)', color: '#3498db', border: 'rgba(52, 152, 219, 0.5)' };
+        return { bg: '#333', color: '#fff', border: '#444' };
+    };
+
+    // Determine the label for earnings
+    const getEarningsLabel = () => {
+        if (activeTab === 'Today') return 'EARNINGS TODAY';
+        if (activeTab === 'This week') return 'EARNINGS THIS WEEK';
+        return 'TOTAL EARNINGS';
+    };
+
     return (
         <RiderLayout>
-            <div className="admin-page-header">
+            <div className="admin-page-header" style={{ marginBottom: '1.5rem' }}>
                 <div>
                     <h1 className="admin-page-title">Delivery History</h1>
                     <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: 4 }}>
@@ -41,60 +132,141 @@ export default function RiderHistory() {
                 </div>
             </div>
 
+            {/* Stats Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                <div style={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '1.5rem' }}>
+                    <div style={{ fontSize: '0.85rem', color: '#888', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.5rem' }}>Today</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff' }}>{loading ? '...' : stats.todayCount}</div>
+                </div>
+                <div style={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '1.5rem' }}>
+                    <div style={{ fontSize: '0.85rem', color: '#888', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.5rem' }}>This Week</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff' }}>{loading ? '...' : stats.weekCount}</div>
+                </div>
+                <div style={{ background: '#1a1a1a', border: '1px solid rgba(39,174,96,0.2)', borderRadius: '12px', padding: '1.5rem' }}>
+                    <div style={{ fontSize: '0.85rem', color: '#27ae60', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.5rem' }}>{getEarningsLabel()}</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#27ae60' }}>{loading ? '...' : `₱${fmt(stats.earnings)}`}</div>
+                </div>
+            </div>
+
+            {/* Filter & Search */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {tabs.map(tab => {
+                        const style = getTabColor(tab, activeTab === tab);
+                        return (
+                            <button key={tab} onClick={() => setActiveTab(tab)} style={{
+                                background: style.bg, color: style.color,
+                                border: `1px solid ${style.border}`,
+                                padding: '0.5rem 1rem', borderRadius: '20px',
+                                fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}>
+                                {tab}
+                            </button>
+                        )
+                    })}
+                </div>
+                <div style={{ flex: '1 1 200px', maxWidth: '300px' }}>
+                    <input 
+                        type="text" 
+                        placeholder="Search by order # or name..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            width: '100%', padding: '0.6rem 1rem', borderRadius: '20px',
+                            background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)',
+                            color: '#fff', fontSize: '0.85rem', outline: 'none'
+                        }}
+                    />
+                </div>
+            </div>
+
             {loading ? (
                 <div style={{ color: '#888', padding: '2rem 0' }}>Loading delivery history...</div>
-            ) : deliveries.length === 0 ? (
+            ) : filteredDeliveries.length === 0 ? (
                 <div style={{ color: '#888', padding: '2rem 0', background: '#1a1a1a', borderRadius: '12px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    No completed deliveries yet.
+                    No completed deliveries found.
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
-                    {deliveries.map(o => (
-                        <div key={o.id} style={{ background: '#1a1a1a', borderRadius: '12px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-                                <div>
-                                    <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '0.3rem', fontWeight: 600 }}>Order #{o.ref || o.id}</div>
-                                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#C9A84C' }}>
-                                        {o.product?.name || o.product_name || 'Product'}
-                                        {o.brand?.name && <span style={{ color: '#666', fontSize: '0.9rem', marginLeft: '8px', fontWeight: 600 }}>— {o.brand?.name}</span>}
+                    {filteredDeliveries.map(o => {
+                        const duration = getDuration(o.created_at, o.delivered_at);
+                        const rate = o.rating ? o.rating.rating : null;
+
+                        return (
+                            <div key={o.id} style={{ background: '#1a1a1a', borderRadius: '12px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                                {/* Duration Badge */}
+                                {duration && (
+                                    <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', fontSize: '0.8rem', fontWeight: 600, color: '#aaa', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                        <span>⏱</span> {duration}
+                                    </div>
+                                )}
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', paddingRight: '60px' }}>
+                                    <div>
+                                        <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '0.3rem', fontWeight: 600 }}>Order #{o.ref || o.id}</div>
+                                        <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#C9A84C' }}>
+                                            {o.product?.name || o.product_name || 'Product'}
+                                            {o.brand?.name && <span style={{ color: '#666', fontSize: '0.9rem', marginLeft: '8px', fontWeight: 600 }}>— {o.brand?.name}</span>}
+                                        </div>
                                     </div>
                                 </div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', textAlign: 'right' }}>
-                                    ₱{fmt(o.total_amount || 0)}
-                                    <div style={{ fontSize: '0.75rem', color: '#27ae60', marginTop: '4px', textTransform: 'uppercase' }}>
-                                        {o.payment_method === 'cod' ? 'Cash on Delivery' : o.payment_method}
+                                
+                                {/* Rating Row */}
+                                {rate !== null ? (
+                                    <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                        <div style={{ color: '#d97706', fontSize: '1rem', letterSpacing: '2px' }}>
+                                            {'★'.repeat(rate)}{'☆'.repeat(5 - rate)}
+                                        </div>
+                                        {o.rating?.comment && (
+                                            <div style={{ fontSize: '0.8rem', color: '#888', fontStyle: 'italic', marginLeft: '0.5rem' }}>"{o.rating.comment}"</div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#666', fontStyle: 'italic' }}>
+                                        No rating yet
+                                    </div>
+                                )}
+
+                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', marginTop: '1.2rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, color: '#fff', marginBottom: '0.4rem', fontSize: '1.05rem' }}>{o.user?.name || o.customer_name || 'Customer'}</div>
+                                            <div style={{ fontSize: '0.95rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                                                <span>📍</span> {o.address || o.user?.address || 'No address provided'}
+                                            </div>
+                                        </div>
+                                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', textAlign: 'right' }}>
+                                            ₱{fmt(o.total_amount || 0)}
+                                            <div style={{ fontSize: '0.7rem', color: '#27ae60', marginTop: '4px', textTransform: 'uppercase' }}>
+                                                {o.payment_method === 'cod' ? 'Cash on Delivery' : o.payment_method}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem', marginTop: '0.5rem' }}>
+                                        <div style={{ fontSize: '0.85rem', color: '#888', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <span>📅</span> {o.delivered_at ? new Date(o.delivered_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : new Date(o.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            {o.proof_of_delivery && (
+                                                <button 
+                                                    onClick={() => setSelectedProof(getProofUrl(o.proof_of_delivery))}
+                                                    style={{ background: 'transparent', border: 'none', color: '#3498db', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
+                                                >
+                                                    View Proof
+                                                </button>
+                                            )}
+                                            <span style={{ background: 'rgba(39,174,96,0.15)', color: '#27ae60', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                                                Delivered
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', marginTop: '1.2rem' }}>
-                                <div style={{ fontWeight: 600, color: '#fff', marginBottom: '0.4rem', fontSize: '1.05rem' }}>{o.user?.name || o.customer_name || 'Customer'}</div>
-                                <div style={{ fontSize: '0.95rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
-                                    <span>📍</span> {o.address || o.user?.address || 'No address provided'}
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                                    <div style={{ fontSize: '0.85rem', color: '#888', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <span>📅</span> {o.delivered_at ? new Date(o.delivered_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : new Date(o.updated_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                                    </div>
-                                    <span style={{ background: 'rgba(39,174,96,0.15)', color: '#27ae60', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
-                                        Delivered
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            {o.proof_of_delivery && (
-                                <div style={{ marginTop: '1.5rem' }}>
-                                    <button 
-                                        onClick={() => setSelectedProof(getProofUrl(o.proof_of_delivery))}
-                                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.9rem', background: '#222', color: '#3498db', border: '1px solid rgba(52,152,219,0.3)', borderRadius: '8px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.2s' }}
-                                    >
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                                        View Proof of Delivery
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             )}
 

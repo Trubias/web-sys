@@ -10,6 +10,7 @@ import About from './components/pages/About';
 import Contact from './components/pages/Contact';
 import Wishlist from './components/pages/Wishlist';
 import Login from './components/auth/Login';
+import ProductReviews from './components/pages/ProductReviews';
 import SupplierDashboard from './components/supplier/SupplierDashboard';
 
 // Rider pages
@@ -41,7 +42,7 @@ import Checkout from './components/pages/Checkout';
 // Guard: only admins can access /admin/*
 function AdminRoute({ children }) {
     const { user, loading } = useAuth();
-    if (loading) return null;
+    if (loading) return <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f9f9f9', color: '#888' }}><div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div><div>Verifying access...</div></div>;
     if (!user || user.role !== 'admin') return <Navigate to="/login" replace />;
     return children;
 }
@@ -49,7 +50,7 @@ function AdminRoute({ children }) {
 // Guard: only users can access /user/*
 function UserRoute({ children }) {
     const { user, loading } = useAuth();
-    if (loading) return null;
+    if (loading) return <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f9f9f9', color: '#888' }}><div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div><div>Verifying access...</div></div>;
     if (!user || user.role !== 'user') return <Navigate to="/login" replace />;
     return children;
 }
@@ -57,7 +58,7 @@ function UserRoute({ children }) {
 // Guard: only riders can access /rider/*
 function RiderRoute({ children }) {
     const { user, loading } = useAuth();
-    if (loading) return null;
+    if (loading) return <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f9f9f9', color: '#888' }}><div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div><div>Verifying access...</div></div>;
     if (!user || user.role !== 'rider') return <Navigate to="/login" replace />;
 
     return children;
@@ -80,6 +81,9 @@ function App() {
 
                         <Route path="*" element={<Home />} />
                     </Route>
+
+                    {/* Standalone pages (no navbar) */}
+                    <Route path="/product/:id/reviews" element={<ProductReviews />} />
 
                     {/* Supplier Dashboard Route */}
                     <Route path="/supplier" element={<SupplierDashboard />} />

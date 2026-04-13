@@ -259,6 +259,7 @@ export default function Checkout() {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [pinWarning, setPinWarning] = useState(false);
 
     // Saved delivery addresses
     const [savedAddresses, setSavedAddresses] = useState([]);
@@ -371,9 +372,10 @@ export default function Checkout() {
             city:      addr.city,
             region:    normalizeRegion(addr.region),
             phone:     addr.phone || f.phone,
-            // Intentionally do NOT change lat/lng — pin stays where it is
-            // until the customer explicitly presses "Find Location"
+            latitude:  null, 
+            longitude: null,
         }));
+        setPinWarning(false);
     };
 
     const startAdd = () => {
@@ -441,6 +443,17 @@ export default function Checkout() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!form.latitude || !form.longitude) {
+            setPinWarning(true);
+            setError('Please pin your delivery location on the map before placing your order.');
+            setIsSubmitting(false);
+            // Scroll to map
+            const mapEl = document.getElementById('checkout-map');
+            if (mapEl) mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
         setIsSubmitting(true);
 
         if (!form.address || !form.city || !form.name) {
@@ -676,6 +689,12 @@ export default function Checkout() {
                                 </div>
                             )}
 
+                            {pinWarning && (
+                                <div style={{ marginBottom: '1rem', padding: '0.8rem', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '6px', color: '#b45309', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    ⚠️ Please pin your delivery location on the map before placing your order.
+                                </div>
+                            )}
+
                             <LocationPicker
                                 lat={form.latitude}
                                 lng={form.longitude}
@@ -684,10 +703,12 @@ export default function Checkout() {
                                 onDrag={(lat, lng) => {
                                     setVal('latitude', lat);
                                     setVal('longitude', lng);
+                                    if (pinWarning) setPinWarning(false);
                                 }}
                                 onLocationFound={(lat, lng) => {
                                     setVal('latitude',  lat);
                                     setVal('longitude', lng);
+                                    if (pinWarning) setPinWarning(false);
                                 }}
                             />
 
@@ -781,53 +802,106 @@ export default function Checkout() {
                             <textarea value={form.orderNote} onChange={e => setVal('orderNote', e.target.value)} rows="3" style={{ width: '100%', padding: '0.8rem', border: '1px solid #ddd', borderRadius: '4px', resize: 'vertical' }} placeholder="Notes about your order..."></textarea>
                         </section>
 
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <button type="submit" disabled={isSubmitting} style={{ flex: 1, padding: '1rem', background: '#16a34a', color: '#fff', fontWeight: 800, textTransform: 'uppercase', fontSize: '1rem', border: '1px solid #16a34a', borderRadius: '4px', cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { if (!isSubmitting) { e.target.style.background = '#15803d'; e.target.style.borderColor = '#15803d'; } }} onMouseLeave={e => { if (!isSubmitting) { e.target.style.background = '#16a34a'; e.target.style.borderColor = '#16a34a'; } }}>
-                                {isSubmitting ? 'Processing...' : 'PLACE ORDER'}
-                            </button>
-                            <button type="button" onClick={() => navigate('/user/cart')} disabled={isSubmitting} style={{ flex: 1, padding: '1rem', background: '#dc2626', color: '#fff', fontWeight: 700, textTransform: 'uppercase', fontSize: '1rem', border: '1px solid #dc2626', borderRadius: '4px', cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { if (!isSubmitting) { e.currentTarget.style.background = '#b91c1c'; e.currentTarget.style.borderColor = '#b91c1c'; } }} onMouseLeave={e => { if (!isSubmitting) { e.currentTarget.style.background = '#dc2626'; e.currentTarget.style.borderColor = '#dc2626'; } }}>
-                                CANCEL ORDER
-                            </button>
-                        </div>
+                        {/* Buttons removed from here; now inside Order Summary card per request */}
                     </form>
 
                     {/* RIGHT COLUMN: ORDER SUMMARY */}
-                    <div style={{ flex: '1 1 400px', background: '#fafafa', padding: '2rem', borderRadius: '8px', border: '1px solid #eaeaea', position: 'sticky', top: '90px' }}>
-                        <h2 style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.3rem', marginBottom: '1.5rem', borderBottom: '2px solid #C9A84C', paddingBottom: '0.5rem', display: 'inline-block', fontWeight: 700 }}>Order Summary</h2>
+                    <div style={{ flex: '1 1 400px', background: '#fff', padding: '2rem', borderRadius: '12px', border: '1px solid #eee', position: 'sticky', top: '90px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
+                        <div style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 400, color: '#111', margin: 0, position: 'relative', display: 'inline-block' }}>
+                                Order summary
+                                <div style={{ height: '3px', width: '30px', background: '#C9A84C', marginTop: '8px' }}></div>
+                            </h2>
+                        </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-                            {cartItems.map(item => (
-                                <div key={item.id} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                    <div style={{ position: 'relative' }}>
-                                        <div style={{ width: '64px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '8px' }}>
-                                            <img src={(item.product?.image || '').startsWith('http') ? item.product.image : `/storage/${item.product?.image}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
-                                        </div>
-                                        <span style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#C9A84C', color: '#000', fontSize: '0.75rem', fontWeight: 800, minWidth: '22px', height: '22px', padding: '0 6px', borderRadius: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fafafa' }}>
-                                            {item.quantity}
-                                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                            {cartItems.map((item, idx) => (
+                                <div key={item.id} style={{ display: 'flex', gap: '1rem', alignItems: 'center', padding: '1rem 0', borderBottom: idx === cartItems.length - 1 ? 'none' : '1px solid #f0f0f0' }}>
+                                    <div style={{ width: '60px', height: '60px', borderRadius: '8px', border: '1px solid #eee', overflow: 'hidden', flexShrink: 0 }}>
+                                        <img src={(item.product?.image || '').startsWith('http') ? item.product.image : `/storage/${item.product?.image}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#111' }}>{item.product?.name}</div>
-                                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{item.product?.brand?.name}</div>
+                                        <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#111' }}>{item.product?.name}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#888' }}>{item.product?.brand?.name}</div>
                                     </div>
-                                    <div style={{ fontWeight: 800 }}>₱{fmt((item.product?.price || 0) * item.quantity)}</div>
+                                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                        <div style={{ fontSize: '0.85rem', color: '#666' }}>x{item.quantity}</div>
+                                        <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#111' }}>₱{fmt((item.product?.price || 0) * item.quantity)}</div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div style={{ borderTop: '1px solid #ddd', paddingTop: '1.5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', color: '#444' }}>
-                                <span>Subtotal</span>
-                                <strong>₱{fmt(subtotal)}</strong>
+                        <div style={{ borderTop: '1.5px solid #000', marginTop: '0.5rem', paddingTop: '1.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                <span style={{ color: '#666', fontSize: '0.95rem' }}>Subtotal</span>
+                                <span style={{ color: '#111', fontWeight: 600 }}>₱{fmt(subtotal)}</span>
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', color: '#444' }}>
-                                <span>Shipping</span>
-                                <strong>Free</strong>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                <span style={{ color: '#666', fontSize: '0.95rem' }}>Shipping</span>
+                                <span style={{ color: '#16a34a', fontWeight: 700 }}>Free</span>
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '2px solid #eaeaea', fontSize: '1.3rem', color: '#111' }}>
-                                <span>Total</span>
-                                <strong>₱{fmt(total)}</strong>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                <span style={{ color: '#666', fontSize: '0.95rem' }}>Discount</span>
+                                <span style={{ color: '#999' }}>—</span>
                             </div>
+                            
+                            <div style={{ borderTop: '1px solid #eee', margin: '1.5rem 0', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#111' }}>Total</span>
+                                <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#111' }}>₱{fmt(total)}</span>
+                            </div>
+
+                            {/* Trust Badges */}
+                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+                                {[
+                                    { icon: '🛡️', label: 'Secure checkout' },
+                                    { icon: '🔄', label: 'Easy returns' },
+                                    { icon: '✅', label: 'Authentic items' }
+                                ].map((badge, idx) => (
+                                    <div key={idx} style={{ flex: 1, background: '#f8f9fa', padding: '0.75rem 0.25rem', borderRadius: '8px', textAlign: 'center', border: '1px solid #f0f0f0' }}>
+                                        <div style={{ fontSize: '1.1rem', marginBottom: '0.3rem' }}>{badge.icon}</div>
+                                        <div style={{ fontSize: '0.65rem', color: '#666', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1.2 }}>{badge.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Buttons moved inside card */}
+                            {(!form.latitude || !form.longitude) && (
+                                <div style={{ textAlign: 'center', fontSize: '0.78rem', color: '#b45309', fontWeight: 600, marginBottom: '0.5rem' }}>
+                                    Pin your delivery location first to continue.
+                                </div>
+                            )}
+                            <button 
+                                type="submit" 
+                                disabled={isSubmitting || !form.latitude || !form.longitude} 
+                                style={{ 
+                                    width: '100%', 
+                                    padding: '1.1rem', 
+                                    background: (!form.latitude || !form.longitude) ? '#9ca3af' : '#16a34a', 
+                                    color: '#fff', 
+                                    fontWeight: 800, 
+                                    textTransform: 'uppercase', 
+                                    fontSize: '0.95rem', 
+                                    border: 'none', 
+                                    borderRadius: '6px', 
+                                    cursor: (isSubmitting || !form.latitude || !form.longitude) ? 'not-allowed' : 'pointer', 
+                                    marginBottom: '0.75rem', 
+                                    transition: 'all 0.2s', 
+                                    boxShadow: (!form.latitude || !form.longitude) ? 'none' : '0 4px 6px rgba(22, 163, 74, 0.2)',
+                                    opacity: (!form.latitude || !form.longitude) ? 0.7 : 1
+                                }}
+                                onClick={(e) => { e.preventDefault(); handleSubmit(e); }}
+                            >
+                                {isSubmitting ? 'Processing...' : 'PLACE ORDER'}
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={() => navigate('/user/cart')} 
+                                disabled={isSubmitting} 
+                                style={{ width: '100%', padding: '1rem', background: '#dc2626', color: '#fff', fontWeight: 700, fontSize: '0.95rem', border: 'none', borderRadius: '6px', cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
+                            >
+                                Cancel order
+                            </button>
                         </div>
                     </div>
                 </div>

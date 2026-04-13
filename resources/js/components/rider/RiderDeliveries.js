@@ -222,6 +222,7 @@ export default function RiderDeliveries() {
         try {
             const formData = new FormData();
             formData.append('proof_of_delivery', proofFile);
+            formData.append('delivered_at', new Date().toISOString());
             formData.append('_method', 'PUT');
 
             const axios = (await import('axios')).default;

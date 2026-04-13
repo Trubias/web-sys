@@ -152,7 +152,7 @@ function NotificationBell() {
                                         Mark all as read
                                     </button>
                                 )}
-                                <button onClick={clearAll} style={{ fontSize: '0.75rem', color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                                <button onClick={clearAll} style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
                                     Clear All
                                 </button>
                             </div>

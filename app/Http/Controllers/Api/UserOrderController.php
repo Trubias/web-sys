@@ -14,7 +14,7 @@ class UserOrderController extends Controller
     // ── My Orders list: excludes orders hidden by the customer ────────────────
     public function index(Request $request)
     {
-        $orders = Order::with(['rider', 'product'])
+        $orders = Order::with(['rider', 'product', 'rating', 'review'])
             ->where('user_id', $request->user()->id)
             ->where('hidden_by_user', false)        // Fix 3/4: hidden orders stay in DB
             ->orderBy('created_at', 'desc')
@@ -199,5 +199,36 @@ class UserOrderController extends Controller
         $order->delete();
 
         return response()->json(['message' => 'Order cancelled successfully']);
+    }
+
+    public function rateOrder(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'tags' => 'nullable|array',
+            'comment' => 'nullable|string'
+        ]);
+
+        $order = Order::where('user_id', $request->user()->id)->findOrFail($id);
+
+        if (!in_array(strtolower($order->status), ['delivered', 'completed'])) {
+            return response()->json(['message' => 'You can only rate delivered orders.'], 400);
+        }
+
+        if ($order->rating) {
+            return response()->json(['message' => 'Order has already been rated.'], 400);
+        }
+
+        $rating = \App\Models\OrderRating::create([
+            'order_id' => $order->id,
+            'product_id' => $order->product_id,
+            'rider_id' => $order->rider_id,
+            'user_id' => $request->user()->id,
+            'rating' => $request->rating,
+            'tags' => $request->tags,
+            'comment' => $request->comment
+        ]);
+
+        return response()->json(['message' => 'Rating submitted successfully!', 'rating' => $rating]);
     }
 }

@@ -223,7 +223,9 @@ export default function RiderHome() {
         return dDate === today;
     });
 
-    const earnings = deliveries.filter(d => d.status === 'delivered' || d.status === 'completed').length * 200;
+    const earnings = deliveries
+        .filter(d => d.status === 'delivered' || d.status === 'completed')
+        .reduce((sum, d) => sum + parseFloat(d.total_amount || 0), 0);
     
     const fmt = (n) => new Intl.NumberFormat('en-PH', { minimumFractionDigits: 2 }).format(n);
 
@@ -294,9 +296,9 @@ export default function RiderHome() {
                     <div style={{ color: '#888', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>COMPLETED TODAY</div>
                     <div style={{ fontSize: '2rem', fontWeight: 800, color: '#27ae60' }}>{completedToday.length}</div>
                 </div>
-                <div style={{ background: '#1a1a1a', padding: '1.5rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ color: '#888', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>TOTAL EARNINGS</div>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#C9A84C' }}>₱{fmt(earnings)}</div>
+                <div style={{ background: '#1a1a1a', padding: '1.5rem', borderRadius: 12, border: '1px solid rgba(39,174,96,0.2)' }}>
+                    <div style={{ color: '#27ae60', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>TOTAL EARNINGS</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#27ae60' }}>₱{loading ? '...' : fmt(earnings)}</div>
                 </div>
             </div>
 

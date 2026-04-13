@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AdminRiderController;
 use App\Http\Controllers\Api\AdminReportsController;
 use App\Http\Controllers\Api\AdminDashboardController;
+use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\ContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,7 @@ Route::post('/login', [AuthController::class , 'login']);
 // Products (public)
 Route::get('/products', [ProductController::class , 'index']);
 Route::get('/products/{id}', [ProductController::class , 'show']);
+Route::get('/products/{id}/reviews', [ProductReviewController::class, 'indexByProduct']);
 
 // Contact (public)
 Route::post('/contact', [ContactController::class, 'send']);
@@ -48,8 +50,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [\App\Http\Controllers\Api\UserOrderController::class, 'index']);
     Route::get('/orders/stats', [\App\Http\Controllers\Api\UserOrderController::class, 'stats']);
     Route::post('/orders', [\App\Http\Controllers\Api\UserOrderController::class, 'store']);
+    Route::post('/orders/{id}/rate', [\App\Http\Controllers\Api\UserOrderController::class, 'rateOrder']);
     Route::delete('/orders/{id}', [\App\Http\Controllers\Api\UserOrderController::class, 'destroy']);
     Route::delete('/orders/{id}/delete', [\App\Http\Controllers\Api\UserOrderController::class, 'deleteFromHistory']);
+
+    // Product Reviews
+    Route::post('/reviews', [ProductReviewController::class, 'store']);
+    Route::post('/reviews/{id}/helpful', [ProductReviewController::class, 'markHelpful']);
 
     // Rider routes
     Route::get('/rider/deliveries', [\App\Http\Controllers\Api\RiderDeliveryController::class, 'index']);

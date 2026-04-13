@@ -31,7 +31,7 @@ class RiderDeliveryController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $my_deliveries = Order::with(['user', 'product', 'brand'])
+        $my_deliveries = Order::with(['user', 'product', 'brand', 'rating'])
             ->where('rider_id', $user->id)
             ->orderByDesc('updated_at')
             ->get();
@@ -149,7 +149,8 @@ class RiderDeliveryController extends Controller
         }
 
         $order->status = 'delivered';
-        $order->delivered_at = now();
+        $order->delivered_at = now();  // Always the real server time at click-to-confirm
+        $order->rider_fee = 50.00;
         $order->save();
 
         // ── Deduct stock now that order is confirmed delivered ─────────────────

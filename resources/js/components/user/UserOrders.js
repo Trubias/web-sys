@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import UserLayout from './UserLayout';
 import { useAuth } from '../../Context/AuthContext';
 import axios from 'axios';
+import ReviewModal from './ReviewModal';
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
@@ -85,7 +86,7 @@ const PinnedLocationMap = ({ lat, lng }) => {
 
             // Using a dynamic ID to prevent conflicts if multiple maps exist, though modal is single.
             const mapId = `view-map-${lat}-${lng}`;
-            
+
             if (isMounted && !mapRef.current && window.L && document.getElementById(mapId)) {
                 const map = window.L.map(mapId).setView([lat, lng], 16);
                 const satLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -97,11 +98,11 @@ const PinnedLocationMap = ({ lat, lng }) => {
                 satLayer.addTo(map);
                 let isSat = true;
                 const toggleCtrl = window.L.control({ position: 'topright' });
-                toggleCtrl.onAdd = function() {
+                toggleCtrl.onAdd = function () {
                     const btn = window.L.DomUtil.create('button', '');
                     btn.innerHTML = '🗺️ Street View';
                     btn.style.cssText = 'background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,0.3);';
-                    window.L.DomEvent.on(btn, 'click', function(e) {
+                    window.L.DomEvent.on(btn, 'click', function (e) {
                         window.L.DomEvent.stopPropagation(e);
                         if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); btn.innerHTML = '🛰️ Satellite View'; isSat = false; }
                         else { map.removeLayer(streetLayer); satLayer.addTo(map); btn.innerHTML = '🗺️ Street View'; isSat = true; }
@@ -112,7 +113,7 @@ const PinnedLocationMap = ({ lat, lng }) => {
 
                 window.L.marker([lat, lng]).addTo(map);
                 mapRef.current = map;
-                
+
                 setTimeout(() => {
                     map.invalidateSize();
                 }, 200);
@@ -205,6 +206,11 @@ function OrderDetailModal({ order, onClose, onCancelOrder }) {
                         <div style={{ color: '#aaa', fontSize: '0.8rem', marginTop: '0.2rem' }}>
                             Ordered on {formatDate(order.created_at)}
                         </div>
+                        {order.delivered_at && (statusLabel === 'Delivered') && (
+                            <div style={{ color: '#6b7280', fontSize: '0.78rem', marginTop: '0.15rem' }}>
+                                Arrived at {new Date(order.delivered_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })} · {new Date(order.delivered_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                            </div>
+                        )}
                     </div>
                     <button onClick={onClose} style={{
                         background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
@@ -398,21 +404,161 @@ function InfoRow({ label, value }) {
     );
 }
 
+// ── Order Rating Modal ────────────────────────────────────────────────────────
+function OrderRatingModal({ order, onClose, onSuccess }) {
+    const [rating, setRating] = useState(0);
+    const [hoverRating, setHoverRating] = useState(0);
+    const [selectedTags, setSelectedTags] = useState([]);
+    const [comment, setComment] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    if (!order) return null;
+
+    const availableTags = [
+        'Fast delivery', 'Great packaging', 'Friendly rider',
+        'Accurate item', 'Good condition'
+    ];
+
+    const toggleTag = (tag) => {
+        setSelectedTags(prev =>
+            prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+        );
+    };
+
+    const imgSrc = order.product_image
+        ? (order.product_image.startsWith('http') ? order.product_image : `/storage/${order.product_image}`)
+        : 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=200&auto=format&fit=crop';
+
+    const handleSubmit = async () => {
+        if (rating < 1) {
+            alert('Please select a star rating first.');
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            const res = await axios.post(`/api/orders/${order.id}/rate`, {
+                rating,
+                tags: selectedTags,
+                comment
+            });
+            onSuccess(order.id, res.data.rating);
+        } catch (error) {
+            console.error('Failed to submit rating:', error);
+            alert(error.response?.data?.message || 'Failed to submit rating. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+            zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem', overflowY: 'auto'
+        }} onClick={e => e.target === e.currentTarget && onClose()}>
+            <div style={{
+                background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '600px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.2)', padding: '1.25rem 1.5rem'
+            }}>
+                <h2 style={{ margin: '0 0 0.2rem', fontSize: '1.3rem', color: '#111' }}>Rate your order</h2>
+                <p style={{ margin: '0 0 0.8rem', fontSize: '0.85rem', color: '#666' }}>How was your experience with this delivery?</p>
+
+                <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '10px 0.8rem', display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                    <img src={imgSrc} alt={order.product_name} style={{ width: 40, height: 40, borderRadius: '4px', objectFit: 'cover' }} />
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#111', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                            {order.product_name} {order.brand_name ? `— ${order.brand_name}` : ''}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#888' }}>
+                            {formatRef(order.ref)} · {formatDate(order.created_at)}
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase' }}>Overall Rating</div>
+                    <div style={{ display: 'flex', gap: '0.3rem' }}>
+                        {[1, 2, 3, 4, 5].map(star => (
+                            <button
+                                key={star} type="button"
+                                onClick={() => setRating(star)}
+                                onMouseEnter={() => setHoverRating(star)}
+                                onMouseLeave={() => setHoverRating(0)}
+                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, fontSize: '1.8rem', color: (hoverRating || rating) >= star ? '#d97706' : '#e5e7eb', transition: 'color 0.2s', lineHeight: 1 }}
+                            >
+                                ★
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div style={{ marginBottom: '0.8rem' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase', marginBottom: '0.4rem' }}>What went well?</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {availableTags.map(tag => {
+                            const isSelected = selectedTags.includes(tag);
+                            return (
+                                <button
+                                    key={tag} type="button" onClick={() => toggleTag(tag)}
+                                    style={{
+                                        background: isSelected ? '#111' : '#fff',
+                                        color: isSelected ? '#fff' : '#444',
+                                        border: `1px solid ${isSelected ? '#111' : '#ddd'}`,
+                                        borderRadius: '20px', padding: '0.3rem 0.6rem', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {tag}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Leave a comment (Optional)</div>
+                    <textarea
+                        rows={2}
+                        value={comment}
+                        onChange={e => setComment(e.target.value)}
+                        placeholder="Arrived on time and well packed!"
+                        style={{ width: '100%', height: '60px', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '0.85rem', resize: 'none', fontFamily: 'inherit' }}
+                    ></textarea>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                    <button type="button" onClick={onClose} style={{ flex: 1, height: '40px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}>
+                        Cancel
+                    </button>
+                    <button type="button" onClick={handleSubmit} disabled={isSubmitting || rating === 0} style={{ flex: 1, height: '40px', background: (rating > 0 && !isSubmitting) ? '#111' : '#e5e7eb', color: (rating > 0 && !isSubmitting) ? '#fff' : '#9ca3af', border: 'none', borderRadius: '6px', cursor: (rating > 0 && !isSubmitting) ? 'pointer' : 'not-allowed', fontWeight: 600, fontSize: '0.9rem', transition: 'all 0.2s' }}>
+                        {isSubmitting ? 'Submitting...' : 'Submit rating'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ── Main Orders Page ──────────────────────────────────────────────────────────
 
 export default function UserOrders() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [ratingOrder, setRatingOrder] = useState(null);
+    const [reviewOrder, setReviewOrder] = useState(null);
+    const [toast, setToast] = useState('');
 
     const fetchOrders = useCallback(() => {
         axios.get('/api/orders')
             .then(res => {
-                setOrders(res.data);
+                setOrders(res.data || []);
+                setError(null);
                 setLoading(false);
             })
             .catch(err => {
                 console.error('Failed to fetch orders:', err);
+                setError('Failed to load orders. Please try again later.');
                 setLoading(false);
             });
     }, []);
@@ -442,6 +588,19 @@ export default function UserOrders() {
             console.error('Failed to cancel order:', error);
             alert('Failed to cancel order. Please try again.');
         }
+    };
+
+    const handleRatingSuccess = (orderId, ratingData) => {
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, rating: ratingData } : o));
+        setRatingOrder(null);
+    };
+
+    const handleReviewSuccess = () => {
+        setReviewOrder(null);
+        // Re-fetch so the "Write Review" button flips to the review display
+        fetchOrders();
+        setToast('Review submitted! Thank you.');
+        setTimeout(() => setToast(''), 3500);
     };
 
     const thStyle = {
@@ -480,7 +639,13 @@ export default function UserOrders() {
                             <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⏳</div>
                             Loading your orders…
                         </div>
-                    ) : orders.length === 0 ? (
+                    ) : error ? (
+                        <div style={{ padding: '5rem', textAlign: 'center', color: '#dc2626' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+                            <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.5rem' }}>Oops! Something went wrong</div>
+                            <div style={{ fontSize: '0.9rem' }}>{error}</div>
+                        </div>
+                    ) : (!orders || orders.length === 0) ? (
                         <div style={{ padding: '5rem', textAlign: 'center' }}>
                             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📦</div>
                             <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#111', marginBottom: '0.5rem' }}>No orders yet</div>
@@ -497,11 +662,12 @@ export default function UserOrders() {
                                         <th style={thStyle}>Total</th>
                                         <th style={thStyle}>Payment</th>
                                         <th style={{ ...thStyle, textAlign: 'center' }}>Status</th>
+                                        <th style={{ ...thStyle, textAlign: 'center' }}>Rating</th>
                                         <th style={{ ...thStyle, textAlign: 'center' }}>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {orders.map(order => {
+                                    {(orders || []).map(order => {
                                         const statusLabel = normalizeStatus(order.status);
                                         const badgeStyle = statusBadgeStyle(statusLabel);
 
@@ -554,6 +720,85 @@ export default function UserOrders() {
                                                         {statusLabel}
                                                     </span>
                                                 </td>
+                                                <td style={{ ...tdStyle, textAlign: 'center', width: '180px' }}>
+                                                    {/* Case 1: order-level delivery rating (OrderRating) */}
+                                                    {order.rating ? (
+                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
+                                                            <div style={{ color: '#C9A84C', fontSize: '1rem', letterSpacing: '1px' }}>
+                                                                {'★'.repeat(order.rating.rating)}{'☆'.repeat(5 - order.rating.rating)}
+                                                            </div>
+                                                            {order.rating.comment ? (
+                                                                <div style={{ fontSize: '0.7rem', color: '#666', fontStyle: 'italic', maxWidth: '140px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                                    &ldquo;{order.rating.comment}&rdquo;
+                                                                </div>
+                                                            ) : (
+                                                                <div style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>✓ Rated</div>
+                                                            )}
+                                                            {/* Case 1a: rated delivery but no product review yet */}
+                                                            {!order.review && (
+                                                                <button
+                                                                    onClick={() => setReviewOrder(order)}
+                                                                    style={{
+                                                                        marginTop: '0.25rem',
+                                                                        background: '#C9A84C', color: '#000', border: 'none', borderRadius: '6px',
+                                                                        padding: '0.28rem 0.7rem', fontSize: '0.72rem', fontWeight: 700,
+                                                                        cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.2s',
+                                                                        boxShadow: '0 2px 4px rgba(201,168,76,0.3)',
+                                                                    }}
+                                                                    onMouseEnter={e => e.currentTarget.style.background = '#d4b455'}
+                                                                    onMouseLeave={e => e.currentTarget.style.background = '#C9A84C'}
+                                                                >
+                                                                    Write Review
+                                                                </button>
+                                                            )}
+                                                        </div>
+
+                                                    ) : (statusLabel === 'Delivered' || statusLabel === 'Completed') ? (
+                                                        /* Case 2: delivered, no order-rating yet */
+                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}>
+                                                            <button
+                                                                onClick={() => setRatingOrder(order)}
+                                                                style={{
+                                                                    background: '#C9A84C', color: '#000', border: 'none', borderRadius: '6px',
+                                                                    padding: '0.4rem 1rem', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+                                                                    transition: 'background 0.2s', whiteSpace: 'nowrap',
+                                                                    boxShadow: '0 2px 4px rgba(201,168,76,0.3)',
+                                                                }}
+                                                                onMouseEnter={e => e.currentTarget.style.background = '#d4b455'}
+                                                                onMouseLeave={e => e.currentTarget.style.background = '#C9A84C'}
+                                                            >
+                                                                Rate Order
+                                                            </button>
+                                                            {/* Also allow product review even without delivery rating */}
+                                                            {!order.review && (
+                                                                <button
+                                                                    onClick={() => setReviewOrder(order)}
+                                                                    style={{
+                                                                        background: '#C9A84C', color: '#000',
+                                                                        border: 'none', borderRadius: '6px',
+                                                                        padding: '0.28rem 0.7rem', fontSize: '0.72rem', fontWeight: 700,
+                                                                        cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.2s',
+                                                                        boxShadow: '0 2px 4px rgba(201,168,76,0.3)',
+                                                                    }}
+                                                                    onMouseEnter={e => e.currentTarget.style.background = '#d4b455'}
+                                                                    onMouseLeave={e => e.currentTarget.style.background = '#C9A84C'}
+                                                                >
+                                                                    Write Review
+                                                                </button>
+                                                            )}
+                                                            {order.review && (
+                                                                <div style={{ fontSize: '0.7rem', color: '#6b7280', fontWeight: 600 }}>✓ Reviewed</div>
+                                                            )}
+                                                        </div>
+
+                                                    ) : (
+                                                        /* Case 3: not yet delivered */
+                                                        <div style={{ fontSize: '0.75rem', color: '#aaa' }}>
+                                                            <div style={{ letterSpacing: '1px' }}>☆☆☆☆☆</div>
+                                                            Not yet rated
+                                                        </div>
+                                                    )}
+                                                </td>
                                                 <td style={{ ...tdStyle, textAlign: 'center' }}>
                                                     <button
                                                         onClick={() => setSelectedOrder(order)}
@@ -567,7 +812,7 @@ export default function UserOrders() {
                                                         onMouseEnter={e => { e.currentTarget.style.background = '#C9A84C'; e.currentTarget.style.color = '#000'; }}
                                                         onMouseLeave={e => { e.currentTarget.style.background = '#0a0a0a'; e.currentTarget.style.color = '#C9A84C'; }}
                                                     >
-                                                        View Details
+                                                        View Receipt
                                                     </button>
                                                 </td>
                                             </tr>
@@ -580,7 +825,7 @@ export default function UserOrders() {
                 </div>
 
                 {/* Total count hint */}
-                {orders.length > 0 && (
+                {(!loading && !error && orders && orders.length > 0) && (
                     <div style={{ textAlign: 'right', marginTop: '0.75rem', color: '#aaa', fontSize: '0.78rem' }}>
                         Showing {orders.length} order{orders.length !== 1 ? 's' : ''}
                     </div>
@@ -594,6 +839,37 @@ export default function UserOrders() {
                     onClose={() => setSelectedOrder(null)}
                     onCancelOrder={handleCancelOrder}
                 />
+            )}
+
+            {/* Delivery Rating Modal */}
+            {ratingOrder && (
+                <OrderRatingModal
+                    order={ratingOrder}
+                    onClose={() => setRatingOrder(null)}
+                    onSuccess={handleRatingSuccess}
+                />
+            )}
+
+            {/* Product Review Modal */}
+            {reviewOrder && (
+                <ReviewModal
+                    order={reviewOrder}
+                    onClose={() => setReviewOrder(null)}
+                    onSuccess={handleReviewSuccess}
+                />
+            )}
+
+            {/* Toast */}
+            {toast && (
+                <div style={{
+                    position: 'fixed', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)',
+                    background: '#111', color: '#C9A84C', padding: '0.75rem 1.5rem',
+                    borderRadius: '8px', fontWeight: 700, fontSize: '0.9rem',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.3)', zIndex: 20000,
+                    fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap',
+                }}>
+                    ✓ {toast}
+                </div>
             )}
         </UserLayout>
     );

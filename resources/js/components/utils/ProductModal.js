@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/AuthContext';
+import axios from 'axios';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const COLOR_CSS = {
@@ -22,11 +23,21 @@ const getImageUrl = (img) =>
     img ? (img.startsWith('http') ? img : `/storage/${img}`)
         : 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=400&auto=format&fit=crop';
 
-// ─── component ────────────────────────────────────────────────────────────────
+// ─── main component ───────────────────────────────────────────────────────────
 export default function ProductModal({ selectedProduct, closeModal, setToastMsg }) {
-    const [qty, setQty] = useState(1);
-    const { addToCart } = useAuth();
-    const navigate = useNavigate();
+    const [qty, setQty]                   = useState(1);
+    const [reviewCount, setReviewCount]   = useState(null);   // null = not loaded yet
+    const { addToCart }                   = useAuth();
+    const navigate                        = useNavigate();
+
+    // Fetch only the review count (lightweight — page 1, 1 item is enough for the count)
+    useEffect(() => {
+        if (!selectedProduct) return;
+        setReviewCount(null);
+        axios.get('/api/products/' + selectedProduct.id + '/reviews', { params: { page: 1 } })
+            .then(res => setReviewCount(res.data.total_reviews || 0))
+            .catch(() => setReviewCount(0));
+    }, [selectedProduct?.id]);
 
     if (!selectedProduct) return null;
 
@@ -38,8 +49,8 @@ export default function ProductModal({ selectedProduct, closeModal, setToastMsg 
             : p.stock <= 5
                 ? `Low Stock (${p.stock} items left)`
                 : `In Stock (${p.stock} items left)`;
-    const stockBg   = p.stock === 0 ? '#fee2e2' : p.stock <= 5 ? '#fef08a' : '#dcfce7';
-    const stockColor= p.stock === 0 ? '#b91c1c' : p.stock <= 5 ? '#854d0e' : '#166534';
+    const stockBg    = p.stock === 0 ? '#fee2e2' : p.stock <= 5 ? '#fef08a' : '#dcfce7';
+    const stockColor = p.stock === 0 ? '#b91c1c' : p.stock <= 5 ? '#854d0e' : '#166534';
 
     const handleAddToCart = async () => {
         if (p.stock > 0) {
@@ -59,229 +70,213 @@ export default function ProductModal({ selectedProduct, closeModal, setToastMsg 
         }
     };
 
-    // ─── JSX ───────────────────────────────────────────────────────────────────
     return (
-        <div className="jk-modal-overlay" onClick={closeModal}>
-            <div className="jk-modal-container" onClick={e => e.stopPropagation()}>
+        <>
+            <div className="jk-modal-overlay" onClick={closeModal}>
+                <div className="jk-modal-container" onClick={e => e.stopPropagation()}>
 
-                {/* Mobile drag handle */}
-                <div className="jk-modal-drag-handle" onClick={closeModal} />
+                    {/* Mobile drag handle */}
+                    <div className="jk-modal-drag-handle" onClick={closeModal} />
 
-                {/* Close button */}
-                <button className="jk-modal-close" onClick={closeModal} aria-label="Close">×</button>
+                    {/* Close button */}
+                    <button className="jk-modal-close" onClick={closeModal} aria-label="Close">×</button>
 
-                {/* ── Two-column content ── */}
-                <div className="jk-modal-content">
+                    {/* ── Two-column content ── */}
+                    <div className="jk-modal-content">
 
-                    {/* LEFT — image */}
-                    <div className="jk-modal-image-col">
-                        <img
-                            src={getImageUrl(p.image)}
-                            alt={p.name}
-                            className="jk-modal-image"
-                        />
-                    </div>
-
-                    {/* RIGHT — details */}
-                    <div className="jk-modal-info-col">
-
-                        {/* Brand · Category */}
-                        <div style={{
-                            fontSize: '0.78rem', color: '#888', textTransform: 'uppercase',
-                            letterSpacing: '1px', fontWeight: 700, marginBottom: '0.5rem'
-                        }}>
-                            {p.brand?.name}{p.brand?.name && p.category?.name ? ' • ' : ''}{p.category?.name}
+                        {/* LEFT — image */}
+                        <div className="jk-modal-image-col">
+                            <img src={getImageUrl(p.image)} alt={p.name} className="jk-modal-image" />
                         </div>
 
-                        {/* Product name */}
-                        <h2 style={{
-                            fontSize: '1.7rem', fontFamily: '"Playfair Display", serif',
-                            fontWeight: 800, margin: '0 0 0.75rem', color: '#111', lineHeight: 1.2
-                        }}>
-                            {p.name}
-                        </h2>
+                        {/* RIGHT — details */}
+                        <div className="jk-modal-info-col">
 
-                        {/* Price */}
-                        <div style={{
-                            fontSize: '1.5rem', fontWeight: 800, color: '#C9A84C', marginBottom: '1rem'
-                        }}>
-                            ₱{Number(p.price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
-                        </div>
-
-                        {/* Stock badge */}
-                        <div style={{ marginBottom: '1.25rem' }}>
-                            <span style={{
-                                display: 'inline-block',
-                                padding: '0.3rem 0.7rem',
-                                background: stockBg,
-                                color: stockColor,
-                                borderRadius: '4px',
-                                fontSize: '0.78rem',
-                                fontWeight: 700,
-                            }}>
-                                {stockLabel}
-                            </span>
-                        </div>
-
-                        {/* ── PRODUCT DETAILS CARD ── */}
-                        <div style={{
-                            background: '#f9f9f9',
-                            border: '1px solid #eee',
-                            borderRadius: '8px',
-                            padding: '1rem 1.1rem',
-                            marginBottom: '1.25rem',
-                        }}>
+                            {/* Brand · Category */}
                             <div style={{
-                                fontSize: '0.68rem', fontWeight: 700, color: '#aaa',
-                                letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.75rem'
+                                fontSize: '0.78rem', color: '#888', textTransform: 'uppercase',
+                                letterSpacing: '1px', fontWeight: 700, marginBottom: '0.5rem'
                             }}>
-                                PRODUCT DETAILS
+                                {p.brand?.name}{p.brand?.name && p.category?.name ? ' • ' : ''}{p.category?.name}
                             </div>
 
-                            {/* 2×2 grid: Brand / Category / Gender / Age Group */}
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: '1fr 1fr',
-                                gap: '0.6rem 1rem',
-                                marginBottom: colors.length > 0 ? '0.75rem' : 0
+                            {/* Product name */}
+                            <h2 style={{
+                                fontSize: '1.7rem', fontFamily: '"Playfair Display", serif',
+                                fontWeight: 800, margin: '0 0 0.75rem', color: '#111', lineHeight: 1.2
                             }}>
-                                {[
-                                    { label: 'Brand',     value: p.brand?.name },
-                                    { label: 'Category',  value: p.category?.name },
-                                    { label: 'Gender',    value: p.gender || 'All' },
-                                    { label: 'Age Group', value: p.variant || 'All' },
-                                ].map(({ label, value }) => (
-                                    <div key={label}>
-                                        <div style={{ fontSize: '0.68rem', color: '#bbb', fontWeight: 600, marginBottom: '2px' }}>
-                                            {label}
-                                        </div>
-                                        <div style={{ fontSize: '0.88rem', color: '#222', fontWeight: 700 }}>
-                                            {value || '—'}
-                                        </div>
-                                    </div>
-                                ))}
+                                {p.name}
+                            </h2>
+
+                            {/* Price */}
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#C9A84C', marginBottom: '1rem' }}>
+                                ₱{Number(p.price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                             </div>
 
-                            {/* Color variants */}
-                            {colors.length > 0 && (
-                                <div style={{ borderTop: '1px solid #eee', paddingTop: '0.7rem' }}>
-                                    <div style={{ fontSize: '0.68rem', color: '#bbb', fontWeight: 600, marginBottom: '0.5rem' }}>
-                                        Color Variant
-                                    </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                        {colors.map((c, i) => (
-                                            <span key={i} style={{
-                                                display: 'inline-flex', alignItems: 'center', gap: 5,
-                                                background: '#fff', border: '1px solid #e5e7eb',
-                                                borderRadius: 20, padding: '3px 10px 3px 6px',
-                                                fontSize: '0.8rem', color: '#333', fontWeight: 500
-                                            }}>
-                                                <span style={{
-                                                    width: 10, height: 10, borderRadius: '50%',
-                                                    background: getColorCSS(c),
-                                                    border: '1.5px solid rgba(0,0,0,0.15)',
-                                                    display: 'inline-block', flexShrink: 0
-                                                }} />
-                                                {c}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* ── TRUST BADGES ── */}
-                        <div style={{
-                            display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem'
-                        }}>
-                            {[
-                                { icon: '🔒', label: '100% Secure Checkout' },
-                                { icon: '🚚', label: 'Cash on Delivery Available' },
-                                { icon: '🛡️', label: 'Authorized Retailer' },
-                            ].map(({ icon, label }) => (
-                                <span key={label} style={{
-                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
-                                    fontSize: '0.72rem', background: '#f3f4f6',
-                                    padding: '4px 9px', borderRadius: '4px',
-                                    color: '#374151', fontWeight: 600, whiteSpace: 'nowrap'
+                            {/* Stock badge */}
+                            <div style={{ marginBottom: '1.25rem' }}>
+                                <span style={{
+                                    display: 'inline-block', padding: '0.3rem 0.7rem',
+                                    background: stockBg, color: stockColor,
+                                    borderRadius: '4px', fontSize: '0.78rem', fontWeight: 700,
                                 }}>
-                                    {icon} {label}
+                                    {stockLabel}
                                 </span>
-                            ))}
-                        </div>
-
-                        {/* ── ACCEPTED PAYMENTS ── */}
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <div style={{
-                                fontSize: '0.72rem', color: '#aaa', fontWeight: 700,
-                                textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem'
-                            }}>
-                                Accepted Payments:
                             </div>
-                            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+
+                            {/* ── PRODUCT DETAILS CARD ── */}
+                            <div style={{
+                                background: '#f9f9f9', border: '1px solid #eee', borderRadius: '8px',
+                                padding: '1rem 1.1rem', marginBottom: '1.25rem',
+                            }}>
+                                <div style={{
+                                    fontSize: '0.68rem', fontWeight: 700, color: '#aaa',
+                                    letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.75rem'
+                                }}>
+                                    PRODUCT DETAILS
+                                </div>
+                                <div style={{
+                                    display: 'grid', gridTemplateColumns: '1fr 1fr',
+                                    gap: '0.6rem 1rem',
+                                    marginBottom: colors.length > 0 ? '0.75rem' : 0
+                                }}>
+                                    {[
+                                        { label: 'Brand',     value: p.brand?.name },
+                                        { label: 'Category',  value: p.category?.name },
+                                        { label: 'Gender',    value: p.gender || 'All' },
+                                        { label: 'Age Group', value: p.variant || 'All' },
+                                    ].map(({ label, value }) => (
+                                        <div key={label}>
+                                            <div style={{ fontSize: '0.68rem', color: '#bbb', fontWeight: 600, marginBottom: '2px' }}>{label}</div>
+                                            <div style={{ fontSize: '0.88rem', color: '#222', fontWeight: 700 }}>{value || '—'}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                                {colors.length > 0 && (
+                                    <div style={{ borderTop: '1px solid #eee', paddingTop: '0.7rem' }}>
+                                        <div style={{ fontSize: '0.68rem', color: '#bbb', fontWeight: 600, marginBottom: '0.5rem' }}>Color Variant</div>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                            {colors.map((c, i) => (
+                                                <span key={i} style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                                                    background: '#fff', border: '1px solid #e5e7eb',
+                                                    borderRadius: 20, padding: '3px 10px 3px 6px',
+                                                    fontSize: '0.8rem', color: '#333', fontWeight: 500
+                                                }}>
+                                                    <span style={{
+                                                        width: 10, height: 10, borderRadius: '50%',
+                                                        background: getColorCSS(c),
+                                                        border: '1.5px solid rgba(0,0,0,0.15)',
+                                                        display: 'inline-block', flexShrink: 0
+                                                    }} />
+                                                    {c}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* ── TRUST BADGES ── */}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
                                 {[
-                                    { name: 'GCash',           color: '#0052E0' },
-                                    { name: 'Maya',            color: '#00A651' },
-                                    { name: 'Bank Transfer',   color: '#374151' },
-                                    { name: 'Cash on Delivery',color: '#374151' },
-                                ].map(({ name, color }) => (
-                                    <span key={name} style={{
-                                        fontWeight: 800, color, fontSize: '0.85rem', whiteSpace: 'nowrap'
+                                    { icon: '🔒', label: '100% Secure Checkout' },
+                                    { icon: '🚚', label: 'Cash on Delivery Available' },
+                                    { icon: '🛡️', label: 'Authorized Retailer' },
+                                ].map(({ icon, label }) => (
+                                    <span key={label} style={{
+                                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                        fontSize: '0.72rem', background: '#f3f4f6',
+                                        padding: '4px 9px', borderRadius: '4px',
+                                        color: '#374151', fontWeight: 600, whiteSpace: 'nowrap'
                                     }}>
-                                        {name}
+                                        {icon} {label}
                                     </span>
                                 ))}
                             </div>
-                        </div>
 
-                        {/* ── QUANTITY + BUTTONS ── */}
-                        {p.stock > 0 ? (
-                            <div className="jk-modal-actions">
-                                {/* Quantity stepper */}
-                                <div className="jk-modal-stepper">
-                                    <button
-                                        className="jk-stepper-btn"
-                                        onClick={() => setQty(q => Math.max(1, q - 1))}
-                                    >−</button>
-                                    <input
-                                        type="text"
-                                        value={qty}
-                                        readOnly
-                                        className="jk-stepper-input"
-                                    />
-                                    <button
-                                        className="jk-stepper-btn"
-                                        onClick={() => setQty(q => Math.min(p.stock, q + 1))}
-                                    >+</button>
+                            {/* ── ACCEPTED PAYMENTS ── */}
+                            <div style={{ marginBottom: '1.25rem' }}>
+                                <div style={{
+                                    fontSize: '0.72rem', color: '#aaa', fontWeight: 700,
+                                    textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem'
+                                }}>
+                                    Accepted Payments:
                                 </div>
-
-                                {/* CTA buttons */}
-                                <div className="jk-modal-btn-group">
-                                    <button className="jk-btn-add" onClick={handleAddToCart}>
-                                        ADD TO CART
-                                    </button>
-                                    <button className="jk-btn-buy" onClick={handleBuyNow}>
-                                        BUY IT NOW
-                                    </button>
+                                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                                    {[
+                                        { name: 'GCash',            color: '#0052E0' },
+                                        { name: 'Maya',             color: '#00A651' },
+                                        { name: 'Bank Transfer',    color: '#374151' },
+                                        { name: 'Cash on Delivery', color: '#374151' },
+                                    ].map(({ name, color }) => (
+                                        <span key={name} style={{ fontWeight: 800, color, fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+                                            {name}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
-                        ) : (
-                            <div style={{
-                                padding: '1rem',
-                                background: '#fee2e2',
-                                borderRadius: '6px',
-                                color: '#b91c1c',
-                                fontWeight: 700,
-                                textAlign: 'center',
-                                fontSize: '0.9rem'
-                            }}>
-                                This product is currently out of stock.
-                            </div>
-                        )}
 
-                    </div>{/* end info-col */}
-                </div>{/* end content */}
-            </div>{/* end container */}
-        </div>
+                            {/* ── VIEW CUSTOMER REVIEWS BUTTON ── */}
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate(`/product/${p.id}/reviews`, { state: { product: p } })}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '0.6rem',
+                                        width: '100%', padding: '0.75rem 1rem',
+                                        background: '#0a0a0a', border: '1px solid #C9A84C',
+                                        borderRadius: '6px', cursor: 'pointer',
+                                        fontFamily: 'Inter, sans-serif', transition: 'all 0.2s',
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = '#C9A84C'; e.currentTarget.querySelector('.btn-label').style.color = '#000'; e.currentTarget.querySelector('.btn-icon').style.color = '#000'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = '#0a0a0a'; e.currentTarget.querySelector('.btn-label').style.color = '#C9A84C'; e.currentTarget.querySelector('.btn-icon').style.color = '#C9A84C'; }}
+                                >
+                                    <span className="btn-icon" style={{ fontSize: '1rem', color: '#C9A84C', lineHeight: 1 }}>★</span>
+                                    <span className="btn-label" style={{ flex: 1, textAlign: 'left', fontWeight: 700, fontSize: '0.88rem', color: '#C9A84C' }}>
+                                        View Customer Reviews
+                                    </span>
+                                    {reviewCount !== null && (
+                                        <span style={{
+                                            background: '#C9A84C', color: '#000',
+                                            borderRadius: '20px', padding: '0.15rem 0.55rem',
+                                            fontSize: '0.72rem', fontWeight: 800,
+                                            fontFamily: 'Inter, sans-serif',
+                                        }}>
+                                            {reviewCount}
+                                        </span>
+                                    )}
+                                    <span style={{ color: '#C9A84C', fontSize: '0.8rem' }}>›</span>
+                                </button>
+                            </div>
+
+                            {/* ── QUANTITY + BUTTONS ── */}
+                            {p.stock > 0 ? (
+                                <div className="jk-modal-actions">
+                                    <div className="jk-modal-stepper">
+                                        <button className="jk-stepper-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+                                        <input type="text" value={qty} readOnly className="jk-stepper-input" />
+                                        <button className="jk-stepper-btn" onClick={() => setQty(q => Math.min(p.stock, q + 1))}>+</button>
+                                    </div>
+                                    <div className="jk-modal-btn-group">
+                                        <button className="jk-btn-add" onClick={handleAddToCart}>ADD TO CART</button>
+                                        <button className="jk-btn-buy" onClick={handleBuyNow}>BUY IT NOW</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{
+                                    padding: '1rem', background: '#fee2e2', borderRadius: '6px',
+                                    color: '#b91c1c', fontWeight: 700, textAlign: 'center', fontSize: '0.9rem'
+                                }}>
+                                    This product is currently out of stock.
+                                </div>
+                            )}
+
+                        </div>{/* end info-col */}
+                    </div>{/* end content */}
+                </div>{/* end container */}
+            </div>
+
+        </>
     );
 }

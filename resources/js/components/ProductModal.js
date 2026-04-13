@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
+import axios from 'axios';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const COLOR_CSS = {
@@ -36,6 +37,16 @@ export default function ProductModal(props) {
     const navigate = useNavigate();
     const location = useLocation();
     const [qty, setQty] = useState(1);
+    const [reviewCount, setReviewCount] = useState(null);
+
+    // Fetch review count whenever the product changes
+    useEffect(() => {
+        if (!p) return;
+        setReviewCount(null);
+        axios.get(`/api/products/${p.id}/reviews`, { params: { page: 1 } })
+            .then(res => setReviewCount(res.data.total_reviews || 0))
+            .catch(() => setReviewCount(0));
+    }, [p?.id]);
 
     if (!p) return null;
 
@@ -248,6 +259,39 @@ export default function ProductModal(props) {
                                     </span>
                                 ))}
                             </div>
+                        </div>
+
+                        {/* ── VIEW CUSTOMER REVIEWS BUTTON ── */}
+                        <div style={{ marginBottom: '1.25rem' }}>
+                            <button
+                                type="button"
+                                onClick={() => navigate(`/product/${p.id}/reviews`, { state: { product: p } })}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.6rem',
+                                    width: '100%', padding: '0.75rem 1rem',
+                                    background: '#0a0a0a', border: '1px solid #C9A84C',
+                                    borderRadius: '6px', cursor: 'pointer',
+                                    fontFamily: 'Inter, sans-serif', transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = '#C9A84C'; e.currentTarget.querySelector('.rm-label').style.color = '#000'; e.currentTarget.querySelector('.rm-icon').style.color = '#000'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = '#0a0a0a'; e.currentTarget.querySelector('.rm-label').style.color = '#C9A84C'; e.currentTarget.querySelector('.rm-icon').style.color = '#C9A84C'; }}
+                            >
+                                <span className="rm-icon" style={{ fontSize: '1rem', color: '#C9A84C', lineHeight: 1 }}>★</span>
+                                <span className="rm-label" style={{ flex: 1, textAlign: 'left', fontWeight: 700, fontSize: '0.88rem', color: '#C9A84C' }}>
+                                    View Customer Reviews
+                                </span>
+                                {reviewCount !== null && (
+                                    <span style={{
+                                        background: '#C9A84C', color: '#000',
+                                        borderRadius: '20px', padding: '0.15rem 0.55rem',
+                                        fontSize: '0.72rem', fontWeight: 800,
+                                        fontFamily: 'Inter, sans-serif',
+                                    }}>
+                                        {reviewCount}
+                                    </span>
+                                )}
+                                <span style={{ color: '#C9A84C', fontSize: '0.8rem' }}>›</span>
+                            </button>
                         </div>
 
                         {/* ── QUANTITY + BUTTONS ── */}

@@ -83,6 +83,7 @@ function OrderDetailModal({ order, onClose, isCustomer }) {
         { label: 'Unit Price', value: order.unit_price != null ? `₱${Number(order.unit_price).toLocaleString()}` : '—' },
         { label: 'Total Amount', value: order.amount || '—' },
         { label: 'Date', value: order.date || '—' },
+        ...(order.delivered_at_raw ? [{ label: 'Delivered At', value: (() => { try { const d = new Date(order.delivered_at_raw); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); } catch { return '—'; } })() }] : []),
         { label: 'Payment Method', value: order.payment || order.payment_method || '—' },
         { label: 'Status', value: order.status || '—', isStatus: true },
     ];
@@ -322,6 +323,8 @@ export default function AdminOrders() {
         const pGender   = o.product?.gender        || '—';
         const pVariant  = o.product?.variant       || '—';
         const pColors   = o.product?.color_variants || [];
+        // Show delivered_at for delivered orders, otherwise order date
+        const isDeliveredOrder = (mappedStatus === 'Delivered') && o.delivered_at;
         return {
             ...o,
             id: o.ref,
@@ -339,7 +342,10 @@ export default function AdminOrders() {
             product: `${o.product_name || (o.product ? o.product.name : 'Unknown Product')} (x${o.quantity})`,
             rawValue: o.total_amount,
             amount: formatCurrency(o.total_amount),
-            date: fmtDate(o.created_at),
+            date: isDeliveredOrder
+                ? fmtDate(o.delivered_at) + ' (Delivered)'
+                : fmtDate(o.created_at),
+            delivered_at_raw: o.delivered_at || null,
             status: mappedStatus,
             region: o.region || o.user?.region || '',
             isArchived: o.admin_archived || o.isArchived,
