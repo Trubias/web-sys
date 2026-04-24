@@ -177,7 +177,7 @@ export default function UserDashboard() {
                                 cursor: 'pointer'
                             }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}
                                 onClick={() => setSelectedProduct(item)}>
-                                <div style={{ margin: '-1.5rem -1.5rem 1.5rem -1.5rem', background: '#f8f9fa', borderBottom: '1px solid #eee', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '8px 8px 0 0', position: 'relative' }}>
+                                <div style={{ margin: '-1.5rem -1.5rem 1.5rem -1.5rem', background: '#fff', borderBottom: '1px solid #eee', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '8px 8px 0 0', position: 'relative' }}>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleWishlistToggle(item); }}
                                         style={{ position: 'absolute', top: '15px', right: '15px', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', zIndex: 10 }}
@@ -189,7 +189,7 @@ export default function UserDashboard() {
                                     <img
                                         src={item.image ? (item.image.startsWith('http') ? item.image : `/storage/${item.image}`) : 'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=400&auto=format&fit=crop'}
                                         alt={item.name}
-                                        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '0.5rem' }}
+                                        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '1rem', background: '#fff' }}
                                     />
                                 </div>
                                 <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem', fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#111', lineHeight: 1.2 }}>{item.name}</h3>

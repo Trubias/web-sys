@@ -15,7 +15,10 @@ export default function UserLayout({ children }) {
     const dropdownRef = useRef(null);
 
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('search') || '';
+    });
     const searchRef = useRef(null);
 
     const [notifications, setNotifications] = useState([]);
@@ -32,6 +35,13 @@ export default function UserLayout({ children }) {
     useEffect(() => {
         if (user) fetchNotifications();
     }, [user]);
+
+    // Sync search input with URL ?search= param on every route change
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const fromUrl = params.get('search') || '';
+        setSearchQuery(fromUrl);
+    }, [location.search]);
 
     const handleMarkAllRead = async () => {
         try {
@@ -71,20 +81,33 @@ export default function UserLayout({ children }) {
 
     const handleLogout = async () => {
         await logout();
-        navigate('/');
+        navigate('/login');
     };
 
     const handleSearchSubmit = (e) => {
         if (e) e.preventDefault();
-        if (!searchQuery.trim()) return;
+        const raw = searchQuery.trim();
+        if (!raw) return;
         setIsSearchOpen(false);
-        const q = searchQuery.trim().toLowerCase();
-        if (q === 'home') navigate('/user/dashboard');
-        else if (q === 'browse' || q === 'browse products') navigate('/user/browse');
-        else if (q === 'wishlist') navigate('/user/wishlist');
-        else if (q === 'profile') navigate('/user/profile');
-        else if (q === 'orders') navigate('/user/orders');
-        else navigate(`/user/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+        const q = raw.toLowerCase();
+
+        // Page keyword shortcuts — navigate directly and clear input
+        const keywordRoutes = {
+            'home': '/user/dashboard', 'dashboard': '/user/dashboard', 'main': '/user/dashboard',
+            'browse': '/user/browse', 'products': '/user/browse', 'shop': '/user/browse', 'store': '/user/browse',
+            'cart': '/user/cart', 'bag': '/user/cart',
+            'wishlist': '/user/wishlist', 'favorites': '/user/wishlist', 'favourite': '/user/wishlist',
+            'orders': '/user/orders', 'order': '/user/orders', 'purchases': '/user/orders',
+            'profile': '/user/profile', 'account': '/user/profile', 'settings': '/user/profile',
+        };
+
+        if (keywordRoutes[q]) {
+            setSearchQuery('');          // clear input — no ?search= on these pages
+            navigate(keywordRoutes[q]);
+        } else {
+            // Product search — keep input filled, pass as ?search= param
+            navigate(`/user/browse?search=${encodeURIComponent(raw)}`);
+        }
     };
 
     const navLinks = [

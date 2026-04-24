@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import UserLayout from './UserLayout';
 import { useAuth } from '../../Context/AuthContext';
@@ -21,6 +21,7 @@ const isAutoNew = (p) => {
 
 export default function UserBrowse() {
     const { user, wishlistIds, toggleWishlist, addToCart } = useAuth();
+    const navigate = useNavigate();
     const [toastMsg, setToastMsg] = useState('');
     const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -38,13 +39,42 @@ export default function UserBrowse() {
     const location = useLocation();
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Smart URL ?search= handler:
+    // If it matches a brand name → activate brand pill, clear text, clean URL.
+    // Otherwise → fall through to normal name-based text filtering.
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const searchParam = queryParams.get('search');
-        if (searchParam !== null) {
+
+        // Nothing in the URL — reset text search, leave brand as-is
+        if (searchParam === null) {
+            setSearchQuery('');
+            return;
+        }
+
+        // Wait until products have loaded before checking brands
+        if (allProducts.length === 0) {
+            setSearchQuery(searchParam); // temporary fallback while loading
+            return;
+        }
+
+        // Check if the term exactly matches a brand name (case-insensitive)
+        const uniqueBrands = [...new Set(allProducts.map(p => p.brand?.name).filter(Boolean))];
+        const matchedBrand = uniqueBrands.find(
+            b => b.toLowerCase() === searchParam.trim().toLowerCase()
+        );
+
+        if (matchedBrand) {
+            // Brand match: activate the pill, clear the text box, clean the URL
+            setBrandFilter(matchedBrand);
+            setSearchQuery('');
+            navigate('/user/browse', { replace: true });
+        } else {
+            // No brand match: normal product name filter
+            setBrandFilter('All Brands');
             setSearchQuery(searchParam);
         }
-    }, [location.search]);
+    }, [allProducts, location.search]);
 
     const [brandFilter, setBrandFilter] = useState('All Brands');
     const [priceSort, setPriceSort] = useState('All Prices');
@@ -306,7 +336,7 @@ export default function UserBrowse() {
                                             onClick={() => setSelectedProduct(item)}>
 
                                             {/* Image Area */}
-                                            <div style={{ background: '#f8f9fa', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
+                                            <div style={{ background: '#fff', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
                                                 {/* NEW badge */}
                                                 {isNew && (
                                                     <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#22c55e', color: '#fff', fontSize: '0.65rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: '4px', letterSpacing: '0.5px', zIndex: 5 }}>NEW</div>
@@ -320,7 +350,7 @@ export default function UserBrowse() {
                                                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                                     </svg>
                                                 </button>
-                                                <img src={getImageUrl(item.image)} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '0.5rem' }} />
+                                                <img src={getImageUrl(item.image)} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '1rem', background: '#fff' }} />
                                             </div>
 
                                             {/* Body */}

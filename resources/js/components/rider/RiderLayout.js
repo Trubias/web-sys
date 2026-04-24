@@ -243,7 +243,7 @@ export default function RiderLayout({ children }) {
 
     const handleLogout = async () => {
         await logout();
-        navigate('/rider-login');
+        navigate('/login');
     };
 
     const isActive = (to) => {

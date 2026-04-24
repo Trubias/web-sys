@@ -5,6 +5,7 @@ export default function RiderHistory() {
     const [deliveries, setDeliveries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedProof, setSelectedProof] = useState(null);
+    const [selectedReview, setSelectedReview] = useState(null);
     const [activeTab, setActiveTab] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -212,21 +213,7 @@ export default function RiderHistory() {
                                     </div>
                                 </div>
                                 
-                                {/* Rating Row */}
-                                {rate !== null ? (
-                                    <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                        <div style={{ color: '#d97706', fontSize: '1rem', letterSpacing: '2px' }}>
-                                            {'★'.repeat(rate)}{'☆'.repeat(5 - rate)}
-                                        </div>
-                                        {o.rating?.comment && (
-                                            <div style={{ fontSize: '0.8rem', color: '#888', fontStyle: 'italic', marginLeft: '0.5rem' }}>"{o.rating.comment}"</div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#666', fontStyle: 'italic' }}>
-                                        No rating yet
-                                    </div>
-                                )}
+
 
                                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', marginTop: '1.2rem' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -258,6 +245,14 @@ export default function RiderHistory() {
                                                     View Proof
                                                 </button>
                                             )}
+                                            {o.rating && (
+                                                <button 
+                                                    onClick={() => setSelectedReview({ order: o, rating: o.rating })}
+                                                    style={{ background: 'transparent', border: 'none', color: '#f59e0b', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
+                                                >
+                                                    View Review
+                                                </button>
+                                            )}
                                             <span style={{ background: 'rgba(39,174,96,0.15)', color: '#27ae60', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
                                                 Delivered
                                             </span>
@@ -275,6 +270,61 @@ export default function RiderHistory() {
                     <div style={{ position: 'relative', maxWidth: '100%', maxHeight: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
                         <button onClick={() => setSelectedProof(null)} style={{ position: 'absolute', top: '-40px', right: 0, background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer', padding: '5px' }}>&times;</button>
                         <img src={selectedProof} alt="Proof of Delivery" style={{ maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px', border: '2px solid rgba(255,255,255,0.1)' }} />
+                    </div>
+                </div>
+            )}
+
+            {selectedReview && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }} onClick={() => setSelectedReview(null)}>
+                    <div style={{ position: 'relative', width: '100%', maxWidth: '400px', background: '#1a1a1a', borderRadius: '12px', padding: '2rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }} onClick={e => e.stopPropagation()}>
+                        <button onClick={() => setSelectedReview(null)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: '#888', fontSize: '1.5rem', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
+                        
+                        <div style={{ marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '0.3rem', fontWeight: 600 }}>Order #{selectedReview.order.ref || selectedReview.order.id}</div>
+                            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#C9A84C', marginBottom: '0.5rem' }}>
+                                {selectedReview.order.product?.name || selectedReview.order.product_name || 'Product'}
+                            </div>
+                            <div style={{ fontSize: '0.85rem', color: '#aaa' }}>
+                                Review by: <span style={{ color: '#fff', fontWeight: 600 }}>{selectedReview.order.user?.name || selectedReview.order.customer_name || 'Customer'}</span>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                            <div style={{ color: '#d97706', fontSize: '2.5rem', letterSpacing: '4px', lineHeight: 1 }}>
+                                {'★'.repeat(selectedReview.rating.rating)}{'☆'.repeat(5 - selectedReview.rating.rating)}
+                            </div>
+                        </div>
+
+                        {(() => {
+                            let tags = selectedReview.rating.tags;
+                            if (typeof tags === 'string') {
+                                try { tags = JSON.parse(tags); } catch (e) { tags = []; }
+                            }
+                            if (Array.isArray(tags) && tags.length > 0) {
+                                return (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                                        {tags.map((tag, idx) => (
+                                            <span key={idx} style={{ background: 'rgba(201,168,76,0.15)', color: '#C9A84C', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 600 }}>
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })()}
+
+                        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.2rem', borderRadius: '8px', textAlign: 'center' }}>
+                            {selectedReview.rating.comment ? (
+                                <div style={{ color: '#ddd', fontSize: '0.95rem', fontStyle: 'italic', lineHeight: 1.5 }}>
+                                    "{selectedReview.rating.comment}"
+                                </div>
+                            ) : (
+                                <div style={{ color: '#666', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                                    No comment left
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

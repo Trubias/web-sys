@@ -8158,7 +8158,7 @@ function Navbar() {
             _context.n = 1;
             return logout();
           case 1:
-            navigate('/');
+            navigate('/login');
             setMenuOpen(false);
           case 2:
             return _context.a(2);
@@ -25683,6 +25683,7 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 function RiderHistory() {
+  var _selectedReview$order, _selectedReview$order2;
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
     _useState2 = _slicedToArray(_useState, 2),
     deliveries = _useState2[0],
@@ -25695,14 +25696,18 @@ function RiderHistory() {
     _useState6 = _slicedToArray(_useState5, 2),
     selectedProof = _useState6[0],
     setSelectedProof = _useState6[1];
-  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All'),
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
     _useState8 = _slicedToArray(_useState7, 2),
-    activeTab = _useState8[0],
-    setActiveTab = _useState8[1];
-  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    selectedReview = _useState8[0],
+    setSelectedReview = _useState8[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All'),
     _useState0 = _slicedToArray(_useState9, 2),
-    searchQuery = _useState0[0],
-    setSearchQuery = _useState0[1];
+    activeTab = _useState0[0],
+    setActiveTab = _useState0[1];
+  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState10 = _slicedToArray(_useState1, 2),
+    searchQuery = _useState10[0],
+    setSearchQuery = _useState10[1];
   var getProofUrl = function getProofUrl(path) {
     if (!path) return '';
     if (path.startsWith('http')) return path;
@@ -26040,7 +26045,7 @@ function RiderHistory() {
         marginBottom: '2rem'
       },
       children: filteredDeliveries.map(function (o) {
-        var _o$product, _o$brand, _o$brand2, _o$rating, _o$user, _o$user2;
+        var _o$product, _o$brand, _o$brand2, _o$user, _o$user2;
         var duration = getDuration(o.created_at, o.delivered_at);
         var rate = o.rating ? o.rating.rating : null;
         return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
@@ -26101,37 +26106,6 @@ function RiderHistory() {
                 })]
               })]
             })
-          }), rate !== null ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
-            style: {
-              marginTop: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem'
-            },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
-              style: {
-                color: '#d97706',
-                fontSize: '1rem',
-                letterSpacing: '2px'
-              },
-              children: ['★'.repeat(rate), '☆'.repeat(5 - rate)]
-            }), ((_o$rating = o.rating) === null || _o$rating === void 0 ? void 0 : _o$rating.comment) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
-              style: {
-                fontSize: '0.8rem',
-                color: '#888',
-                fontStyle: 'italic',
-                marginLeft: '0.5rem'
-              },
-              children: ["\"", o.rating.comment, "\""]
-            })]
-          }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
-            style: {
-              marginTop: '0.5rem',
-              fontSize: '0.8rem',
-              color: '#666',
-              fontStyle: 'italic'
-            },
-            children: "No rating yet"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
             style: {
               background: 'rgba(255,255,255,0.03)',
@@ -26240,6 +26214,23 @@ function RiderHistory() {
                     textDecoration: 'underline'
                   },
                   children: "View Proof"
+                }), o.rating && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
+                  onClick: function onClick() {
+                    return setSelectedReview({
+                      order: o,
+                      rating: o.rating
+                    });
+                  },
+                  style: {
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#f59e0b',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  },
+                  children: "View Review"
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("span", {
                   style: {
                     background: 'rgba(39,174,96,0.15)',
@@ -26310,6 +26301,162 @@ function RiderHistory() {
             borderRadius: '8px',
             border: '2px solid rgba(255,255,255,0.1)'
           }
+        })]
+      })
+    }), selectedReview && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+      style: {
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        background: 'rgba(0,0,0,0.85)',
+        backdropFilter: 'blur(5px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem'
+      },
+      onClick: function onClick() {
+        return setSelectedReview(null);
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+        style: {
+          position: 'relative',
+          width: '100%',
+          maxWidth: '400px',
+          background: '#1a1a1a',
+          borderRadius: '12px',
+          padding: '2rem',
+          border: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+        },
+        onClick: function onClick(e) {
+          return e.stopPropagation();
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
+          onClick: function onClick() {
+            return setSelectedReview(null);
+          },
+          style: {
+            position: 'absolute',
+            top: '15px',
+            right: '15px',
+            background: 'none',
+            border: 'none',
+            color: '#888',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            lineHeight: 1
+          },
+          children: "\xD7"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+          style: {
+            marginBottom: '1.5rem',
+            paddingBottom: '1rem',
+            borderBottom: '1px solid rgba(255,255,255,0.05)'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+            style: {
+              fontSize: '0.9rem',
+              color: '#888',
+              marginBottom: '0.3rem',
+              fontWeight: 600
+            },
+            children: ["Order #", selectedReview.order.ref || selectedReview.order.id]
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+            style: {
+              fontSize: '1.2rem',
+              fontWeight: 800,
+              color: '#C9A84C',
+              marginBottom: '0.5rem'
+            },
+            children: ((_selectedReview$order = selectedReview.order.product) === null || _selectedReview$order === void 0 ? void 0 : _selectedReview$order.name) || selectedReview.order.product_name || 'Product'
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+            style: {
+              fontSize: '0.85rem',
+              color: '#aaa'
+            },
+            children: ["Review by: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("span", {
+              style: {
+                color: '#fff',
+                fontWeight: 600
+              },
+              children: ((_selectedReview$order2 = selectedReview.order.user) === null || _selectedReview$order2 === void 0 ? void 0 : _selectedReview$order2.name) || selectedReview.order.customer_name || 'Customer'
+            })]
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+          style: {
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '1.5rem'
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+            style: {
+              color: '#d97706',
+              fontSize: '2.5rem',
+              letterSpacing: '4px',
+              lineHeight: 1
+            },
+            children: ['★'.repeat(selectedReview.rating.rating), '☆'.repeat(5 - selectedReview.rating.rating)]
+          })
+        }), function () {
+          var tags = selectedReview.rating.tags;
+          if (typeof tags === 'string') {
+            try {
+              tags = JSON.parse(tags);
+            } catch (e) {
+              tags = [];
+            }
+          }
+          if (Array.isArray(tags) && tags.length > 0) {
+            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+              style: {
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+                justifyContent: 'center',
+                marginBottom: '1.5rem'
+              },
+              children: tags.map(function (tag, idx) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("span", {
+                  style: {
+                    background: 'rgba(201,168,76,0.15)',
+                    color: '#C9A84C',
+                    padding: '6px 14px',
+                    borderRadius: '20px',
+                    fontSize: '0.85rem',
+                    fontWeight: 600
+                  },
+                  children: tag
+                }, idx);
+              })
+            });
+          }
+          return null;
+        }(), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+          style: {
+            background: 'rgba(255,255,255,0.03)',
+            padding: '1.2rem',
+            borderRadius: '8px',
+            textAlign: 'center'
+          },
+          children: selectedReview.rating.comment ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+            style: {
+              color: '#ddd',
+              fontSize: '0.95rem',
+              fontStyle: 'italic',
+              lineHeight: 1.5
+            },
+            children: ["\"", selectedReview.rating.comment, "\""]
+          }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+            style: {
+              color: '#666',
+              fontSize: '0.9rem',
+              fontStyle: 'italic'
+            },
+            children: "No comment left"
+          })
         })]
       })
     })]
@@ -28067,7 +28214,7 @@ function RiderLayout(_ref5) {
             _context5.n = 1;
             return logout();
           case 1:
-            navigate('/rider-login');
+            navigate('/login');
           case 2:
             return _context5.a(2);
         }
@@ -35832,6 +35979,7 @@ function UserBrowse() {
     wishlistIds = _useAuth.wishlistIds,
     toggleWishlist = _useAuth.toggleWishlist,
     addToCart = _useAuth.addToCart;
+  var navigate = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_1__.useNavigate)();
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
     _useState2 = _slicedToArray(_useState, 2),
     toastMsg = _useState2[0],
@@ -35864,13 +36012,47 @@ function UserBrowse() {
     _useState0 = _slicedToArray(_useState9, 2),
     searchQuery = _useState0[0],
     setSearchQuery = _useState0[1];
+
+  // Smart URL ?search= handler:
+  // If it matches a brand name → activate brand pill, clear text, clean URL.
+  // Otherwise → fall through to normal name-based text filtering.
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     var queryParams = new URLSearchParams(location.search);
     var searchParam = queryParams.get('search');
-    if (searchParam !== null) {
+
+    // Nothing in the URL — reset text search, leave brand as-is
+    if (searchParam === null) {
+      setSearchQuery('');
+      return;
+    }
+
+    // Wait until products have loaded before checking brands
+    if (allProducts.length === 0) {
+      setSearchQuery(searchParam); // temporary fallback while loading
+      return;
+    }
+
+    // Check if the term exactly matches a brand name (case-insensitive)
+    var uniqueBrands = _toConsumableArray(new Set(allProducts.map(function (p) {
+      var _p$brand;
+      return (_p$brand = p.brand) === null || _p$brand === void 0 ? void 0 : _p$brand.name;
+    }).filter(Boolean)));
+    var matchedBrand = uniqueBrands.find(function (b) {
+      return b.toLowerCase() === searchParam.trim().toLowerCase();
+    });
+    if (matchedBrand) {
+      // Brand match: activate the pill, clear the text box, clean the URL
+      setBrandFilter(matchedBrand);
+      setSearchQuery('');
+      navigate('/user/browse', {
+        replace: true
+      });
+    } else {
+      // No brand match: normal product name filter
+      setBrandFilter('All Brands');
       setSearchQuery(searchParam);
     }
-  }, [location.search]);
+  }, [allProducts, location.search]);
   var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('All Brands'),
     _useState10 = _slicedToArray(_useState1, 2),
     brandFilter = _useState10[0],
@@ -35917,8 +36099,8 @@ function UserBrowse() {
   // Dynamic Filter Options based strictly on the live Admin Inventory
   var availableBrands = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
     var brands = allProducts.map(function (p) {
-      var _p$brand;
-      return (_p$brand = p.brand) === null || _p$brand === void 0 ? void 0 : _p$brand.name;
+      var _p$brand2;
+      return (_p$brand2 = p.brand) === null || _p$brand2 === void 0 ? void 0 : _p$brand2.name;
     }).filter(Boolean);
     return ['All Brands'].concat(_toConsumableArray(new Set(brands))).sort();
   }, [allProducts]);
@@ -35961,13 +36143,13 @@ function UserBrowse() {
   // Derived Display Logic combining ALL filters seamlessly
   var displayedProducts = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(function () {
     var filtered = allProducts.filter(function (p) {
-      var _p$brand2, _p$category2, _p$brand3, _p$category3;
+      var _p$brand3, _p$category2, _p$brand4, _p$category3;
       var safeName = p.name || '';
-      var safeBrand = ((_p$brand2 = p.brand) === null || _p$brand2 === void 0 ? void 0 : _p$brand2.name) || '';
+      var safeBrand = ((_p$brand3 = p.brand) === null || _p$brand3 === void 0 ? void 0 : _p$brand3.name) || '';
       var safeCategory = ((_p$category2 = p.category) === null || _p$category2 === void 0 ? void 0 : _p$category2.name) || '';
       var q = searchQuery.toLowerCase();
       var matchSearch = safeName.toLowerCase().includes(q) || safeBrand.toLowerCase().includes(q) || safeCategory.toLowerCase().includes(q);
-      var matchBrand = brandFilter === 'All Brands' || ((_p$brand3 = p.brand) === null || _p$brand3 === void 0 ? void 0 : _p$brand3.name) === brandFilter;
+      var matchBrand = brandFilter === 'All Brands' || ((_p$brand4 = p.brand) === null || _p$brand4 === void 0 ? void 0 : _p$brand4.name) === brandFilter;
       var matchCategory = categoryFilter === 'All Categories' || ((_p$category3 = p.category) === null || _p$category3 === void 0 ? void 0 : _p$category3.name) === categoryFilter;
       var matchGender = genderFilter === 'All Genders' || !p.gender || p.gender === 'All' || p.gender === genderFilter;
       var matchVariant = variantFilter === 'All Age Groups' || !p.variant || p.variant === 'All' || p.variant === variantFilter;
@@ -36519,7 +36701,7 @@ function UserBrowse() {
                 },
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                   style: {
-                    background: '#f8f9fa',
+                    background: '#fff',
                     height: '200px',
                     display: 'flex',
                     alignItems: 'center',
@@ -36580,7 +36762,8 @@ function UserBrowse() {
                       width: '100%',
                       height: '100%',
                       objectFit: 'contain',
-                      padding: '0.5rem'
+                      padding: '1rem',
+                      background: '#fff'
                     }
                   })]
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
@@ -37237,7 +37420,7 @@ function UserDashboard() {
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
                 style: {
                   margin: '-1.5rem -1.5rem 1.5rem -1.5rem',
-                  background: '#f8f9fa',
+                  background: '#fff',
                   borderBottom: '1px solid #eee',
                   height: '220px',
                   display: 'flex',
@@ -37292,7 +37475,8 @@ function UserDashboard() {
                     width: '100%',
                     height: '100%',
                     objectFit: 'contain',
-                    padding: '0.5rem'
+                    padding: '1rem',
+                    background: '#fff'
                   }
                 })]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("h3", {
@@ -37699,7 +37883,10 @@ function UserLayout(_ref) {
     _useState6 = _slicedToArray(_useState5, 2),
     isSearchOpen = _useState6[0],
     setIsSearchOpen = _useState6[1];
-  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(function () {
+      var params = new URLSearchParams(window.location.search);
+      return params.get('search') || '';
+    }),
     _useState8 = _slicedToArray(_useState7, 2),
     searchQuery = _useState8[0],
     setSearchQuery = _useState8[1];
@@ -37742,6 +37929,13 @@ function UserLayout(_ref) {
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     if (user) fetchNotifications();
   }, [user]);
+
+  // Sync search input with URL ?search= param on every route change
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    var params = new URLSearchParams(location.search);
+    var fromUrl = params.get('search') || '';
+    setSearchQuery(fromUrl);
+  }, [location.search]);
   var handleMarkAllRead = /*#__PURE__*/function () {
     var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
       var _t2;
@@ -37848,7 +38042,7 @@ function UserLayout(_ref) {
             _context5.n = 1;
             return logout();
           case 1:
-            navigate('/');
+            navigate('/login');
           case 2:
             return _context5.a(2);
         }
@@ -37860,10 +38054,39 @@ function UserLayout(_ref) {
   }();
   var handleSearchSubmit = function handleSearchSubmit(e) {
     if (e) e.preventDefault();
-    if (!searchQuery.trim()) return;
+    var raw = searchQuery.trim();
+    if (!raw) return;
     setIsSearchOpen(false);
-    var q = searchQuery.trim().toLowerCase();
-    if (q === 'home') navigate('/user/dashboard');else if (q === 'browse' || q === 'browse products') navigate('/user/browse');else if (q === 'wishlist') navigate('/user/wishlist');else if (q === 'profile') navigate('/user/profile');else if (q === 'orders') navigate('/user/orders');else navigate("/user/browse?search=".concat(encodeURIComponent(searchQuery.trim())));
+    var q = raw.toLowerCase();
+
+    // Page keyword shortcuts — navigate directly and clear input
+    var keywordRoutes = {
+      'home': '/user/dashboard',
+      'dashboard': '/user/dashboard',
+      'main': '/user/dashboard',
+      'browse': '/user/browse',
+      'products': '/user/browse',
+      'shop': '/user/browse',
+      'store': '/user/browse',
+      'cart': '/user/cart',
+      'bag': '/user/cart',
+      'wishlist': '/user/wishlist',
+      'favorites': '/user/wishlist',
+      'favourite': '/user/wishlist',
+      'orders': '/user/orders',
+      'order': '/user/orders',
+      'purchases': '/user/orders',
+      'profile': '/user/profile',
+      'account': '/user/profile',
+      'settings': '/user/profile'
+    };
+    if (keywordRoutes[q]) {
+      setSearchQuery(''); // clear input — no ?search= on these pages
+      navigate(keywordRoutes[q]);
+    } else {
+      // Product search — keep input filled, pass as ?search= param
+      navigate("/user/browse?search=".concat(encodeURIComponent(raw)));
+    }
   };
   var navLinks = [{
     path: '/user/dashboard',
